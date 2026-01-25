@@ -851,6 +851,65 @@
         </div>
     </div>
 
+    <!-- Edit Player Modal -->
+    <div id="edit-player-modal" class="modal-overlay fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="glass-panel rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-600/50">
+            <div class="text-center mb-6">
+                <div class="bg-yellow-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-edit text-yellow-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Edit Player</h2>
+                <p class="text-slate-400 text-sm mt-1">Update player details and role</p>
+            </div>
+            <form id="edit-player-form" onsubmit="app.handleEditPlayer(event)" class="space-y-4">
+                <input type="hidden" name="playerId" id="edit-player-id">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Full Name</label>
+                    <input type="text" name="name" id="edit-player-name" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Role</label>
+                    <select name="role" id="edit-player-role" class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white">
+                        <option value="Captain">Captain</option>
+                        <option value="Co-Captain">Co-Captain</option>
+                        <option value="Player">Player</option>
+                        <option value="Reserve">Reserve</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
+                    <input type="text" name="username" id="edit-player-username" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Password</label>
+                    <input type="text" name="password" id="edit-player-password" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Email</label>
+                    <input type="email" name="email" id="edit-player-email" 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Mobile</label>
+                    <input type="tel" name="mobile" id="edit-player-mobile" 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="app.closeEditPlayerModal()" 
+                            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-medium transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold shadow-lg transition-all">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Hidden file input for profile pic -->
     <input type="file" id="profile-pic-input" accept="image/*" class="hidden" onchange="app.handleProfilePicUpload(event)">
 
@@ -859,13 +918,13 @@
         // FIREBASE CONFIGURATION - REPLACE WITH YOURS
         // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyAiRXtpn52GM2Rqi-FpdXvWxBjebAjd6_I",
-            authDomain: "rackcafepool.firebaseapp.com",
-            databaseURL: "https://rackcafepool-default-rtdb.firebaseio.com",
-            projectId: "rackcafepool",
-            storageBucket: "rackcafepool.firebasestorage.app",
-            messagingSenderId: "405285198198",
-            appId: "1:405285198198:web:3a1acc432b167487abc257"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         let db = null;
@@ -1118,9 +1177,16 @@
             },
 
             showSection(sectionId) {
+                // Hide all sections first
                 document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-section'));
-                document.getElementById(sectionId).classList.remove('hidden-section');
                 
+                // Show requested section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden-section');
+                }
+                
+                // Update navigation active states
                 document.querySelectorAll('.nav-item').forEach(btn => {
                     btn.classList.remove('nav-active');
                     if (btn.dataset.section === sectionId) btn.classList.add('nav-active');
@@ -1133,12 +1199,17 @@
                     }
                 });
 
+                // Section-specific rendering
                 if (sectionId === 'stats') this.renderStatsTable();
                 if (sectionId === 'dashboard') {
                     this.updateStats();
                     this.updateNextFixture();
                 }
-                if (sectionId === 'chat' && this.currentUser) {
+                if (sectionId === 'chat') {
+                    if (!this.currentUser) {
+                        this.toggleLoginModal();
+                        return;
+                    }
                     this.renderChatTabs();
                     this.renderMessages();
                     this.markMessagesRead();
@@ -1152,9 +1223,14 @@
             // PLAYERS & PROFILES
             // ==========================================
 
+            isAdmin() {
+                return this.currentUser && (this.currentUser.role === 'Captain' || this.currentUser.role === 'Co-Captain');
+            },
+
             renderPlayers() {
                 const grid = document.getElementById('players-grid');
                 const isLoggedIn = !!this.currentUser;
+                const isAdmin = this.isAdmin();
                 
                 grid.innerHTML = this.players.map(player => {
                     const roleColors = {
@@ -1165,6 +1241,7 @@
                     };
 
                     const isCurrentUser = this.currentUser && this.currentUser.id === player.id;
+                    const canEdit = isAdmin && !isCurrentUser; // Can't edit yourself to prevent lockout
 
                     return `
                     <div class="player-card glass-panel rounded-2xl overflow-hidden cursor-pointer" onclick="app.viewPlayerProfile(${player.id})">
@@ -1185,6 +1262,20 @@
                                     ${player.role}
                                 </span>
                             </div>
+                            ${canEdit ? `
+                                <div class="absolute top-4 left-4 flex gap-2">
+                                    <button onclick="event.stopPropagation(); app.openEditPlayerModal(${player.id})" 
+                                            class="w-8 h-8 rounded-lg bg-slate-700/80 hover:bg-yellow-600/80 text-white flex items-center justify-center transition-all"
+                                            title="Edit Player">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); app.deletePlayer(${player.id})" 
+                                            class="w-8 h-8 rounded-lg bg-slate-700/80 hover:bg-red-600/80 text-white flex items-center justify-center transition-all"
+                                            title="Delete Player">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
                         </div>
                         <div class="pt-14 pb-6 px-6">
                             <h3 class="text-xl font-bold text-white mb-1">${player.name}</h3>
@@ -1248,11 +1339,25 @@
                 if (!player) return;
 
                 const isCurrentUser = this.currentUser && this.currentUser.id === player.id;
+                const isAdmin = this.isAdmin();
+                const canEdit = isAdmin && !isCurrentUser;
                 const gameHistory = this.getPlayerGameHistory(playerId);
 
                 document.getElementById('profile-detail-content').innerHTML = `
                     <div class="glass-panel rounded-2xl overflow-hidden">
                         <div class="h-40 bg-gradient-to-br from-slate-800 to-slate-700 relative">
+                            ${canEdit ? `
+                                <div class="absolute top-4 right-4 flex gap-2">
+                                    <button onclick="app.openEditPlayerModal(${player.id})" 
+                                            class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2 transition-all">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button onclick="app.deletePlayer(${player.id})" 
+                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2 transition-all">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            ` : ''}
                             <div class="absolute -bottom-16 left-8">
                                 <div class="profile-pic-container w-32 h-32 rounded-2xl border-4 border-slate-800 shadow-2xl overflow-hidden ${isCurrentUser ? 'group cursor-pointer' : ''}"
                                      ${isCurrentUser ? `onclick="app.openProfilePicUpload(${player.id})"` : ''}>
@@ -1389,6 +1494,130 @@
                 } catch (err) {
                     console.error('Upload failed:', err);
                     alert('Failed to upload image');
+                }
+            },
+
+            // ==========================================
+            // PLAYER MANAGEMENT (ADMIN)
+            // ==========================================
+
+            openEditPlayerModal(playerId) {
+                if (!this.isAdmin()) return;
+                
+                const player = this.players.find(p => p.id === playerId);
+                if (!player) return;
+
+                // Prevent editing yourself to avoid lockout
+                if (this.currentUser.id === playerId) {
+                    alert("You cannot edit your own account. Please ask another admin to make changes.");
+                    return;
+                }
+
+                document.getElementById('edit-player-id').value = player.id;
+                document.getElementById('edit-player-name').value = player.name;
+                document.getElementById('edit-player-role').value = player.role;
+                document.getElementById('edit-player-username').value = player.username;
+                document.getElementById('edit-player-password').value = player.password;
+                document.getElementById('edit-player-email').value = player.email || '';
+                document.getElementById('edit-player-mobile').value = player.mobile || '';
+
+                const modal = document.getElementById('edit-player-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            },
+
+            closeEditPlayerModal() {
+                const modal = document.getElementById('edit-player-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            },
+
+            handleEditPlayer(e) {
+                e.preventDefault();
+                if (!this.isAdmin()) {
+                    alert("Unauthorized action");
+                    return;
+                }
+
+                const formData = new FormData(e.target);
+                const playerId = parseInt(formData.get('playerId'));
+                
+                // Prevent editing yourself
+                if (this.currentUser.id === playerId) {
+                    alert("You cannot edit your own account.");
+                    return;
+                }
+
+                const playerIndex = this.players.findIndex(p => p.id === playerId);
+                if (playerIndex === -1) return;
+
+                // Check for duplicate username
+                const newUsername = formData.get('username');
+                const existingPlayer = this.players.find(p => p.username === newUsername && p.id !== playerId);
+                if (existingPlayer) {
+                    alert("Username already exists. Please choose a different username.");
+                    return;
+                }
+
+                // Update player data
+                this.players[playerIndex].name = formData.get('name');
+                this.players[playerIndex].role = formData.get('role');
+                this.players[playerIndex].username = newUsername;
+                this.players[playerIndex].password = formData.get('password');
+                this.players[playerIndex].email = formData.get('email');
+                this.players[playerIndex].mobile = formData.get('mobile');
+
+                this.autoSave();
+                this.closeEditPlayerModal();
+                this.renderPlayers();
+                
+                // If currently viewing this player's profile, refresh it
+                if (this.selectedPlayerId === playerId) {
+                    this.renderPlayerProfile(playerId);
+                }
+                
+                alert('Player updated successfully!');
+            },
+
+            deletePlayer(playerId) {
+                if (!this.isAdmin()) {
+                    alert("Unauthorized action");
+                    return;
+                }
+
+                // Prevent deleting yourself
+                if (this.currentUser.id === playerId) {
+                    alert("You cannot delete your own account.");
+                    return;
+                }
+
+                const player = this.players.find(p => p.id === playerId);
+                if (!player) return;
+
+                if (confirm(`Are you sure you want to delete ${player.name}? This action cannot be undone.`)) {
+                    // Remove player from scoresheets
+                    this.scoresheets.forEach(sheet => {
+                        sheet.frames.forEach(frame => {
+                            if (frame.playerId === playerId) {
+                                frame.playerId = null;
+                                frame.won = false;
+                            }
+                        });
+                    });
+
+                    // Remove player from array
+                    this.players = this.players.filter(p => p.id !== playerId);
+                    
+                    this.autoSave();
+                    this.renderPlayers();
+                    this.updateStats();
+                    
+                    // If currently viewing this player's profile, go back to players list
+                    if (this.selectedPlayerId === playerId) {
+                        this.showSection('players');
+                    }
+                    
+                    alert('Player deleted successfully.');
                 }
             },
 
@@ -1886,6 +2115,7 @@
                 fixtureSelect.value = '';
                 opponentInput.value = '';
                 this.renderScoresheets();
+                this.updateStats();
             },
 
             deleteScorecard(index) {
