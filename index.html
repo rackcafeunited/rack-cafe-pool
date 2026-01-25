@@ -1,0 +1,2709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rack Café Utd | Pool Team</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .nav-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-left: 3px solid #10b981;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        .player-card {
+            transition: all 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        .hidden-section {
+            display: none !important;
+        }
+
+        .scorecard-frame {
+            transition: all 0.2s ease;
+        }
+
+        .scorecard-frame:hover {
+            background: rgba(51, 65, 85, 0.5);
+        }
+
+        .win-btn {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .win-btn.active {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: #10b981;
+        }
+
+        .loss-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .loss-btn.active {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+        }
+
+        input, select, textarea {
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .hamburger-line {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .hamburger.open .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.open .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Sync indicator */
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .sync-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .sync-indicator.syncing {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+        }
+
+        .sync-indicator.synced {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+        }
+
+        .sync-indicator.offline {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 40;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .connection-status.offline {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Profile pic upload */
+        .profile-pic-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-pic-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-pic-container:hover .profile-pic-overlay {
+            opacity: 1;
+        }
+
+        /* Chat styles */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+
+        .chat-message.own {
+            margin-left: auto;
+        }
+
+        .chat-message:hover .message-actions {
+            opacity: 1;
+        }
+
+        .chat-bubble {
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            position: relative;
+        }
+
+        .chat-message:not(.own) .chat-bubble {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .chat-message.own .chat-bubble {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .message-actions {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .message-actions button {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .message-actions button:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+
+        .chat-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .chat-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-tab.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .chat-tab:hover:not(.active) {
+            background: rgba(30, 41, 59, 0.5);
+        }
+
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            margin-left: 0.5rem;
+        }
+
+        /* Game history */
+        .game-history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .game-result-win {
+            border-left: 3px solid #10b981;
+        }
+
+        .game-result-loss {
+            border-left: 3px solid #ef4444;
+        }
+
+        /* Notification styles */
+        .notification-toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .notification-toast.match-day {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .notification-toast.new-chat {
+            border-left: 4px solid #ec4899;
+        }
+
+        .notification-toast.score-update {
+            border-left: 4px solid #10b981;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .notification-toast.match-day .notification-icon {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .notification-toast.new-chat .notification-icon {
+            background: rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+        }
+
+        .notification-toast.score-update .notification-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .notification-body {
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-left: 52px;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(148, 163, 184, 0.1);
+            color: #64748b;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .notification-close:hover {
+            background: rgba(148, 163, 184, 0.2);
+            color: white;
+        }
+
+        /* Blur effect for contact details */
+        .blur-contact {
+            filter: blur(4px);
+            user-select: none;
+            transition: filter 0.3s ease;
+        }
+
+        .blur-contact:hover {
+            filter: blur(0);
+        }
+
+        .blur-container {
+            position: relative;
+        }
+
+        .blur-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .blur-container:hover .blur-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .blur-text {
+            color: #64748b;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 1024px) {
+            .desktop-nav {
+                display: none;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Notification Toast Container -->
+    <div id="notification-container"></div>
+
+    <!-- Connection Status -->
+    <div id="connection-status" class="connection-status online">
+        <i class="fas fa-wifi"></i>
+        <span>Online</span>
+    </div>
+
+    <!-- Sync Indicator -->
+    <div id="sync-indicator" class="sync-indicator glass-panel">
+        <i class="fas fa-sync fa-spin" id="sync-icon"></i>
+        <span id="sync-text">Syncing...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-panel border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Mobile Menu Button -->
+                <button onclick="app.toggleMobileMenu()" class="mobile-menu-btn hamburger flex flex-col justify-center items-center w-10 h-10 rounded-lg hover:bg-slate-800/50 transition-all lg:hidden">
+                    <span class="hamburger-line w-6 h-0.5 bg-white mb-1.5 rounded-full"></span>
+                    <span class="hamburger-line w-6 h-0.5 bg-white mb-1.5 rounded-full"></span>
+                    <span class="hamburger-line w-6 h-0.5 bg-white rounded-full"></span>
+                </button>
+
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img src="https://img.sanishtech.com/u/497d34ea087f7f568efee76e16e837d3.png" 
+                             alt="Rack Café Logo" 
+                             class="h-12 w-auto drop-shadow-lg"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Rack+Cafe&background=10b981&color=fff&size=128'">
+                    </div>
+                    <div class="hidden sm:block">
+                        <h1 class="text-xl font-bold text-white tracking-tight">Rack Café Utd</h1>
+                        <p class="text-xs text-slate-400">Pool Team Management</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div id="user-status" class="hidden md:block text-sm">
+                        <span class="text-slate-400">Not logged in</span>
+                    </div>
+                    <button id="login-btn" onclick="app.toggleLoginModal()" 
+                            class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg flex items-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="hidden sm:inline">Login</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="desktop-nav glass-panel border-t border-slate-700/30 hidden lg:block">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center gap-1 py-3" id="desktop-nav">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="menu-overlay" class="menu-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onclick="app.toggleMobileMenu()"></div>
+
+    <!-- Mobile Slide-out Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 h-full w-72 max-w-[80vw] bg-slate-900 z-50 shadow-2xl border-r border-slate-700 lg:hidden">
+        <div class="p-6 border-b border-slate-700/50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://img.sanishtech.com/u/497d34ea087f7f568efee76e16e837d3.png" 
+                     alt="Rack Café Logo" 
+                     class="h-10 w-auto"
+                     onerror="this.src='https://ui-avatars.com/api/?name=Rack+Cafe&background=10b981&color=fff&size=64'">
+                <div>
+                    <h2 class="font-bold text-white text-sm">Rack Café Utd</h2>
+                    <p class="text-xs text-slate-400">Pool Team</p>
+                </div>
+            </div>
+            <button onclick="app.toggleMobileMenu()" class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="p-4 space-y-2" id="mobile-menu-items">
+            <!-- Injected by JS -->
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50">
+            <div id="mobile-user-status" class="text-sm text-slate-400 mb-3 px-2">Not logged in</div>
+            <button onclick="app.toggleMobileMenu(); app.toggleLoginModal()" 
+                    class="w-full btn-primary text-white py-3 rounded-xl font-semibold shadow-lg">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Dashboard -->
+        <section id="dashboard" class="fade-in space-y-6">
+            <!-- Next Fixture -->
+            <div id="next-fixture-card" class="glass-panel rounded-2xl p-6 border-l-4 border-blue-500 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-500/20 p-2 rounded-lg">
+                                <i class="fas fa-calendar-day text-blue-400 text-xl"></i>
+                            </div>
+                            <h2 class="text-lg font-semibold text-white">Next Fixture</h2>
+                        </div>
+                        <span id="next-fixture-date" class="text-sm text-slate-300 bg-slate-800/80 px-4 py-1.5 rounded-full">-</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <p class="text-3xl sm:text-4xl font-bold text-white mb-2" id="next-fixture-opponent">No upcoming fixtures</p>
+                            <p class="text-slate-400 flex items-center gap-2" id="next-fixture-location">
+                                <i class="fas fa-map-marker-alt"></i> <span>-</span>
+                            </p>
+                        </div>
+                        <button onclick="app.showSection('fixtures')" 
+                                class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-medium transition-all">
+                            View All <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-slate-400 text-sm font-medium">Matches Played</p>
+                        <div class="bg-blue-500/20 p-2 rounded-lg">
+                            <i class="fas fa-calendar-check text-blue-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-white" id="stat-matches">0</p>
+                </div>
+
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-slate-400 text-sm font-medium">Win Rate</p>
+                        <div class="bg-emerald-500/20 p-2 rounded-lg">
+                            <i class="fas fa-chart-line text-emerald-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-emerald-400" id="stat-winrate">0%</p>
+                </div>
+
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-slate-400 text-sm font-medium">Frames Won</p>
+                        <div class="bg-purple-500/20 p-2 rounded-lg">
+                            <i class="fas fa-trophy text-purple-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-white" id="stat-frames-won">0</p>
+                </div>
+
+                <div class="stat-card rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-slate-400 text-sm font-medium">Top Performer</p>
+                        <div class="bg-orange-500/20 p-2 rounded-lg">
+                            <i class="fas fa-crown text-orange-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-lg font-bold text-white truncate" id="stat-top-player">-</p>
+                </div>
+            </div>
+
+            <!-- Welcome Message -->
+            <div class="glass-panel rounded-2xl p-8 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-blue-500/5"></div>
+                <div class="relative">
+                    <h2 class="text-2xl font-bold text-white mb-3">Welcome to Rack Café Utd</h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                        Manage your team's fixtures, track individual player statistics, and record detailed match scores. 
+                        All data syncs automatically across all your devices in real-time.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Players -->
+        <section id="players" class="hidden-section fade-in">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-emerald-500/20 p-2 rounded-lg">
+                    <i class="fas fa-users text-emerald-400 text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Team Roster</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" id="players-grid">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Player Profile Detail -->
+        <section id="player-profile" class="hidden-section fade-in">
+            <button onclick="app.showSection('players')" class="mb-4 text-slate-400 hover:text-white flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Back to Roster
+            </button>
+            <div id="profile-detail-content">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Fixtures -->
+        <section id="fixtures" class="hidden-section fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-500/20 p-2 rounded-lg">
+                        <i class="fas fa-calendar text-blue-400 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Fixtures</h2>
+                </div>
+                <button id="add-fixture-btn" onclick="app.openFixtureModal()" 
+                        class="hidden bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>Add Fixture
+                </button>
+            </div>
+            <div class="space-y-3" id="fixtures-list">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Scoresheets -->
+        <section id="scores" class="hidden-section fade-in">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-purple-500/20 p-2 rounded-lg">
+                    <i class="fas fa-clipboard-list text-purple-400 text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Match Scoresheets</h2>
+            </div>
+            <div id="scoresheets-container" class="space-y-6">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section id="stats" class="hidden-section fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-orange-500/20 p-2 rounded-lg">
+                        <i class="fas fa-chart-bar text-orange-400 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Team Statistics</h2>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="app.exportData()" 
+                            class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <button id="reset-stats-btn" onclick="app.resetStats()" 
+                            class="hidden btn-danger text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
+                        <i class="fas fa-undo mr-2"></i>Reset
+                    </button>
+                </div>
+            </div>
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-slate-800/80 text-slate-300 text-sm uppercase tracking-wider">
+                                <th class="p-4 text-left font-semibold">Player</th>
+                                <th class="p-4 text-center font-semibold">Played</th>
+                                <th class="p-4 text-center font-semibold">Won</th>
+                                <th class="p-4 text-center font-semibold">Lost</th>
+                                <th class="p-4 text-center font-semibold">Win %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body" class="divide-y divide-slate-700/50">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat/Messaging -->
+        <section id="chat" class="hidden-section fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-pink-500/20 p-2 rounded-lg">
+                        <i class="fas fa-comments text-pink-400 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Team Chat</h2>
+                </div>
+                <div id="chat-admin-controls" class="hidden flex gap-2">
+                    <button onclick="app.clearTeamChat()" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2">
+                        <i class="fas fa-trash-alt"></i> Clear Chat
+                    </button>
+                </div>
+            </div>
+            <div class="glass-panel rounded-2xl overflow-hidden chat-container">
+                <div class="chat-tabs" id="chat-tabs">
+                    <div class="chat-tab active" onclick="app.switchChatTab('team')">
+                        <i class="fas fa-users mr-2"></i>Team
+                        <span id="team-unread" class="unread-badge hidden">0</span>
+                    </div>
+                    <!-- Private tabs injected by JS -->
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages injected by JS -->
+                </div>
+                <div class="chat-input-container">
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" 
+                               class="flex-1 bg-slate-800/80 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500"
+                               placeholder="Type a message..." 
+                               onkeypress="if(event.key==='Enter')app.sendMessage()">
+                        <button onclick="app.sendMessage()" 
+                                class="btn-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin -->
+        <section id="admin" class="hidden-section fade-in">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-red-500/20 p-2 rounded-lg">
+                    <i class="fas fa-shield-alt text-red-400 text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Admin Panel</h2>
+            </div>
+            <div class="glass-panel rounded-2xl p-6 max-w-2xl">
+                <h3 class="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                    <i class="fas fa-user-plus text-emerald-400"></i>
+                    Add New Player
+                </h3>
+                <form id="add-player-form" onsubmit="app.handleAddPlayer(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Full Name</label>
+                            <input type="text" name="name" required 
+                                   class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Role</label>
+                            <select name="role" class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white">
+                                <option value="Player">Player</option>
+                                <option value="Reserve">Reserve</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
+                            <input type="text" name="username" required 
+                                   class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Password</label>
+                            <input type="text" name="password" required 
+                                   class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Email (Optional)</label>
+                        <input type="email" name="email" 
+                               class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Mobile (Optional)</label>
+                        <input type="tel" name="mobile" 
+                               class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl shadow-lg">
+                        <i class="fas fa-plus mr-2"></i>Add Player to Roster
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="glass-panel rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-600/50">
+            <div class="text-center mb-6">
+                <div class="bg-emerald-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-lock text-emerald-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Team Login</h2>
+                <p class="text-slate-400 text-sm mt-1">Enter your credentials to access the team portal</p>
+            </div>
+            <form onsubmit="app.handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" name="username" required 
+                               class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 pl-10 text-white placeholder-slate-500"
+                               placeholder="e.g. B. Dannatt">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-key absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="password" name="password" required 
+                               class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 pl-10 text-white placeholder-slate-500"
+                               placeholder="••••••">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="app.toggleLoginModal()" 
+                            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-medium transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 btn-primary text-white py-3 rounded-xl font-semibold shadow-lg">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fixture Modal -->
+    <div id="fixture-modal" class="modal-overlay fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="glass-panel rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-600/50">
+            <div class="text-center mb-6">
+                <div class="bg-blue-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-calendar-plus text-blue-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Schedule Fixture</h2>
+                <p class="text-slate-400 text-sm mt-1">Add a new match to the calendar</p>
+            </div>
+            <form onsubmit="app.handleAddFixture(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Opponent Team</label>
+                    <input type="text" name="opponent" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500"
+                           placeholder="e.g. The Cue Club">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Date</label>
+                    <input type="date" name="date" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Location</label>
+                    <select name="location" class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white">
+                        <option value="Home">Home (Rack Café)</option>
+                        <option value="Away">Away</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="app.closeFixtureModal()" 
+                            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-medium transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold shadow-lg transition-all">
+                        Save Fixture
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Player Modal -->
+    <div id="edit-player-modal" class="modal-overlay fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="glass-panel rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-600/50">
+            <div class="text-center mb-6">
+                <div class="bg-yellow-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-edit text-yellow-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Edit Player</h2>
+                <p class="text-slate-400 text-sm mt-1">Update player details and role</p>
+            </div>
+            <form id="edit-player-form" onsubmit="app.handleEditPlayer(event)" class="space-y-4">
+                <input type="hidden" name="playerId" id="edit-player-id">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Full Name</label>
+                    <input type="text" name="name" id="edit-player-name" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Role</label>
+                    <select name="role" id="edit-player-role" class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white">
+                        <option value="Captain">Captain</option>
+                        <option value="Co-Captain">Co-Captain</option>
+                        <option value="Player">Player</option>
+                        <option value="Reserve">Reserve</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
+                    <input type="text" name="username" id="edit-player-username" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Password</label>
+                    <input type="text" name="password" id="edit-player-password" required 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Email</label>
+                    <input type="email" name="email" id="edit-player-email" 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Mobile</label>
+                    <input type="tel" name="mobile" id="edit-player-mobile" 
+                           class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="app.closeEditPlayerModal()" 
+                            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-medium transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold shadow-lg transition-all">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden file input for profile pic -->
+    <input type="file" id="profile-pic-input" accept="image/*" class="hidden" onchange="app.handleProfilePicUpload(event)">
+
+    <script>
+        // ==========================================
+        // FIREBASE CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAiRXtpn52GM2Rqi-FpdXvWxBjebAjd6_I",
+            authDomain: "rackcafepool.firebaseapp.com",
+            databaseURL: "https://rackcafepool-default-rtdb.firebaseio.com",
+            projectId: "rackcafepool",
+            storageBucket: "rackcafepool.firebasestorage.app",
+            messagingSenderId: "405285198198",
+            appId: "1:405285198198:web:3a1acc432b167487abc257"
+        };
+
+        let db = null;
+        let storage = null;
+        let isFirebaseReady = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            storage = firebase.storage();
+            isFirebaseReady = true;
+            console.log("Firebase initialized successfully");
+        } catch (e) {
+            console.error("Firebase init failed:", e);
+        }
+
+        const app = {
+            currentUser: null,
+            players: [],
+            fixtures: [],
+            scoresheets: [],
+            messages: [],
+            currentChatTab: 'team',
+            selectedPlayerId: null,
+            saveTimeout: null,
+            isOnline: navigator.onLine,
+            lastMessageCount: 0,
+            lastScoreCount: 0,
+            notificationPermission: false,
+
+            defaultPlayers: [
+                { id: 1, name: 'Brandon Dannatt', role: 'Captain', username: 'B. Dannatt', password: 'HTAFC26', email: 'bdannatt@sky.com', mobile: '07847 708227', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Brandon+Dannatt&background=10b981&color=fff&size=128' },
+                { id: 2, name: 'Tom Hayes-Smith', role: 'Co-Captain', username: 'T. Hayes-Smith', password: '071122Mia', email: 'thayessmith@gmail.com', mobile: '07490518455', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Tom+Hayes-Smith&background=3b82f6&color=fff&size=128' },
+                { id: 3, name: 'Chris Shearon', role: 'Player', username: 'C. Shearon', password: 'Rack26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Chris+Shearon&background=64748b&color=fff&size=128' },
+                { id: 4, name: 'Terry Dannatt', role: 'Player', username: 'T. Dannatt', password: 'Pool26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Terry+Dannatt&background=64748b&color=fff&size=128' },
+                { id: 5, name: 'Ryan Lloyd', role: 'Player', username: 'R. Lloyd', password: 'Paps26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Ryan+Lloyd&background=64748b&color=fff&size=128' },
+                { id: 6, name: 'Keely Burns', role: 'Reserve', username: 'K. Burns', password: 'Luna26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Keely+Burns&background=64748b&color=fff&size=128' },
+                { id: 7, name: 'Chloë Syrat', role: 'Reserve', username: 'C. Syrat', password: 'Reserve26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Chloe+Syrat&background=64748b&color=fff&size=128' }
+            ],
+
+            init() {
+                this.setupNetworkListeners();
+                this.loadData();
+                this.renderNav();
+                this.setupRealtimeSync();
+                this.requestNotificationPermission();
+                this.setupMatchDayChecker();
+                
+                setTimeout(() => {
+                    this.renderPlayers();
+                    this.renderFixtures();
+                    this.renderScoresheets();
+                    this.updateStats();
+                    this.updateNextFixture();
+                    this.showSection('dashboard');
+                    
+                    // Initialize counters for notifications
+                    this.lastMessageCount = this.messages.length;
+                    this.lastScoreCount = this.scoresheets.length;
+                }, 500);
+            },
+
+            setupNetworkListeners() {
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    this.updateConnectionStatus();
+                    this.syncToCloud();
+                });
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    this.updateConnectionStatus();
+                });
+                this.updateConnectionStatus();
+            },
+
+            updateConnectionStatus() {
+                const status = document.getElementById('connection-status');
+                if (this.isOnline && isFirebaseReady) {
+                    status.className = 'connection-status online';
+                    status.innerHTML = '<i class="fas fa-wifi"></i><span>Online</span>';
+                } else {
+                    status.className = 'connection-status offline';
+                    status.innerHTML = '<i class="fas fa-wifi-slash"></i><span>Offline</span>';
+                }
+            },
+
+            showSyncIndicator(state) {
+                const indicator = document.getElementById('sync-indicator');
+                const icon = document.getElementById('sync-icon');
+                const text = document.getElementById('sync-text');
+                indicator.classList.remove('syncing', 'synced', 'offline');
+                indicator.classList.add('show');
+                if (state === 'syncing') {
+                    indicator.classList.add('syncing');
+                    icon.className = 'fas fa-sync fa-spin';
+                    text.textContent = 'Syncing...';
+                } else if (state === 'synced') {
+                    indicator.classList.add('synced');
+                    icon.className = 'fas fa-check';
+                    text.textContent = 'Synced';
+                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                } else if (state === 'offline') {
+                    indicator.classList.add('offline');
+                    icon.className = 'fas fa-cloud';
+                    text.textContent = 'Saved locally';
+                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                }
+            },
+
+            // ==========================================
+            // NOTIFICATION SYSTEM
+            // ==========================================
+
+            async requestNotificationPermission() {
+                if (!("Notification" in window)) {
+                    console.log("This browser does not support notifications");
+                    return;
+                }
+                
+                try {
+                    const permission = await Notification.requestPermission();
+                    this.notificationPermission = permission === "granted";
+                    console.log("Notification permission:", permission);
+                } catch (err) {
+                    console.error("Error requesting notification permission:", err);
+                }
+            },
+
+            showNotification(type, title, body, data = {}) {
+                // In-app toast notification
+                this.showToastNotification(type, title, body, data);
+                
+                // Browser notification if permitted and tab is hidden
+                if (this.notificationPermission && document.hidden) {
+                    this.showBrowserNotification(title, body);
+                }
+            },
+
+            showToastNotification(type, title, body, data) {
+                const container = document.getElementById('notification-container');
+                const toast = document.createElement('div');
+                toast.className = `notification-toast ${type}`;
+                
+                const icons = {
+                    'match-day': 'fa-calendar-day',
+                    'new-chat': 'fa-comments',
+                    'score-update': 'fa-clipboard-list'
+                };
+                
+                const time = new Date().toLocaleTimeString('en-GB', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                toast.innerHTML = `
+                    <button class="notification-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="notification-header">
+                        <div class="notification-icon">
+                            <i class="fas ${icons[type]}"></i>
+                        </div>
+                        <div>
+                            <div class="notification-title">${title}</div>
+                            <div class="notification-time">${time}</div>
+                        </div>
+                    </div>
+                    <div class="notification-body">${body}</div>
+                `;
+                
+                // Click handler to navigate
+                toast.addEventListener('click', (e) => {
+                    if (!e.target.closest('.notification-close')) {
+                        this.handleNotificationClick(type, data);
+                        toast.remove();
+                    }
+                });
+                
+                container.appendChild(toast);
+                
+                // Trigger animation
+                setTimeout(() => toast.classList.add('show'), 10);
+                
+                // Auto-remove after 8 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 8000);
+            },
+
+            showBrowserNotification(title, body) {
+                try {
+                    new Notification(title, {
+                        body: body,
+                        icon: 'https://img.sanishtech.com/u/497d34ea087f7f568efee76e16e837d3.png',
+                        badge: 'https://img.sanishtech.com/u/497d34ea087f7f568efee76e16e837d3.png',
+                        tag: 'rack-cafe-notification'
+                    });
+                } catch (err) {
+                    console.error("Browser notification failed:", err);
+                }
+            },
+
+            handleNotificationClick(type, data) {
+                switch(type) {
+                    case 'match-day':
+                        this.showSection('fixtures');
+                        break;
+                    case 'new-chat':
+                        this.showSection('chat');
+                        if (data.senderId) {
+                            this.switchChatTab(`private-${data.senderId}`);
+                        }
+                        break;
+                    case 'score-update':
+                        this.showSection('scores');
+                        break;
+                }
+                window.focus();
+            },
+
+            setupMatchDayChecker() {
+                // Check for match day every minute
+                this.checkMatchDay();
+                setInterval(() => this.checkMatchDay(), 60000);
+            },
+
+            checkMatchDay() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todaysMatch = this.fixtures.find(f => {
+                    const matchDate = new Date(f.date);
+                    matchDate.setHours(0, 0, 0, 0);
+                    return matchDate.getTime() === today.getTime();
+                });
+                
+                if (todaysMatch && !this.matchDayNotified) {
+                    this.showNotification(
+                        'match-day',
+                        'Match Day!',
+                        `You have a match today vs ${todaysMatch.opponent} at ${todaysMatch.location}`,
+                        { fixtureId: todaysMatch.id }
+                    );
+                    this.matchDayNotified = true;
+                }
+            },
+
+            // ==========================================
+            // DATA MANAGEMENT
+            // ==========================================
+
+            loadData() {
+                const local = localStorage.getItem('rackCafePoolData');
+                if (local) {
+                    try {
+                        const data = JSON.parse(local);
+                        this.players = data.players || this.defaultPlayers;
+                        this.fixtures = data.fixtures || [];
+                        this.scoresheets = data.scoresheets || [];
+                        this.messages = data.messages || [];
+                        this.matchDayNotified = data.matchDayNotified || false;
+                    } catch (e) {
+                        this.players = [...this.defaultPlayers];
+                    }
+                } else {
+                    this.players = [...this.defaultPlayers];
+                }
+            },
+
+            async syncToCloud() {
+                if (!isFirebaseReady || !this.isOnline) {
+                    this.showSyncIndicator('offline');
+                    this.saveLocal();
+                    return;
+                }
+                this.showSyncIndicator('syncing');
+                try {
+                    const data = {
+                        players: this.players,
+                        fixtures: this.fixtures,
+                        scoresheets: this.scoresheets,
+                        messages: this.messages,
+                        matchDayNotified: this.matchDayNotified,
+                        lastUpdated: Date.now()
+                    };
+                    await db.ref('teamData').set(data);
+                    this.showSyncIndicator('synced');
+                } catch (e) {
+                    console.error('Cloud sync failed:', e);
+                    this.saveLocal();
+                    this.showSyncIndicator('offline');
+                }
+            },
+
+            saveLocal() {
+                const data = {
+                    players: this.players,
+                    fixtures: this.fixtures,
+                    scoresheets: this.scoresheets,
+                    messages: this.messages,
+                    matchDayNotified: this.matchDayNotified,
+                    lastSaved: Date.now()
+                };
+                localStorage.setItem('rackCafePoolData', JSON.stringify(data));
+            },
+
+            autoSave() {
+                if (this.saveTimeout) clearTimeout(this.saveTimeout);
+                this.showSyncIndicator('syncing');
+                this.saveTimeout = setTimeout(() => {
+                    this.saveLocal();
+                    this.syncToCloud();
+                }, 500);
+            },
+
+            setupRealtimeSync() {
+                if (!isFirebaseReady) return;
+                
+                db.ref('teamData').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (!data) return;
+                    
+                    const remoteTime = data.lastUpdated || 0;
+                    const localTime = parseInt(localStorage.getItem('lastSyncTime') || '0');
+                    
+                    if (remoteTime > localTime) {
+                        // Check for new messages
+                        const newMessages = (data.messages || []).filter(m => 
+                            !this.messages.find(existing => existing.id === m.id)
+                        );
+                        
+                        if (newMessages.length > 0 && this.currentUser) {
+                            newMessages.forEach(msg => {
+                                if (msg.senderId !== this.currentUser.id) {
+                                    const sender = this.players.find(p => p.id === msg.senderId);
+                                    const isPrivate = msg.type === 'private';
+                                    const chatName = isPrivate ? sender?.name : 'Team Chat';
+                                    
+                                    this.showNotification(
+                                        'new-chat',
+                                        `New Message in ${chatName}`,
+                                        `${sender?.name}: ${msg.text.substring(0, 60)}${msg.text.length > 60 ? '...' : ''}`,
+                                        { senderId: msg.senderId, type: msg.type }
+                                    );
+                                }
+                            });
+                        }
+                        
+                        // Check for new scoresheets
+                        const newScores = (data.scoresheets || []).filter(s => 
+                            !this.scoresheets.find(existing => existing.id === s.id)
+                        );
+                        
+                        if (newScores.length > 0) {
+                            newScores.forEach(score => {
+                                this.showNotification(
+                                    'score-update',
+                                    'New Score Update',
+                                    `Match results posted: ${score.opponent}`,
+                                    { scoreId: score.id }
+                                );
+                            });
+                        }
+                        
+                        // Update local data
+                        this.players = data.players || this.players;
+                        this.fixtures = data.fixtures || this.fixtures;
+                        this.scoresheets = data.scoresheets || this.scoresheets;
+                        this.messages = data.messages || this.messages;
+                        this.matchDayNotified = data.matchDayNotified || false;
+                        
+                        this.saveLocal();
+                        localStorage.setItem('lastSyncTime', remoteTime);
+                        
+                        // Update UI
+                        this.renderPlayers();
+                        this.renderFixtures();
+                        this.renderScoresheets();
+                        this.updateStats();
+                        this.updateNextFixture();
+                        if (this.currentUser) this.renderChatTabs();
+                        
+                        this.showSyncIndicator('synced');
+                    }
+                });
+            },
+
+            exportData() {
+                const data = {
+                    players: this.players,
+                    fixtures: this.fixtures,
+                    scoresheets: this.scoresheets,
+                    messages: this.messages,
+                    exportedAt: new Date().toISOString()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rack-cafe-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+
+            // ==========================================
+            // NAVIGATION
+            // ==========================================
+
+            renderNav() {
+                const links = [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'fa-home', mobileLabel: 'Dashboard' },
+                    { id: 'players', label: 'Players', icon: 'fa-users', mobileLabel: 'Team Roster' },
+                    { id: 'fixtures', label: 'Fixtures', icon: 'fa-calendar', mobileLabel: 'Fixtures' },
+                    { id: 'scores', label: 'Scores', icon: 'fa-clipboard-list', mobileLabel: 'Scoresheets' },
+                    { id: 'stats', label: 'Stats', icon: 'fa-chart-bar', mobileLabel: 'Statistics' },
+                    { id: 'chat', label: 'Chat', icon: 'fa-comments', mobileLabel: 'Team Chat', badge: true },
+                    { id: 'admin', label: 'Admin', icon: 'fa-shield-alt', adminOnly: true, mobileLabel: 'Admin Panel' }
+                ];
+
+                document.getElementById('desktop-nav').innerHTML = links.map(link => `
+                    <button onclick="app.showSection('${link.id}')" 
+                            class="${link.adminOnly ? 'admin-link hidden ' : ''}nav-item text-slate-300 hover:text-white hover:bg-slate-800/80 px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap relative"
+                            data-section="${link.id}">
+                        <i class="fas ${link.icon}"></i> ${link.label}
+                        ${link.badge ? '<span id="nav-chat-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 rounded-full text-xs flex items-center justify-center hidden">0</span>' : ''}
+                    </button>
+                `).join('');
+
+                document.getElementById('mobile-menu-items').innerHTML = links.map(link => `
+                    <button onclick="app.showSection('${link.id}'); app.toggleMobileMenu()" 
+                            class="${link.adminOnly ? 'admin-link hidden ' : ''}mobile-nav-item w-full text-left text-slate-300 hover:text-white hover:bg-slate-800/80 px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-3 relative"
+                            data-section="${link.id}">
+                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center relative">
+                            <i class="fas ${link.icon} text-emerald-400"></i>
+                            ${link.badge ? '<span id="mobile-chat-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 rounded-full text-xs flex items-center justify-center hidden">0</span>' : ''}
+                        </div>
+                        <span>${link.mobileLabel}</span>
+                    </button>
+                `).join('');
+            },
+
+            toggleMobileMenu() {
+                const menu = document.getElementById('mobile-menu');
+                const overlay = document.getElementById('menu-overlay');
+                const hamburger = document.querySelector('.hamburger');
+                menu.classList.toggle('open');
+                overlay.classList.toggle('open');
+                hamburger.classList.toggle('open');
+            },
+
+            showSection(sectionId) {
+                document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-section'));
+                document.getElementById(sectionId).classList.remove('hidden-section');
+                
+                document.querySelectorAll('.nav-item').forEach(btn => {
+                    btn.classList.remove('nav-active');
+                    if (btn.dataset.section === sectionId) btn.classList.add('nav-active');
+                });
+
+                document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+                    btn.classList.remove('bg-slate-800', 'text-white');
+                    if (btn.dataset.section === sectionId) {
+                        btn.classList.add('bg-slate-800', 'text-white');
+                    }
+                });
+
+                if (sectionId === 'stats') this.renderStatsTable();
+                if (sectionId === 'dashboard') {
+                    this.updateStats();
+                    this.updateNextFixture();
+                }
+                if (sectionId === 'chat') {
+                    if (!this.currentUser) {
+                        this.toggleLoginModal();
+                        return;
+                    }
+                    this.renderChatTabs();
+                    this.renderMessages();
+                    this.markMessagesRead();
+                    this.updateChatAdminControls();
+                }
+                if (sectionId === 'player-profile' && this.selectedPlayerId) {
+                    this.renderPlayerProfile(this.selectedPlayerId);
+                }
+            },
+
+            // ==========================================
+            // PLAYERS & PROFILES (WITH BLUR EFFECT)
+            // ==========================================
+
+            isAdmin() {
+                return this.currentUser && (this.currentUser.role === 'Captain' || this.currentUser.role === 'Co-Captain');
+            },
+
+            renderPlayers() {
+                const grid = document.getElementById('players-grid');
+                const isLoggedIn = !!this.currentUser;
+                const isAdmin = this.isAdmin();
+                
+                grid.innerHTML = this.players.map(player => {
+                    const roleColors = {
+                        Captain: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                        'Co-Captain': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                        Reserve: 'bg-slate-600/20 text-slate-400 border-slate-600/30',
+                        Player: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                    };
+
+                    const isCurrentUser = this.currentUser && this.currentUser.id === player.id;
+                    const canEdit = isAdmin && !isCurrentUser;
+
+                    return `
+                    <div class="player-card glass-panel rounded-2xl overflow-hidden cursor-pointer" onclick="app.viewPlayerProfile(${player.id})">
+                        <div class="h-28 bg-gradient-to-br from-slate-800 to-slate-700 relative">
+                            <div class="absolute -bottom-10 left-6">
+                                <div class="profile-pic-container w-24 h-24 rounded-2xl border-4 border-slate-800 shadow-xl overflow-hidden ${isCurrentUser ? 'group' : ''}"
+                                     ${isCurrentUser ? `onclick="event.stopPropagation(); app.openProfilePicUpload(${player.id})"` : ''}>
+                                    <img src="${player.pfp}" alt="${player.name}" class="w-full h-full object-cover">
+                                    ${isCurrentUser ? `
+                                        <div class="profile-pic-overlay">
+                                            <i class="fas fa-camera text-white text-xl"></i>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div class="absolute top-4 right-4">
+                                <span class="px-3 py-1.5 rounded-full text-xs font-bold border ${roleColors[player.role]}">
+                                    ${player.role}
+                                </span>
+                            </div>
+                            ${canEdit ? `
+                                <div class="absolute top-4 left-4 flex gap-2">
+                                    <button onclick="event.stopPropagation(); app.openEditPlayerModal(${player.id})" 
+                                            class="w-8 h-8 rounded-lg bg-slate-700/80 hover:bg-yellow-600/80 text-white flex items-center justify-center transition-all"
+                                            title="Edit Player">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); app.deletePlayer(${player.id})" 
+                                            class="w-8 h-8 rounded-lg bg-slate-700/80 hover:bg-red-600/80 text-white flex items-center justify-center transition-all"
+                                            title="Delete Player">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="pt-14 pb-6 px-6">
+                            <h3 class="text-xl font-bold text-white mb-1">${player.name}</h3>
+                            <p class="text-slate-500 text-sm mb-5">@${player.username}</p>
+                            
+                            <div class="grid grid-cols-3 gap-3 mb-5">
+                                <div class="bg-slate-900/50 rounded-xl p-3 text-center">
+                                    <div class="text-xl font-bold text-white">${player.stats.played}</div>
+                                    <div class="text-xs text-slate-500 uppercase tracking-wider">Played</div>
+                                </div>
+                                <div class="bg-slate-900/50 rounded-xl p-3 text-center">
+                                    <div class="text-xl font-bold text-emerald-400">${player.stats.won}</div>
+                                    <div class="text-xs text-slate-500 uppercase tracking-wider">Won</div>
+                                </div>
+                                <div class="bg-slate-900/50 rounded-xl p-3 text-center">
+                                    <div class="text-xl font-bold text-red-400">${player.stats.lost}</div>
+                                    <div class="text-xs text-slate-500 uppercase tracking-wider">Lost</div>
+                                </div>
+                            </div>
+
+                            ${isLoggedIn ? `
+                                <div class="space-y-3 pt-4 border-t border-slate-700/50">
+                                    ${player.email ? `
+                                        <a href="mailto:${player.email}" class="flex items-center gap-3 text-slate-300 hover:text-emerald-400 transition-colors" onclick="event.stopPropagation()">
+                                            <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+                                                <i class="fas fa-envelope text-slate-500 text-sm"></i>
+                                            </div>
+                                            <span class="text-sm truncate">${player.email}</span>
+                                        </a>
+                                    ` : ''}
+                                    ${player.mobile ? `
+                                        <a href="tel:${player.mobile}" class="flex items-center gap-3 text-slate-300 hover:text-emerald-400 transition-colors" onclick="event.stopPropagation()">
+                                            <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+                                                <i class="fas fa-phone text-slate-500 text-sm"></i>
+                                            </div>
+                                            <span class="text-sm">${player.mobile}</span>
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            ` : `
+                                <div class="pt-4 border-t border-slate-700/50">
+                                    <div class="flex items-center gap-2 text-slate-500 text-sm">
+                                        <i class="fas fa-lock"></i>
+                                        <span>Login to view contact details</span>
+                                    </div>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            },
+
+            viewPlayerProfile(playerId) {
+                this.selectedPlayerId = playerId;
+                this.showSection('player-profile');
+            },
+
+            renderPlayerProfile(playerId) {
+                const player = this.players.find(p => p.id === playerId);
+                if (!player) return;
+
+                const isCurrentUser = this.currentUser && this.currentUser.id === player.id;
+                const isAdmin = this.isAdmin();
+                const canEdit = isAdmin && !isCurrentUser;
+                const isLoggedIn = !!this.currentUser;
+                const gameHistory = this.getPlayerGameHistory(playerId);
+
+                // Build contact info section with blur effect when not logged in
+                let contactSection = '';
+                if (player.email || player.mobile) {
+                    if (isLoggedIn) {
+                        // Show clear contact details when logged in
+                        contactSection = `
+                            <div class="flex flex-wrap gap-4 mb-8 pb-6 border-b border-slate-700/50">
+                                ${player.email ? `
+                                    <a href="mailto:${player.email}" class="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors">
+                                        <i class="fas fa-envelope text-slate-500"></i>
+                                        <span>${player.email}</span>
+                                    </a>
+                                ` : ''}
+                                ${player.mobile ? `
+                                    <a href="tel:${player.mobile}" class="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors">
+                                        <i class="fas fa-phone text-slate-500"></i>
+                                        <span>${player.mobile}</span>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        // Show blurred contact details when not logged in
+                        contactSection = `
+                            <div class="mb-8 pb-6 border-b border-slate-700/50">
+                                <div class="blur-container rounded-xl p-4 bg-slate-800/30">
+                                    <div class="blur-overlay">
+                                        <div class="blur-text">
+                                            <i class="fas fa-lock"></i>
+                                            <span>Click to reveal / Login to view</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap gap-4 blur-contact">
+                                        ${player.email ? `
+                                            <div class="flex items-center gap-2 text-slate-300">
+                                                <i class="fas fa-envelope text-slate-500"></i>
+                                                <span>${player.email}</span>
+                                            </div>
+                                        ` : ''}
+                                        ${player.mobile ? `
+                                            <div class="flex items-center gap-2 text-slate-300">
+                                                <i class="fas fa-phone text-slate-500"></i>
+                                                <span>${player.mobile}</span>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                document.getElementById('profile-detail-content').innerHTML = `
+                    <div class="glass-panel rounded-2xl overflow-hidden">
+                        <div class="h-40 bg-gradient-to-br from-slate-800 to-slate-700 relative">
+                            ${canEdit ? `
+                                <div class="absolute top-4 right-4 flex gap-2">
+                                    <button onclick="app.openEditPlayerModal(${player.id})" 
+                                            class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2 transition-all">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button onclick="app.deletePlayer(${player.id})" 
+                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2 transition-all">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            ` : ''}
+                            <div class="absolute -bottom-16 left-8">
+                                <div class="profile-pic-container w-32 h-32 rounded-2xl border-4 border-slate-800 shadow-2xl overflow-hidden ${isCurrentUser ? 'group cursor-pointer' : ''}"
+                                     ${isCurrentUser ? `onclick="app.openProfilePicUpload(${player.id})"` : ''}>
+                                    <img src="${player.pfp}" alt="${player.name}" class="w-full h-full object-cover">
+                                    ${isCurrentUser ? `
+                                        <div class="profile-pic-overlay">
+                                            <i class="fas fa-camera text-white text-2xl"></i>
+                                            <span class="text-white text-sm mt-2">Change Photo</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-20 pb-8 px-8">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                <div>
+                                    <h2 class="text-3xl font-bold text-white mb-2">${player.name}</h2>
+                                    <p class="text-slate-400">@${player.username} • ${player.role}</p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <div class="bg-slate-900/50 rounded-xl px-4 py-2 text-center">
+                                        <div class="text-2xl font-bold text-white">${player.stats.played}</div>
+                                        <div class="text-xs text-slate-500">Matches</div>
+                                    </div>
+                                    <div class="bg-emerald-500/10 rounded-xl px-4 py-2 text-center border border-emerald-500/30">
+                                        <div class="text-2xl font-bold text-emerald-400">${player.stats.won}</div>
+                                        <div class="text-xs text-emerald-500">Wins</div>
+                                    </div>
+                                    <div class="bg-red-500/10 rounded-xl px-4 py-2 text-center border border-red-500/30">
+                                        <div class="text-2xl font-bold text-red-400">${player.stats.lost}</div>
+                                        <div class="text-xs text-red-500">Losses</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${contactSection}
+
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <i class="fas fa-history text-blue-400"></i>
+                                    Game History
+                                </h3>
+                                ${gameHistory.length > 0 ? `
+                                    <div class="space-y-3">
+                                        ${gameHistory.map(game => `
+                                            <div class="game-history-item ${game.result === 'Won' ? 'game-result-win' : 'game-result-loss'}">
+                                                <div class="w-10 h-10 rounded-lg ${game.result === 'Won' ? 'bg-emerald-500/20' : 'bg-red-500/20'} flex items-center justify-center flex-shrink-0">
+                                                    <i class="fas ${game.result === 'Won' ? 'fa-trophy text-emerald-400' : 'fa-times text-red-400'}"></i>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-white font-medium truncate">vs ${game.opponent}</p>
+                                                    <p class="text-slate-400 text-sm">Frame ${game.frameNumber} • ${game.date}</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${game.result === 'Won' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">
+                                                        ${game.result}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : `
+                                    <p class="text-slate-500 text-center py-8">No games played yet</p>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            getPlayerGameHistory(playerId) {
+                const history = [];
+                this.scoresheets.forEach(sheet => {
+                    sheet.frames.forEach((frame, idx) => {
+                        if (frame.playerId === playerId) {
+                            history.push({
+                                opponent: sheet.opponent,
+                                frameNumber: idx + 1,
+                                result: frame.won ? 'Won' : 'Lost',
+                                date: sheet.date || 'Unknown date',
+                                opponentPlayer: frame.opponentPlayer || 'Unknown'
+                            });
+                        }
+                    });
+                });
+                return history.sort((a, b) => new Date(b.date) - new Date(a.date));
+            },
+
+            openProfilePicUpload(playerId) {
+                if (!this.currentUser || this.currentUser.id !== playerId) return;
+                document.getElementById('profile-pic-input').dataset.playerId = playerId;
+                document.getElementById('profile-pic-input').click();
+            },
+
+            async handleProfilePicUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const playerId = parseInt(event.target.dataset.playerId);
+                const player = this.players.find(p => p.id === playerId);
+                if (!player) return;
+
+                this.showSyncIndicator('syncing');
+
+                try {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        player.pfp = e.target.result;
+                        this.autoSave();
+                        this.renderPlayers();
+                        if (this.selectedPlayerId === playerId) {
+                            this.renderPlayerProfile(playerId);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error('Upload failed:', err);
+                    alert('Failed to upload image');
+                }
+            },
+
+            // ==========================================
+            // PLAYER MANAGEMENT (ADMIN)
+            // ==========================================
+
+            openEditPlayerModal(playerId) {
+                if (!this.isAdmin()) return;
+                
+                const player = this.players.find(p => p.id === playerId);
+                if (!player) return;
+
+                if (this.currentUser.id === playerId) {
+                    alert("You cannot edit your own account. Please ask another admin to make changes.");
+                    return;
+                }
+
+                document.getElementById('edit-player-id').value = player.id;
+                document.getElementById('edit-player-name').value = player.name;
+                document.getElementById('edit-player-role').value = player.role;
+                document.getElementById('edit-player-username').value = player.username;
+                document.getElementById('edit-player-password').value = player.password;
+                document.getElementById('edit-player-email').value = player.email || '';
+                document.getElementById('edit-player-mobile').value = player.mobile || '';
+
+                const modal = document.getElementById('edit-player-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            },
+
+            closeEditPlayerModal() {
+                const modal = document.getElementById('edit-player-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            },
+
+            handleEditPlayer(e) {
+                e.preventDefault();
+                if (!this.isAdmin()) {
+                    alert("Unauthorized action");
+                    return;
+                }
+
+                const formData = new FormData(e.target);
+                const playerId = parseInt(formData.get('playerId'));
+                
+                if (this.currentUser.id === playerId) {
+                    alert("You cannot edit your own account.");
+                    return;
+                }
+
+                const playerIndex = this.players.findIndex(p => p.id === playerId);
+                if (playerIndex === -1) return;
+
+                const newUsername = formData.get('username');
+                const existingPlayer = this.players.find(p => p.username === newUsername && p.id !== playerId);
+                if (existingPlayer) {
+                    alert("Username already exists. Please choose a different username.");
+                    return;
+                }
+
+                this.players[playerIndex].name = formData.get('name');
+                this.players[playerIndex].role = formData.get('role');
+                this.players[playerIndex].username = newUsername;
+                this.players[playerIndex].password = formData.get('password');
+                this.players[playerIndex].email = formData.get('email');
+                this.players[playerIndex].mobile = formData.get('mobile');
+
+                this.autoSave();
+                this.closeEditPlayerModal();
+                this.renderPlayers();
+                
+                if (this.selectedPlayerId === playerId) {
+                    this.renderPlayerProfile(playerId);
+                }
+                
+                alert('Player updated successfully!');
+            },
+
+            deletePlayer(playerId) {
+                if (!this.isAdmin()) {
+                    alert("Unauthorized action");
+                    return;
+                }
+
+                if (this.currentUser.id === playerId) {
+                    alert("You cannot delete your own account.");
+                    return;
+                }
+
+                const player = this.players.find(p => p.id === playerId);
+                if (!player) return;
+
+                if (confirm(`Are you sure you want to delete ${player.name}? This action cannot be undone.`)) {
+                    this.scoresheets.forEach(sheet => {
+                        sheet.frames.forEach(frame => {
+                            if (frame.playerId === playerId) {
+                                frame.playerId = null;
+                                frame.won = false;
+                            }
+                        });
+                    });
+
+                    this.players = this.players.filter(p => p.id !== playerId);
+                    
+                    this.autoSave();
+                    this.renderPlayers();
+                    this.updateStats();
+                    
+                    if (this.selectedPlayerId === playerId) {
+                        this.showSection('players');
+                    }
+                    
+                    alert('Player deleted successfully.');
+                }
+            },
+
+            // ==========================================
+            // CHAT / MESSAGING
+            // ==========================================
+
+            updateChatAdminControls() {
+                const adminControls = document.getElementById('chat-admin-controls');
+                if (this.isAdmin() && this.currentChatTab === 'team') {
+                    adminControls.classList.remove('hidden');
+                } else {
+                    adminControls.classList.add('hidden');
+                }
+            },
+
+            renderChatTabs() {
+                if (!this.currentUser) return;
+                
+                const tabsContainer = document.getElementById('chat-tabs');
+                const otherPlayers = this.players.filter(p => p.id !== this.currentUser.id);
+                
+                let tabsHtml = `
+                    <div class="chat-tab ${this.currentChatTab === 'team' ? 'active' : ''}" onclick="app.switchChatTab('team')">
+                        <i class="fas fa-users mr-2"></i>Team
+                        ${this.getUnreadCount('team') > 0 ? `<span class="unread-badge">${this.getUnreadCount('team')}</span>` : ''}
+                    </div>
+                `;
+
+                otherPlayers.forEach(player => {
+                    const tabId = `private-${player.id}`;
+                    const unread = this.getUnreadCount(tabId);
+                    tabsHtml += `
+                        <div class="chat-tab ${this.currentChatTab === tabId ? 'active' : ''}" onclick="app.switchChatTab('${tabId}')">
+                            <img src="${player.pfp}" class="w-5 h-5 rounded-full mr-2 inline">
+                            ${player.name.split(' ')[0]}
+                            ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
+                        </div>
+                    `;
+                });
+
+                tabsContainer.innerHTML = tabsHtml;
+            },
+
+            switchChatTab(tabId) {
+                this.currentChatTab = tabId;
+                this.renderChatTabs();
+                this.renderMessages();
+                this.updateChatAdminControls();
+            },
+
+            renderMessages() {
+                const container = document.getElementById('chat-messages');
+                const messages = this.getMessagesForTab(this.currentChatTab);
+                const isAdmin = this.isAdmin();
+                const isTeamChat = this.currentChatTab === 'team';
+                
+                container.innerHTML = messages.map(msg => {
+                    const isOwn = msg.senderId === (this.currentUser?.id || 0);
+                    const sender = this.players.find(p => p.id === msg.senderId);
+                    const canDelete = isAdmin && isTeamChat;
+                    
+                    return `
+                        <div class="chat-message ${isOwn ? 'own' : ''}" data-message-id="${msg.id}">
+                            <div class="flex items-center gap-2 mb-1 ${isOwn ? 'justify-end' : ''}">
+                                ${!isOwn ? `<img src="${sender?.pfp || ''}" class="w-6 h-6 rounded-full">` : ''}
+                                <span class="text-xs text-slate-400">${sender?.name || 'Unknown'}</span>
+                                ${isOwn ? `<img src="${sender?.pfp || ''}" class="w-6 h-6 rounded-full">` : ''}
+                            </div>
+                            <div class="chat-bubble">
+                                <p class="text-white text-sm">${this.escapeHtml(msg.text)}</p>
+                                ${canDelete ? `
+                                    <div class="message-actions">
+                                        <button onclick="app.deleteMessage(${msg.id})" title="Delete message">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="message-time ${isOwn ? 'text-right' : ''}">
+                                ${new Date(msg.timestamp).toLocaleString('en-GB', { 
+                                    day: 'numeric', 
+                                    month: 'short', 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                })}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.scrollTop = container.scrollHeight;
+            },
+
+            deleteMessage(messageId) {
+                if (!this.isAdmin()) {
+                    alert("Only admins can delete messages.");
+                    return;
+                }
+
+                if (confirm('Delete this message?')) {
+                    this.messages = this.messages.filter(m => m.id !== messageId);
+                    this.autoSave();
+                    this.renderMessages();
+                }
+            },
+
+            clearTeamChat() {
+                if (!this.isAdmin()) {
+                    alert("Only admins can clear the team chat.");
+                    return;
+                }
+
+                const teamMessages = this.messages.filter(m => m.type === 'team');
+                if (teamMessages.length === 0) {
+                    alert("Team chat is already empty.");
+                    return;
+                }
+
+                if (confirm(`Are you sure you want to clear all ${teamMessages.length} messages from Team Chat? This cannot be undone.`)) {
+                    this.messages = this.messages.filter(m => m.type !== 'team');
+                    this.autoSave();
+                    this.renderMessages();
+                    alert('Team chat cleared successfully.');
+                }
+            },
+
+            getMessagesForTab(tabId) {
+                return this.messages.filter(msg => {
+                    if (tabId === 'team') {
+                        return msg.type === 'team';
+                    } else {
+                        const privateId = parseInt(tabId.replace('private-', ''));
+                        return msg.type === 'private' && 
+                               ((msg.senderId === this.currentUser?.id && msg.recipientId === privateId) ||
+                                (msg.senderId === privateId && msg.recipientId === this.currentUser?.id));
+                    }
+                }).sort((a, b) => a.timestamp - b.timestamp);
+            },
+
+            getUnreadCount(tabId) {
+                return 0;
+            },
+
+            sendMessage() {
+                const input = document.getElementById('chat-input');
+                const text = input.value.trim();
+                if (!text || !this.currentUser) return;
+
+                const message = {
+                    id: Date.now(),
+                    senderId: this.currentUser.id,
+                    text: text,
+                    timestamp: Date.now(),
+                    type: this.currentChatTab === 'team' ? 'team' : 'private'
+                };
+
+                if (this.currentChatTab !== 'team') {
+                    message.recipientId = parseInt(this.currentChatTab.replace('private-', ''));
+                }
+
+                this.messages.push(message);
+                this.autoSave();
+                input.value = '';
+                this.renderMessages();
+                
+                // Trigger notification for other users (in real app, this would be server-side)
+                // For now, the realtime sync will handle it
+            },
+
+            markMessagesRead() {
+                document.getElementById('nav-chat-badge')?.classList.add('hidden');
+                document.getElementById('mobile-chat-badge')?.classList.add('hidden');
+            },
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+
+            // ==========================================
+            // FIXTURES, SCORES, STATS
+            // ==========================================
+
+            updateNextFixture() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const upcoming = this.fixtures
+                    .filter(f => new Date(f.date) >= today)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+
+                if (upcoming) {
+                    document.getElementById('next-fixture-opponent').innerText = `vs ${upcoming.opponent}`;
+                    document.getElementById('next-fixture-date').innerText = new Date(upcoming.date).toLocaleDateString('en-GB', { 
+                        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                    });
+                    document.getElementById('next-fixture-location').innerHTML = `
+                        <i class="fas fa-map-marker-alt"></i> 
+                        <span>${upcoming.location} ${upcoming.location === 'Home' ? '(Rack Café)' : ''}</span>
+                    `;
+                } else {
+                    document.getElementById('next-fixture-opponent').innerText = 'No upcoming fixtures';
+                    document.getElementById('next-fixture-date').innerText = 'Schedule one now';
+                    document.getElementById('next-fixture-location').innerHTML = '<i class="fas fa-info-circle"></i> <span>Add fixtures to see them here</span>';
+                }
+            },
+
+            toggleLoginModal() {
+                const modal = document.getElementById('login-modal');
+                if (this.currentUser) {
+                    this.currentUser = null;
+                    const btn = document.getElementById('login-btn');
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span class="hidden sm:inline ml-2">Login</span>';
+                    btn.className = 'btn-primary text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg flex items-center gap-2';
+                    
+                    document.getElementById('user-status').innerHTML = '<span class="text-slate-400">Not logged in</span>';
+                    document.getElementById('mobile-user-status').innerText = 'Not logged in';
+                    
+                    document.querySelectorAll('.admin-link').forEach(el => el.classList.add('hidden'));
+                    document.getElementById('add-fixture-btn').classList.add('hidden');
+                    document.getElementById('reset-stats-btn').classList.add('hidden');
+                    
+                    this.renderPlayers();
+                    this.renderFixtures();
+                    this.renderScoresheets();
+                } else {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            },
+
+            handleLogin(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const user = this.players.find(p => p.username === formData.get('username') && p.password === formData.get('password'));
+
+                if (user) {
+                    this.currentUser = user;
+                    document.getElementById('login-modal').classList.add('hidden');
+                    document.getElementById('login-modal').classList.remove('flex');
+                    
+                    const btn = document.getElementById('login-btn');
+                    btn.innerHTML = '<i class="fas fa-sign-out-alt"></i><span class="hidden sm:inline ml-2">Logout</span>';
+                    btn.className = 'bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg flex items-center gap-2 transition-all';
+                    
+                    const userHtml = `
+                        <div class="text-right">
+                            <div class="text-white font-medium">${user.name}</div>
+                            <div class="text-emerald-400 text-xs">${user.role}</div>
+                        </div>
+                    `;
+                    document.getElementById('user-status').innerHTML = userHtml;
+                    document.getElementById('mobile-user-status').innerHTML = `Logged in as <span class="text-emerald-400 font-medium">${user.name}</span>`;
+
+                    const mobileLoginBtn = document.querySelector('#mobile-menu button[onclick*="toggleLoginModal"]');
+                    if (mobileLoginBtn) {
+                        mobileLoginBtn.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i>Logout';
+                    }
+
+                    if (user.role === 'Captain' || user.role === 'Co-Captain') {
+                        document.querySelectorAll('.admin-link').forEach(el => el.classList.remove('hidden'));
+                        document.getElementById('add-fixture-btn').classList.remove('hidden');
+                        document.getElementById('reset-stats-btn').classList.remove('hidden');
+                    }
+
+                    this.renderPlayers();
+                    this.renderFixtures();
+                    this.renderScoresheets();
+                    e.target.reset();
+                } else {
+                    alert('Invalid credentials. Please try again.');
+                }
+            },
+
+            handleAddPlayer(e) {
+                e.preventDefault();
+                if (!this.currentUser || (this.currentUser.role !== 'Captain' && this.currentUser.role !== 'Co-Captain')) {
+                    alert("Unauthorized action");
+                    return;
+                }
+
+                const formData = new FormData(e.target);
+                const newPlayer = {
+                    id: Date.now(),
+                    name: formData.get('name'),
+                    role: formData.get('role'),
+                    username: formData.get('username'),
+                    password: formData.get('password'),
+                    email: formData.get('email'),
+                    mobile: formData.get('mobile'),
+                    stats: { played: 0, won: 0, lost: 0 },
+                    pfp: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.get('name'))}&background=random&color=fff&size=128`
+                };
+
+                this.players.push(newPlayer);
+                this.autoSave();
+                alert('Player added successfully!');
+                e.target.reset();
+                this.renderPlayers();
+            },
+
+            renderFixtures() {
+                const list = document.getElementById('fixtures-list');
+                const isAdmin = this.currentUser && (this.currentUser.role === 'Captain' || this.currentUser.role === 'Co-Captain');
+
+                if (this.fixtures.length === 0) {
+                    list.innerHTML = `
+                        <div class="glass-panel rounded-2xl p-12 text-center">
+                            <div class="bg-slate-800/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-calendar-times text-slate-500 text-3xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-white mb-2">No fixtures scheduled</h3>
+                            <p class="text-slate-400 text-sm">Add your first match to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const sortedFixtures = [...this.fixtures].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                list.innerHTML = sortedFixtures.map(f => {
+                    const date = new Date(f.date);
+                    const isPast = date < new Date().setHours(0,0,0,0);
+                    
+                    return `
+                    <div class="glass-panel rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${isPast ? 'opacity-60' : ''}">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-slate-800 rounded-xl p-3 text-center min-w-[70px]">
+                                <div class="text-xs text-slate-400 uppercase font-medium">${date.toLocaleString('default', { month: 'short' })}</div>
+                                <div class="text-2xl font-bold text-white">${date.getDate()}</div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    vs ${f.opponent}
+                                    ${isPast ? '<span class="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded">Completed</span>' : ''}
+                                </h3>
+                                <p class="text-slate-400 text-sm flex items-center gap-2">
+                                    <i class="fas fa-map-marker-alt text-slate-500"></i>
+                                    ${f.location} ${f.location === 'Home' ? '(Rack Café)' : ''}
+                                </p>
+                            </div>
+                        </div>
+                        ${isAdmin ? `
+                            <button onclick="app.deleteFixture(${f.id})" 
+                                    class="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-all">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    `;
+                }).join('');
+            },
+
+            openFixtureModal() {
+                document.getElementById('fixture-modal').classList.remove('hidden');
+                document.getElementById('fixture-modal').classList.add('flex');
+            },
+
+            closeFixtureModal() {
+                document.getElementById('fixture-modal').classList.add('hidden');
+                document.getElementById('fixture-modal').classList.remove('flex');
+            },
+
+            handleAddFixture(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newFixture = {
+                    id: Date.now(),
+                    opponent: formData.get('opponent'),
+                    date: formData.get('date'),
+                    location: formData.get('location'),
+                    frames: Array(10).fill(null).map(() => ({ playerId: null, won: false }))
+                };
+                this.fixtures.push(newFixture);
+                this.autoSave();
+                this.closeFixtureModal();
+                this.renderFixtures();
+                this.renderScoresheets();
+                this.updateNextFixture();
+                e.target.reset();
+            },
+
+            deleteFixture(id) {
+                if(confirm('Delete this fixture?')) {
+                    this.fixtures = this.fixtures.filter(f => f.id !== id);
+                    this.autoSave();
+                    this.renderFixtures();
+                    this.renderScoresheets();
+                    this.updateNextFixture();
+                }
+            },
+
+            renderScoresheets() {
+                const container = document.getElementById('scoresheets-container');
+                const isAdmin = this.currentUser && (this.currentUser.role === 'Captain' || this.currentUser.role === 'Co-Captain');
+
+                let html = '';
+                
+                if (isAdmin) {
+                    html += `
+                    <div class="glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-600/50">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-plus-circle text-purple-400"></i>
+                            Create New Scorecard
+                        </h3>
+                        <div class="flex flex-col sm:flex-row gap-4 items-end">
+                            <div class="flex-1 w-full">
+                                <label class="block text-sm font-medium text-slate-400 mb-2">Select Fixture</label>
+                                <select id="new-scorecard-fixture" class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white">
+                                    <option value="">-- Select a fixture --</option>
+                                    ${this.fixtures.map(f => `<option value="${f.id}">${f.date} - vs ${f.opponent}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="flex-1 w-full">
+                                <label class="block text-sm font-medium text-slate-400 mb-2">Or Enter Opponent Team (Manual)</label>
+                                <input type="text" id="new-scorecard-opponent" placeholder="Opponent team name" 
+                                       class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white placeholder-slate-500">
+                            </div>
+                            <button onclick="app.createNewScorecard()" 
+                                    class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition-all w-full sm:w-auto">
+                                <i class="fas fa-plus mr-2"></i>Create
+                            </button>
+                        </div>
+                    </div>
+                    `;
+                }
+
+                html += this.scoresheets.map((sheet, sheetIndex) => {
+                    let teamScore = 0, oppScore = 0;
+                    sheet.frames.forEach(frame => {
+                        if(frame.playerId) {
+                            if(frame.won) teamScore++; else oppScore++;
+                        }
+                    });
+
+                    const isEditable = isAdmin && !sheet.locked;
+
+                    return `
+                    <div class="glass-panel rounded-2xl overflow-hidden">
+                        <div class="bg-slate-800/80 p-5 border-b border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <div class="flex items-center gap-3 mb-1">
+                                    <h3 class="text-xl font-bold text-white">vs ${sheet.opponent}</h3>
+                                    ${sheet.locked ? '<span class="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded"><i class="fas fa-lock mr-1"></i>Locked</span>' : ''}
+                                </div>
+                                ${sheet.date ? `<p class="text-sm text-slate-400">${sheet.date} • ${sheet.location}</p>` : ''}
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="bg-slate-900 rounded-xl px-5 py-2 font-mono text-2xl font-bold">
+                                    <span class="text-emerald-400">${teamScore}</span>
+                                    <span class="text-slate-600 mx-2">-</span>
+                                    <span class="text-red-400">${oppScore}</span>
+                                </div>
+                                ${isAdmin ? `
+                                    <div class="flex gap-2">
+                                        <button onclick="app.lockScorecard(${sheetIndex})" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center justify-center">
+                                            <i class="fas ${sheet.locked ? 'fa-lock' : 'fa-lock-open'}"></i>
+                                        </button>
+                                        <button onclick="app.deleteScorecard(${sheetIndex})" class="w-10 h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="p-4 overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-slate-500 text-xs uppercase">
+                                        <th class="pb-3 text-left w-12">Frame</th>
+                                        <th class="pb-3 text-left">Our Player</th>
+                                        <th class="pb-3 text-left">Their Player</th>
+                                        <th class="pb-3 text-center w-24">Result</th>
+                                        <th class="pb-3 text-right w-12">Pts</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/50">
+                                    ${sheet.frames.map((frame, index) => `
+                                        <tr>
+                                            <td class="py-3 text-slate-500 font-mono text-sm">${index + 1}</td>
+                                            <td class="py-2">
+                                                ${isEditable ? `
+                                                    <select onchange="app.updateFrame(${sheetIndex}, ${index}, 'playerId', this.value)" class="bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm w-full max-w-[180px]">
+                                                        <option value="">Select player...</option>
+                                                        ${this.players.map(p => `<option value="${p.id}" ${frame.playerId == p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+                                                    </select>
+                                                ` : `<span class="text-white">${frame.playerId ? this.players.find(p => p.id == frame.playerId)?.name : '-'}</span>`}
+                                            </td>
+                                            <td class="py-2">
+                                                ${isEditable ? `
+                                                    <input type="text" value="${frame.opponentPlayer || ''}" onchange="app.updateFrame(${sheetIndex}, ${index}, 'opponentPlayer', this.value)" placeholder="Opponent name" class="bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm w-full max-w-[160px]">
+                                                ` : `<span class="text-slate-400">${frame.opponentPlayer || '-'}</span>`}
+                                            </td>
+                                            <td class="py-2 text-center">
+                                                ${isEditable && frame.playerId ? `
+                                                    <button onclick="app.toggleResult(${sheetIndex}, ${index})" class="px-4 py-2 rounded-lg text-xs font-bold w-20 ${frame.won ? 'win-btn active' : 'loss-btn active'}">${frame.won ? 'WON' : 'LOST'}</button>
+                                                ` : `<span class="text-xs font-bold ${frame.won ? 'text-emerald-400' : 'text-red-400'}">${frame.playerId ? (frame.won ? 'W' : 'L') : '-'}</span>`}
+                                            </td>
+                                            <td class="py-3 text-right font-mono text-white">${frame.playerId ? (frame.won ? '1' : '0') : '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+            },
+
+            createNewScorecard() {
+                const fixtureSelect = document.getElementById('new-scorecard-fixture');
+                const opponentInput = document.getElementById('new-scorecard-opponent');
+                const fixtureId = fixtureSelect.value;
+                const manualOpponent = opponentInput.value.trim();
+
+                if (!fixtureId && !manualOpponent) {
+                    alert('Please select a fixture or enter an opponent team name');
+                    return;
+                }
+
+                let newSheet = {
+                    id: Date.now(),
+                    fixtureId: fixtureId ? parseInt(fixtureId) : null,
+                    opponent: '',
+                    date: '',
+                    location: '',
+                    frames: Array(10).fill(null).map(() => ({ playerId: null, opponentPlayer: '', won: false })),
+                    locked: false
+                };
+
+                if (fixtureId) {
+                    const fixture = this.fixtures.find(f => f.id == fixtureId);
+                    newSheet.opponent = fixture.opponent;
+                    newSheet.date = fixture.date;
+                    newSheet.location = fixture.location;
+                } else {
+                    newSheet.opponent = manualOpponent;
+                    newSheet.date = new Date().toISOString().split('T')[0];
+                    newSheet.location = 'TBC';
+                }
+
+                this.scoresheets.push(newSheet);
+                this.autoSave();
+                fixtureSelect.value = '';
+                opponentInput.value = '';
+                this.renderScoresheets();
+                this.updateStats();
+                
+                // Notify users of new score update
+                this.showNotification(
+                    'score-update',
+                    'New Score Update',
+                    `Match results posted: ${newSheet.opponent}`,
+                    { scoreId: newSheet.id }
+                );
+            },
+
+            deleteScorecard(index) {
+                if (confirm('Delete this scorecard?')) {
+                    this.scoresheets.splice(index, 1);
+                    this.autoSave();
+                    this.renderScoresheets();
+                    this.updateStats();
+                }
+            },
+
+            lockScorecard(index) {
+                this.scoresheets[index].locked = !this.scoresheets[index].locked;
+                this.autoSave();
+                this.renderScoresheets();
+            },
+
+            updateFrame(sheetIndex, frameIndex, field, value) {
+                const sheet = this.scoresheets[sheetIndex];
+                if (sheet && !sheet.locked) {
+                    if (field === 'playerId') {
+                        sheet.frames[frameIndex].playerId = value ? parseInt(value) : null;
+                        sheet.frames[frameIndex].won = false;
+                    } else if (field === 'opponentPlayer') {
+                        sheet.frames[frameIndex].opponentPlayer = value;
+                    }
+                    this.autoSave();
+                    this.renderScoresheets();
+                    this.updateStats();
+                }
+            },
+
+            toggleResult(sheetIndex, frameIndex) {
+                const sheet = this.scoresheets[sheetIndex];
+                if (sheet && !sheet.locked && sheet.frames[frameIndex].playerId) {
+                    sheet.frames[frameIndex].won = !sheet.frames[frameIndex].won;
+                    this.autoSave();
+                    this.renderScoresheets();
+                    this.updateStats();
+                }
+            },
+
+            updateStats() {
+                this.players.forEach(p => p.stats = { played: 0, won: 0, lost: 0 });
+                this.scoresheets.forEach(sheet => {
+                    sheet.frames.forEach(frame => {
+                        if (frame.playerId) {
+                            const player = this.players.find(p => p.id === frame.playerId);
+                            if (player) {
+                                player.stats.played++;
+                                frame.won ? player.stats.won++ : player.stats.lost++;
+                            }
+                        }
+                    });
+                });
+
+                const totalFrames = this.players.reduce((acc, p) => acc + p.stats.played, 0);
+                const totalWon = this.players.reduce((acc, p) => acc + p.stats.won, 0);
+                const winRate = totalFrames > 0 ? Math.round((totalWon / totalFrames) * 100) : 0;
+                const sorted = [...this.players].sort((a, b) => b.stats.won - a.stats.won);
+                const topPlayer = sorted[0]?.stats.won > 0 ? sorted[0].name : '-';
+
+                document.getElementById('stat-matches').innerText = this.scoresheets.length;
+                document.getElementById('stat-winrate').innerText = winRate + '%';
+                document.getElementById('stat-frames-won').innerText = totalWon;
+                document.getElementById('stat-top-player').innerText = topPlayer;
+            },
+
+            renderStatsTable() {
+                const tbody = document.getElementById('stats-table-body');
+                const sortedPlayers = [...this.players].sort((a, b) => b.stats.won - a.stats.won);
+                
+                tbody.innerHTML = sortedPlayers.map(p => {
+                    const winPct = p.stats.played > 0 ? ((p.stats.won / p.stats.played) * 100).toFixed(1) : 0;
+                    return `
+                    <tr class="hover:bg-slate-800/30 transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${p.pfp}" class="w-10 h-10 rounded-xl">
+                                <div>
+                                    <div class="font-semibold text-white">${p.name}</div>
+                                    <div class="text-xs text-slate-500">${p.role}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center text-slate-300">${p.stats.played}</td>
+                        <td class="p-4 text-center text-emerald-400 font-bold">${p.stats.won}</td>
+                        <td class="p-4 text-center text-red-400">${p.stats.lost}</td>
+                        <td class="p-4 text-center">
+                            <span class="inline-block bg-slate-800 px-3 py-1 rounded-full text-sm ${winPct >= 50 ? 'text-emerald-400' : 'text-slate-400'}">${winPct}%</span>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            },
+
+            resetStats() {
+                if(confirm("WARNING: This will permanently reset ALL data. Continue?")) {
+                    this.players.forEach(p => p.stats = { played: 0, won: 0, lost: 0 });
+                    this.scoresheets = [];
+                    this.fixtures = [];
+                    this.messages = [];
+                    this.autoSave();
+                    this.updateStats();
+                    this.renderPlayers();
+                    this.renderStatsTable();
+                    this.renderScoresheets();
+                    this.renderFixtures();
+                    this.updateNextFixture();
+                    alert("All data has been reset.");
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
