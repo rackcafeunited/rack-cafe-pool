@@ -188,6 +188,39 @@
             transform: rotate(-45deg) translate(7px, -6px);
         }
 
+        /* Auto-save indicator */
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .save-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .save-indicator.saving {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+        }
+
+        .save-indicator.saved {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+        }
+
         @media (max-width: 1024px) {
             .desktop-nav {
                 display: none;
@@ -202,6 +235,12 @@
     </style>
 </head>
 <body class="antialiased">
+
+    <!-- Auto-save Indicator -->
+    <div id="save-indicator" class="save-indicator glass-panel">
+        <i class="fas fa-circle-notch fa-spin" id="save-icon"></i>
+        <span id="save-text">Saving...</span>
+    </div>
 
     <!-- Navigation -->
     <nav class="sticky top-0 z-50 glass-panel border-b border-slate-700/50">
@@ -369,6 +408,9 @@
                         Manage your team's fixtures, track individual player statistics, and record detailed match scores. 
                         Log in as Captain or Co-Captain to access administrative features.
                     </p>
+                    <p class="text-slate-500 text-sm mt-4">
+                        <i class="fas fa-info-circle mr-2"></i>All data is automatically saved to your browser
+                    </p>
                 </div>
             </div>
         </section>
@@ -427,10 +469,20 @@
                     </div>
                     <h2 class="text-2xl font-bold text-white">Team Statistics</h2>
                 </div>
-                <button id="reset-stats-btn" onclick="app.resetStats()" 
-                        class="hidden btn-danger text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
-                    <i class="fas fa-undo mr-2"></i>Reset All Stats
-                </button>
+                <div class="flex gap-3">
+                    <button onclick="app.exportData()" 
+                            class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <button onclick="app.importData()" 
+                            class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
+                        <i class="fas fa-upload mr-2"></i>Import
+                    </button>
+                    <button id="reset-stats-btn" onclick="app.resetStats()" 
+                            class="hidden btn-danger text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
+                        <i class="fas fa-undo mr-2"></i>Reset
+                    </button>
+                </div>
             </div>
             <div class="glass-panel rounded-2xl overflow-hidden">
                 <div class="overflow-x-auto">
@@ -595,10 +647,20 @@
         </div>
     </div>
 
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file" accept=".json" class="hidden" onchange="app.handleImportFile(event)">
+
     <script>
         const app = {
             currentUser: null,
-            players: [
+            players: [],
+            fixtures: [],
+            scoresheets: [],
+            saveTimeout: null,
+            isSaving: false,
+
+            // Default initial data
+            defaultPlayers: [
                 { id: 1, name: 'Brandon Dannatt', role: 'Captain', username: 'B. Dannatt', password: 'HTAFC26', email: 'bdannatt@sky.com', mobile: '07847 708227', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Brandon+Dannatt&background=10b981&color=fff&size=128' },
                 { id: 2, name: 'Tom Hayes-Smith', role: 'Co-Captain', username: 'T. Hayes-Smith', password: '071122Mia', email: 'thayessmith@gmail.com', mobile: '07490518455', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Tom+Hayes-Smith&background=3b82f6&color=fff&size=128' },
                 { id: 3, name: 'Chris Shearon', role: 'Player', username: 'C. Shearon', password: 'Rack26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Chris+Shearon&background=64748b&color=fff&size=128' },
@@ -607,10 +669,9 @@
                 { id: 6, name: 'Keely Burns', role: 'Reserve', username: 'K. Burns', password: 'Luna26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Keely+Burns&background=64748b&color=fff&size=128' },
                 { id: 7, name: 'Chloë Syrat', role: 'Reserve', username: 'C. Syrat', password: 'Reserve26', email: '', mobile: '', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Chloe+Syrat&background=64748b&color=fff&size=128' }
             ],
-            fixtures: [],
-            scoresheets: [],
 
             init() {
+                this.loadData();
                 this.renderNav();
                 this.renderPlayers();
                 this.renderFixtures();
@@ -618,6 +679,135 @@
                 this.updateStats();
                 this.updateNextFixture();
                 this.showSection('dashboard');
+            },
+
+            // Auto-save functionality
+            autoSave() {
+                // Clear existing timeout
+                if (this.saveTimeout) {
+                    clearTimeout(this.saveTimeout);
+                }
+
+                // Show saving indicator
+                this.showSaveIndicator('saving');
+
+                // Debounce save operation
+                this.saveTimeout = setTimeout(() => {
+                    this.performSave();
+                }, 500);
+            },
+
+            performSave() {
+                try {
+                    const data = {
+                        players: this.players,
+                        fixtures: this.fixtures,
+                        scoresheets: this.scoresheets,
+                        lastSaved: new Date().toISOString()
+                    };
+                    localStorage.setItem('rackCafePoolData', JSON.stringify(data));
+                    this.showSaveIndicator('saved');
+                } catch (e) {
+                    console.error('Save failed:', e);
+                    this.showSaveIndicator('error');
+                }
+            },
+
+            showSaveIndicator(state) {
+                const indicator = document.getElementById('save-indicator');
+                const icon = document.getElementById('save-icon');
+                const text = document.getElementById('save-text');
+
+                indicator.classList.remove('saving', 'saved');
+                indicator.classList.add('show');
+
+                if (state === 'saving') {
+                    indicator.classList.add('saving');
+                    icon.className = 'fas fa-circle-notch fa-spin';
+                    text.textContent = 'Saving...';
+                } else if (state === 'saved') {
+                    indicator.classList.add('saved');
+                    icon.className = 'fas fa-check';
+                    text.textContent = 'Saved';
+                    
+                    // Hide after 2 seconds
+                    setTimeout(() => {
+                        indicator.classList.remove('show');
+                    }, 2000);
+                }
+            },
+
+            loadData() {
+                try {
+                    const saved = localStorage.getItem('rackCafePoolData');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.players = data.players || this.defaultPlayers;
+                        this.fixtures = data.fixtures || [];
+                        this.scoresheets = data.scoresheets || [];
+                        console.log('Data loaded from localStorage');
+                    } else {
+                        // First time - use defaults
+                        this.players = [...this.defaultPlayers];
+                        this.fixtures = [];
+                        this.scoresheets = [];
+                        this.performSave(); // Save initial state
+                    }
+                } catch (e) {
+                    console.error('Load failed:', e);
+                    this.players = [...this.defaultPlayers];
+                    this.fixtures = [];
+                    this.scoresheets = [];
+                }
+            },
+
+            // Export/Import functionality
+            exportData() {
+                const data = {
+                    players: this.players,
+                    fixtures: this.fixtures,
+                    scoresheets: this.scoresheets,
+                    exportedAt: new Date().toISOString()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rack-cafe-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+
+            importData() {
+                document.getElementById('import-file').click();
+            },
+
+            handleImportFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (confirm('This will replace all current data. Continue?')) {
+                            this.players = data.players || this.defaultPlayers;
+                            this.fixtures = data.fixtures || [];
+                            this.scoresheets = data.scoresheets || [];
+                            this.performSave();
+                            this.renderPlayers();
+                            this.renderFixtures();
+                            this.renderScoresheets();
+                            this.updateStats();
+                            this.updateNextFixture();
+                            alert('Data imported successfully!');
+                        }
+                    } catch (err) {
+                        alert('Invalid file format');
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = ''; // Reset input
             },
 
             renderNav() {
@@ -630,7 +820,6 @@
                     { id: 'admin', label: 'Admin', icon: 'fa-shield-alt', adminOnly: true, mobileLabel: 'Admin Panel' }
                 ];
 
-                // Desktop nav
                 document.getElementById('desktop-nav').innerHTML = links.map(link => `
                     <button onclick="app.showSection('${link.id}')" 
                             class="${link.adminOnly ? 'admin-link hidden ' : ''}nav-item text-slate-300 hover:text-white hover:bg-slate-800/80 px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap"
@@ -639,7 +828,6 @@
                     </button>
                 `).join('');
 
-                // Mobile menu items
                 document.getElementById('mobile-menu-items').innerHTML = links.map(link => `
                     <button onclick="app.showSection('${link.id}'); app.toggleMobileMenu()" 
                             class="${link.adminOnly ? 'admin-link hidden ' : ''}mobile-nav-item w-full text-left text-slate-300 hover:text-white hover:bg-slate-800/80 px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-3"
@@ -666,13 +854,11 @@
                 document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-section'));
                 document.getElementById(sectionId).classList.remove('hidden-section');
                 
-                // Update desktop nav
                 document.querySelectorAll('.nav-item').forEach(btn => {
                     btn.classList.remove('nav-active');
                     if (btn.dataset.section === sectionId) btn.classList.add('nav-active');
                 });
 
-                // Update mobile nav
                 document.querySelectorAll('.mobile-nav-item').forEach(btn => {
                     btn.classList.remove('bg-slate-800', 'text-white');
                     if (btn.dataset.section === sectionId) {
@@ -758,7 +944,6 @@
                     document.getElementById('user-status').innerHTML = userHtml;
                     document.getElementById('mobile-user-status').innerHTML = `Logged in as <span class="text-emerald-400 font-medium">${user.name}</span>`;
 
-                    // Update mobile login button
                     const mobileLoginBtn = document.querySelector('#mobile-menu button[onclick*="toggleLoginModal"]');
                     if (mobileLoginBtn) {
                         mobileLoginBtn.innerHTML = '<i class="fas fa-sign-out-alt mr-2"></i>Logout';
@@ -876,6 +1061,7 @@
                 };
 
                 this.players.push(newPlayer);
+                this.autoSave(); // Auto-save
                 alert('Player added successfully!');
                 e.target.reset();
                 this.renderPlayers();
@@ -956,6 +1142,7 @@
                     frames: Array(10).fill(null).map(() => ({ playerId: null, won: false }))
                 };
                 this.fixtures.push(newFixture);
+                this.autoSave(); // Auto-save
                 this.closeFixtureModal();
                 this.renderFixtures();
                 this.renderScoresheets();
@@ -966,6 +1153,7 @@
             deleteFixture(id) {
                 if(confirm('Delete this fixture?')) {
                     this.fixtures = this.fixtures.filter(f => f.id !== id);
+                    this.autoSave(); // Auto-save
                     this.renderFixtures();
                     this.renderScoresheets();
                     this.updateNextFixture();
@@ -1163,6 +1351,7 @@
                 }
 
                 this.scoresheets.push(newSheet);
+                this.autoSave(); // Auto-save
                 fixtureSelect.value = '';
                 opponentInput.value = '';
                 this.renderScoresheets();
@@ -1171,6 +1360,7 @@
             deleteScorecard(index) {
                 if (confirm('Delete this scorecard?')) {
                     this.scoresheets.splice(index, 1);
+                    this.autoSave(); // Auto-save
                     this.renderScoresheets();
                     this.updateStats();
                 }
@@ -1178,6 +1368,7 @@
 
             lockScorecard(index) {
                 this.scoresheets[index].locked = !this.scoresheets[index].locked;
+                this.autoSave(); // Auto-save
                 this.renderScoresheets();
             },
 
@@ -1190,6 +1381,7 @@
                     } else if (field === 'opponentPlayer') {
                         sheet.frames[frameIndex].opponentPlayer = value;
                     }
+                    this.autoSave(); // Auto-save
                     this.renderScoresheets();
                     this.updateStats();
                 }
@@ -1199,6 +1391,7 @@
                 const sheet = this.scoresheets[sheetIndex];
                 if (sheet && !sheet.locked && sheet.frames[frameIndex].playerId) {
                     sheet.frames[frameIndex].won = !sheet.frames[frameIndex].won;
+                    this.autoSave(); // Auto-save
                     this.renderScoresheets();
                     this.updateStats();
                 }
@@ -1266,10 +1459,14 @@
                 if(confirm("WARNING: This will permanently reset ALL player statistics and delete ALL scoresheets. Continue?")) {
                     this.players.forEach(p => p.stats = { played: 0, won: 0, lost: 0 });
                     this.scoresheets = [];
+                    this.fixtures = [];
+                    this.autoSave(); // Auto-save
                     this.updateStats();
                     this.renderPlayers();
                     this.renderStatsTable();
                     this.renderScoresheets();
+                    this.renderFixtures();
+                    this.updateNextFixture();
                     alert("All statistics have been reset.");
                 }
             }
