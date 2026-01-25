@@ -6,6 +6,10 @@
     <title>Rack Café Utd | Pool Team</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -188,8 +192,8 @@
             transform: rotate(-45deg) translate(7px, -6px);
         }
 
-        /* Auto-save indicator */
-        .save-indicator {
+        /* Sync indicator */
+        .sync-indicator {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -206,19 +210,51 @@
             z-index: 100;
         }
 
-        .save-indicator.show {
+        .sync-indicator.show {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .save-indicator.saving {
+        .sync-indicator.syncing {
             background: rgba(59, 130, 246, 0.9);
             color: white;
         }
 
-        .save-indicator.saved {
+        .sync-indicator.synced {
             background: rgba(16, 185, 129, 0.9);
             color: white;
+        }
+
+        .sync-indicator.offline {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 40;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .connection-status.offline {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         @media (max-width: 1024px) {
@@ -236,10 +272,16 @@
 </head>
 <body class="antialiased">
 
-    <!-- Auto-save Indicator -->
-    <div id="save-indicator" class="save-indicator glass-panel">
-        <i class="fas fa-circle-notch fa-spin" id="save-icon"></i>
-        <span id="save-text">Saving...</span>
+    <!-- Connection Status -->
+    <div id="connection-status" class="connection-status online">
+        <i class="fas fa-wifi"></i>
+        <span>Online</span>
+    </div>
+
+    <!-- Sync Indicator -->
+    <div id="sync-indicator" class="sync-indicator glass-panel">
+        <i class="fas fa-sync fa-spin" id="sync-icon"></i>
+        <span id="sync-text">Syncing...</span>
     </div>
 
     <!-- Navigation -->
@@ -406,10 +448,10 @@
                     <h2 class="text-2xl font-bold text-white mb-3">Welcome to Rack Café Utd</h2>
                     <p class="text-slate-400 max-w-2xl mx-auto leading-relaxed">
                         Manage your team's fixtures, track individual player statistics, and record detailed match scores. 
-                        Log in as Captain or Co-Captain to access administrative features.
+                        All data syncs automatically across all your devices in real-time.
                     </p>
                     <p class="text-slate-500 text-sm mt-4">
-                        <i class="fas fa-info-circle mr-2"></i>All data is automatically saved to your browser
+                        <i class="fas fa-cloud mr-2"></i>Connected to cloud database
                     </p>
                 </div>
             </div>
@@ -473,10 +515,6 @@
                     <button onclick="app.exportData()" 
                             class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
                         <i class="fas fa-download mr-2"></i>Export
-                    </button>
-                    <button onclick="app.importData()" 
-                            class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
-                        <i class="fas fa-upload mr-2"></i>Import
                     </button>
                     <button id="reset-stats-btn" onclick="app.resetStats()" 
                             class="hidden btn-danger text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm">
@@ -647,19 +685,53 @@
         </div>
     </div>
 
-    <!-- Hidden file input for import -->
-    <input type="file" id="import-file" accept=".json" class="hidden" onchange="app.handleImportFile(event)">
-
     <script>
+        // ==========================================
+        // FIREBASE CONFIGURATION
+        // ==========================================
+        
+        // STEP 1: Create a Firebase project at https://console.firebase.google.com/
+        // STEP 2: Enable Realtime Database
+        // STEP 3: Copy your config object from Project Settings
+        // STEP 4: Replace the config below with your own
+
+        const firebaseConfig = {
+            // REPLACE THESE WITH YOUR OWN FIREBASE CONFIG
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase (only if config is valid)
+        let db = null;
+        let isFirebaseReady = false;
+
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                isFirebaseReady = true;
+                console.log("Firebase initialized successfully");
+            } else {
+                console.warn("Firebase not configured - running in local mode");
+            }
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+        }
+
         const app = {
             currentUser: null,
             players: [],
             fixtures: [],
             scoresheets: [],
             saveTimeout: null,
-            isSaving: false,
+            isOnline: navigator.onLine,
+            syncListeners: [],
 
-            // Default initial data
             defaultPlayers: [
                 { id: 1, name: 'Brandon Dannatt', role: 'Captain', username: 'B. Dannatt', password: 'HTAFC26', email: 'bdannatt@sky.com', mobile: '07847 708227', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Brandon+Dannatt&background=10b981&color=fff&size=128' },
                 { id: 2, name: 'Tom Hayes-Smith', role: 'Co-Captain', username: 'T. Hayes-Smith', password: '071122Mia', email: 'thayessmith@gmail.com', mobile: '07490518455', stats: { played: 0, won: 0, lost: 0 }, pfp: 'https://ui-avatars.com/api/?name=Tom+Hayes-Smith&background=3b82f6&color=fff&size=128' },
@@ -671,97 +743,183 @@
             ],
 
             init() {
+                this.setupNetworkListeners();
                 this.loadData();
                 this.renderNav();
-                this.renderPlayers();
-                this.renderFixtures();
-                this.renderScoresheets();
-                this.updateStats();
-                this.updateNextFixture();
-                this.showSection('dashboard');
-            },
-
-            // Auto-save functionality
-            autoSave() {
-                // Clear existing timeout
-                if (this.saveTimeout) {
-                    clearTimeout(this.saveTimeout);
-                }
-
-                // Show saving indicator
-                this.showSaveIndicator('saving');
-
-                // Debounce save operation
-                this.saveTimeout = setTimeout(() => {
-                    this.performSave();
+                this.setupRealtimeSync();
+                
+                // Wait for initial data then render
+                setTimeout(() => {
+                    this.renderPlayers();
+                    this.renderFixtures();
+                    this.renderScoresheets();
+                    this.updateStats();
+                    this.updateNextFixture();
+                    this.showSection('dashboard');
                 }, 500);
             },
 
-            performSave() {
+            // ==========================================
+            // NETWORK & SYNC
+            // ==========================================
+
+            setupNetworkListeners() {
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    this.updateConnectionStatus();
+                    this.syncToCloud();
+                });
+
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    this.updateConnectionStatus();
+                });
+
+                this.updateConnectionStatus();
+            },
+
+            updateConnectionStatus() {
+                const status = document.getElementById('connection-status');
+                if (this.isOnline && isFirebaseReady) {
+                    status.className = 'connection-status online';
+                    status.innerHTML = '<i class="fas fa-wifi"></i><span>Online</span>';
+                } else {
+                    status.className = 'connection-status offline';
+                    status.innerHTML = '<i class="fas fa-wifi-slash"></i><span>Offline</span>';
+                }
+            },
+
+            showSyncIndicator(state) {
+                const indicator = document.getElementById('sync-indicator');
+                const icon = document.getElementById('sync-icon');
+                const text = document.getElementById('sync-text');
+
+                indicator.classList.remove('syncing', 'synced', 'offline');
+                indicator.classList.add('show');
+
+                if (state === 'syncing') {
+                    indicator.classList.add('syncing');
+                    icon.className = 'fas fa-sync fa-spin';
+                    text.textContent = 'Syncing...';
+                } else if (state === 'synced') {
+                    indicator.classList.add('synced');
+                    icon.className = 'fas fa-check';
+                    text.textContent = 'Synced';
+                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                } else if (state === 'offline') {
+                    indicator.classList.add('offline');
+                    icon.className = 'fas fa-cloud';
+                    text.textContent = 'Saved locally';
+                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                }
+            },
+
+            // ==========================================
+            // DATA PERSISTENCE (LOCAL + CLOUD)
+            // ==========================================
+
+            loadData() {
+                // Always load from local first for speed
+                const local = localStorage.getItem('rackCafePoolData');
+                if (local) {
+                    try {
+                        const data = JSON.parse(local);
+                        this.players = data.players || this.defaultPlayers;
+                        this.fixtures = data.fixtures || [];
+                        this.scoresheets = data.scoresheets || [];
+                    } catch (e) {
+                        this.players = [...this.defaultPlayers];
+                    }
+                } else {
+                    this.players = [...this.defaultPlayers];
+                }
+            },
+
+            async syncToCloud() {
+                if (!isFirebaseReady || !this.isOnline) {
+                    this.showSyncIndicator('offline');
+                    this.saveLocal();
+                    return;
+                }
+
+                this.showSyncIndicator('syncing');
+
                 try {
                     const data = {
                         players: this.players,
                         fixtures: this.fixtures,
                         scoresheets: this.scoresheets,
-                        lastSaved: new Date().toISOString()
+                        lastUpdated: Date.now()
                     };
-                    localStorage.setItem('rackCafePoolData', JSON.stringify(data));
-                    this.showSaveIndicator('saved');
+
+                    await db.ref('teamData').set(data);
+                    this.showSyncIndicator('synced');
+                    console.log('Synced to cloud');
                 } catch (e) {
-                    console.error('Save failed:', e);
-                    this.showSaveIndicator('error');
+                    console.error('Cloud sync failed:', e);
+                    this.saveLocal();
+                    this.showSyncIndicator('offline');
                 }
             },
 
-            showSaveIndicator(state) {
-                const indicator = document.getElementById('save-indicator');
-                const icon = document.getElementById('save-icon');
-                const text = document.getElementById('save-text');
-
-                indicator.classList.remove('saving', 'saved');
-                indicator.classList.add('show');
-
-                if (state === 'saving') {
-                    indicator.classList.add('saving');
-                    icon.className = 'fas fa-circle-notch fa-spin';
-                    text.textContent = 'Saving...';
-                } else if (state === 'saved') {
-                    indicator.classList.add('saved');
-                    icon.className = 'fas fa-check';
-                    text.textContent = 'Saved';
-                    
-                    // Hide after 2 seconds
-                    setTimeout(() => {
-                        indicator.classList.remove('show');
-                    }, 2000);
-                }
+            saveLocal() {
+                const data = {
+                    players: this.players,
+                    fixtures: this.fixtures,
+                    scoresheets: this.scoresheets,
+                    lastSaved: Date.now()
+                };
+                localStorage.setItem('rackCafePoolData', JSON.stringify(data));
             },
 
-            loadData() {
-                try {
-                    const saved = localStorage.getItem('rackCafePoolData');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        this.players = data.players || this.defaultPlayers;
-                        this.fixtures = data.fixtures || [];
-                        this.scoresheets = data.scoresheets || [];
-                        console.log('Data loaded from localStorage');
-                    } else {
-                        // First time - use defaults
-                        this.players = [...this.defaultPlayers];
-                        this.fixtures = [];
-                        this.scoresheets = [];
-                        this.performSave(); // Save initial state
+            autoSave() {
+                if (this.saveTimeout) clearTimeout(this.saveTimeout);
+                
+                this.showSyncIndicator('syncing');
+
+                this.saveTimeout = setTimeout(() => {
+                    this.saveLocal();
+                    this.syncToCloud();
+                }, 500);
+            },
+
+            setupRealtimeSync() {
+                if (!isFirebaseReady) return;
+
+                // Listen for remote changes
+                db.ref('teamData').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (!data) return;
+
+                    // Check if remote data is newer
+                    const remoteTime = data.lastUpdated || 0;
+                    const localTime = parseInt(localStorage.getItem('lastSyncTime') || '0');
+
+                    if (remoteTime > localTime) {
+                        console.log('New data from cloud, updating...');
+                        this.players = data.players || this.players;
+                        this.fixtures = data.fixtures || this.fixtures;
+                        this.scoresheets = data.scoresheets || this.scoresheets;
+                        
+                        this.saveLocal();
+                        localStorage.setItem('lastSyncTime', remoteTime);
+                        
+                        // Re-render everything
+                        this.renderPlayers();
+                        this.renderFixtures();
+                        this.renderScoresheets();
+                        this.updateStats();
+                        this.updateNextFixture();
+                        
+                        this.showSyncIndicator('synced');
                     }
-                } catch (e) {
-                    console.error('Load failed:', e);
-                    this.players = [...this.defaultPlayers];
-                    this.fixtures = [];
-                    this.scoresheets = [];
-                }
+                });
             },
 
-            // Export/Import functionality
+            // ==========================================
+            // EXPORT/IMPORT
+            // ==========================================
+
             exportData() {
                 const data = {
                     players: this.players,
@@ -778,37 +936,9 @@
                 URL.revokeObjectURL(url);
             },
 
-            importData() {
-                document.getElementById('import-file').click();
-            },
-
-            handleImportFile(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        if (confirm('This will replace all current data. Continue?')) {
-                            this.players = data.players || this.defaultPlayers;
-                            this.fixtures = data.fixtures || [];
-                            this.scoresheets = data.scoresheets || [];
-                            this.performSave();
-                            this.renderPlayers();
-                            this.renderFixtures();
-                            this.renderScoresheets();
-                            this.updateStats();
-                            this.updateNextFixture();
-                            alert('Data imported successfully!');
-                        }
-                    } catch (err) {
-                        alert('Invalid file format');
-                    }
-                };
-                reader.readAsText(file);
-                event.target.value = ''; // Reset input
-            },
+            // ==========================================
+            // UI METHODS (same as before)
+            // ==========================================
 
             renderNav() {
                 const links = [
@@ -1061,7 +1191,7 @@
                 };
 
                 this.players.push(newPlayer);
-                this.autoSave(); // Auto-save
+                this.autoSave();
                 alert('Player added successfully!');
                 e.target.reset();
                 this.renderPlayers();
@@ -1142,7 +1272,7 @@
                     frames: Array(10).fill(null).map(() => ({ playerId: null, won: false }))
                 };
                 this.fixtures.push(newFixture);
-                this.autoSave(); // Auto-save
+                this.autoSave();
                 this.closeFixtureModal();
                 this.renderFixtures();
                 this.renderScoresheets();
@@ -1153,7 +1283,7 @@
             deleteFixture(id) {
                 if(confirm('Delete this fixture?')) {
                     this.fixtures = this.fixtures.filter(f => f.id !== id);
-                    this.autoSave(); // Auto-save
+                    this.autoSave();
                     this.renderFixtures();
                     this.renderScoresheets();
                     this.updateNextFixture();
@@ -1351,7 +1481,7 @@
                 }
 
                 this.scoresheets.push(newSheet);
-                this.autoSave(); // Auto-save
+                this.autoSave();
                 fixtureSelect.value = '';
                 opponentInput.value = '';
                 this.renderScoresheets();
@@ -1360,7 +1490,7 @@
             deleteScorecard(index) {
                 if (confirm('Delete this scorecard?')) {
                     this.scoresheets.splice(index, 1);
-                    this.autoSave(); // Auto-save
+                    this.autoSave();
                     this.renderScoresheets();
                     this.updateStats();
                 }
@@ -1368,7 +1498,7 @@
 
             lockScorecard(index) {
                 this.scoresheets[index].locked = !this.scoresheets[index].locked;
-                this.autoSave(); // Auto-save
+                this.autoSave();
                 this.renderScoresheets();
             },
 
@@ -1381,7 +1511,7 @@
                     } else if (field === 'opponentPlayer') {
                         sheet.frames[frameIndex].opponentPlayer = value;
                     }
-                    this.autoSave(); // Auto-save
+                    this.autoSave();
                     this.renderScoresheets();
                     this.updateStats();
                 }
@@ -1391,7 +1521,7 @@
                 const sheet = this.scoresheets[sheetIndex];
                 if (sheet && !sheet.locked && sheet.frames[frameIndex].playerId) {
                     sheet.frames[frameIndex].won = !sheet.frames[frameIndex].won;
-                    this.autoSave(); // Auto-save
+                    this.autoSave();
                     this.renderScoresheets();
                     this.updateStats();
                 }
@@ -1460,7 +1590,7 @@
                     this.players.forEach(p => p.stats = { played: 0, won: 0, lost: 0 });
                     this.scoresheets = [];
                     this.fixtures = [];
-                    this.autoSave(); // Auto-save
+                    this.autoSave();
                     this.updateStats();
                     this.renderPlayers();
                     this.renderStatsTable();
