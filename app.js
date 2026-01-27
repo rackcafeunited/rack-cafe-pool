@@ -1,8 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getDatabase, ref, get, set, update, push, remove, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, get, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-/* ===================== FIREBASE ===================== */
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyAiRXtpn52GM2Rqi-FpdXvWxBjebAjd6_I",
   authDomain: "rackcafepool.firebaseapp.com",
@@ -14,122 +14,118 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-/* ===================== CONSTANTS ===================== */
-const TEAMS = [
-  "Rack Café Utd","Ashfield Massive","Carlton Club","Monkey Club",
-  "Longwood BC Wednesday","BYE","Marsh Lib","Junction (Marsh) 'A'",
-  "Milnsbridge Lib 'D'","Cavalry Arms Jaegars"
-];
-const FRAMES = 10;
-
-/* ===================== UI ===================== */
+/* ================= UI ================= */
 const headerName = document.getElementById("headerName");
 const headerRole = document.getElementById("headerRole");
 const logoutBtn = document.getElementById("logoutBtn");
 const adminTab = document.getElementById("adminTab");
 const systemTab = document.getElementById("systemTab");
-
 const playersList = document.getElementById("playersList");
 
-/* ===================== STATE ===================== */
+/* ================= NAV ================= */
+const sections = document.querySelectorAll("section");
+
+document.querySelectorAll("nav button[data-tab]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    sections.forEach(s => s.classList.add("hidden"));
+    const target = document.getElementById(btn.dataset.tab);
+    if (target) target.classList.remove("hidden");
+  });
+});
+
+/* ================= STATE ================= */
 let currentUser = null;
 let currentRole = "player";
-let usersCache = {};     // users/{uid}
-let rosterCache = {};    // rosterByEmail
+let usersCache = {};
+let rosterCache = {};
 
-/* ===================== HELPERS ===================== */
+/* ================= HELPERS ================= */
 const isAdmin = () => ["captain","co-captain","system-creator"].includes(currentRole);
 const isSystem = () => currentRole === "system-creator";
 
 function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  return String(s || "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
   }[c]));
 }
 
-/* ===================== AUTH ===================== */
+/* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
-  if(!user) return;
+  if (!user) return;
+
   currentUser = user;
 
   const uref = ref(db, `users/${user.uid}`);
-  let usnap = await get(uref);
+  let snap = await get(uref);
 
-  if(!usnap.exists()){
+  if (!snap.exists()) {
     await set(uref, {
-      email: user.email,
       name: user.email.split("@")[0],
-      role: user.email === "thayessmith@rackcafeutd.com" ? "system-creator" : "player",
-      secondaryRole: user.email === "thayessmith@rackcafeutd.com" ? "co-captain" : null
+      email: user.email,
+      role: user.email === "thayessmith@rackcafeutd.com"
+        ? "system-creator"
+        : "player",
+      secondaryRole: user.email === "thayessmith@rackcafeutd.com"
+        ? "co-captain"
+        : null
     });
-    usnap = await get(uref);
+    snap = await get(uref);
   }
 
-  const u = usnap.val();
-  currentRole = u.role || "player";
+  const u = snap.val();
+  currentRole = u.role;
 
   headerName.textContent = u.name;
   headerRole.textContent = u.secondaryRole
     ? `${u.role} + ${u.secondaryRole}`
     : u.role;
 
-  if(isAdmin()) adminTab.classList.remove("hidden");
-  if(isSystem()) systemTab.classList.remove("hidden");
+  if (isAdmin()) adminTab.classList.remove("hidden");
+  if (isSystem()) systemTab.classList.remove("hidden");
 
   setupUsersListener();
   setupRosterListener();
 });
 
-/* ===================== USERS ===================== */
+/* ================= USERS ================= */
 function setupUsersListener(){
-  onValue(ref(db,"users"), snap => {
+  onValue(ref(db, "users"), snap => {
     usersCache = snap.exists() ? snap.val() : {};
     renderPlayers();
   });
 }
 
-/* ===================== ROSTER ===================== */
+/* ================= ROSTER ================= */
 function setupRosterListener(){
-  onValue(ref(db,"rosterByEmail"), snap => {
+  onValue(ref(db, "rosterByEmail"), snap => {
     rosterCache = snap.exists() ? snap.val() : {};
     renderPlayers();
   });
 }
 
-/* ===================== PLAYERS VIEW ===================== */
+/* ================= PLAYERS ================= */
 function renderPlayers(){
-  if(!playersList) return;
+  if (!playersList) return;
 
-  const usersList = Object.entries(usersCache)
-    .map(([uid,data]) => ({ uid, ...data }));
+  const users = Object.entries(usersCache).map(([uid,data]) => ({ uid, ...data }));
+  const roster = Object.values(rosterCache || []);
 
-  const rosterList = Object.values(rosterCache || {});
-
-  // Merge roster + logged-in users by email
-  const merged = rosterList.map(r => {
-    const match = usersList.find(u =>
-      (u.email||"").toLowerCase() === (r.email||"").toLowerCase()
-    );
-    return match
-      ? { ...r, ...match, linked:true }
-      : { ...r, linked:false };
+  const merged = roster.map(r => {
+    const match = users.find(u => u.email?.toLowerCase() === r.email?.toLowerCase());
+    return match ? { ...r, ...match, linked:true } : { ...r, linked:false };
   });
 
-  // Add logged-in users not in roster
-  const extras = usersList.filter(u =>
-    !rosterList.some(r =>
-      (r.email||"").toLowerCase() === (u.email||"").toLowerCase()
-    )
+  const extras = users.filter(u =>
+    !roster.some(r => r.email?.toLowerCase() === u.email?.toLowerCase())
   );
 
-  const finalList = [...merged, ...extras.map(u=>({ ...u, linked:true }))];
+  const finalList = [...merged, ...extras];
 
-  if(finalList.length === 0){
-    playersList.innerHTML = `
-      <div class="card">
-        <strong>No players yet</strong><br>
-        <small>Players appear after login or roster entry.</small>
-      </div>`;
+  if (finalList.length === 0) {
+    playersList.innerHTML = `<div class="card">No players yet</div>`;
     return;
   }
 
@@ -138,26 +134,20 @@ function renderPlayers(){
     .map(p => `
       <div class="fixture">
         <div>
-          <strong>${escapeHtml(p.name || "player")}</strong><br>
+          <strong>${escapeHtml(p.name)}</strong><br>
           <small>
-            ${escapeHtml(p.email || "")}
-            · role: ${escapeHtml(
-              p.role ||
-              (Array.isArray(p.roles) ? p.roles.join(", ") : "player")
-            )}
+            ${escapeHtml(p.email)} · ${escapeHtml(p.role || "player")}
             ${p.linked ? "" : " · (not logged in yet)"}
           </small>
         </div>
         <div class="right">
-          ${p.uid
-            ? `<span class="pill">UID: ${escapeHtml(p.uid.slice(0,6))}…</span>`
-            : `<span class="pill">ROSTER</span>`}
+          <span class="pill">${p.uid ? "ACTIVE" : "ROSTER"}</span>
         </div>
       </div>
     `).join("");
 }
 
-/* ===================== LOGOUT ===================== */
+/* ================= LOGOUT ================= */
 logoutBtn.onclick = async () => {
   await signOut(auth);
   location.reload();
