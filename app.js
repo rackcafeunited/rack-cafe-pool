@@ -1,11 +1,18 @@
-// Firebase v9 (modular)
+// Firebase v9
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
-  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getDatabase, ref, get, set } 
-  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  get,
+  set
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// 🔥 YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAiRXtpn52GM2Rqi-FpdXvWxBjebAjd6_I",
   authDomain: "rackcafepool.firebaseapp.com",
@@ -13,61 +20,46 @@ const firebaseConfig = {
   projectId: "rackcafepool"
 };
 
-// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// UI refs
-const loginCard = document.getElementById("loginCard");
-const appCard = document.getElementById("appCard");
-const loginError = document.getElementById("loginError");
-
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const loginBtn = document.getElementById("loginBtn");
+// UI
+const headerName = document.getElementById("headerName");
+const headerRole = document.getElementById("headerRole");
 const logoutBtn = document.getElementById("logoutBtn");
 
-const userNameEl = document.getElementById("userName");
-const userRoleEl = document.getElementById("userRole");
+const adminTab = document.getElementById("adminTab");
+const systemTab = document.getElementById("systemTab");
 
-// LOGIN
-loginBtn.addEventListener("click", async () => {
-  loginError.style.display = "none";
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      emailInput.value.trim(),
-      passwordInput.value
-    );
-  } catch (err) {
-    loginError.textContent = err.message;
-    loginError.style.display = "block";
-  }
+const sections = document.querySelectorAll("section");
+const navButtons = document.querySelectorAll("nav button");
+
+// NAVIGATION
+navButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    navButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    sections.forEach(sec => sec.classList.add("hidden"));
+    document.getElementById(btn.dataset.tab).classList.remove("hidden");
+  });
 });
 
 // LOGOUT
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
+  location.reload();
 });
 
 // AUTH STATE
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    loginCard.classList.remove("hidden");
-    appCard.classList.add("hidden");
-    return;
-  }
-
-  // User logged in
-  loginCard.classList.add("hidden");
-  appCard.classList.remove("hidden");
+onAuthStateChanged(auth, async user => {
+  if (!user) return;
 
   const uid = user.uid;
   const userRef = ref(db, `users/${uid}`);
-  const snap = await get(userRef);
+  let snap = await get(userRef);
 
-  // First login → create profile
   if (!snap.exists()) {
     const role =
       user.email === "thayessmith@rackcafeutd.com"
@@ -75,13 +67,24 @@ onAuthStateChanged(auth, async (user) => {
         : "player";
 
     await set(userRef, {
-      email: user.email,
       name: user.email.split("@")[0],
+      email: user.email,
       role
     });
+    snap = await get(userRef);
   }
 
-  const data = (await get(userRef)).val();
-  userNameEl.textContent = data.name;
-  userRoleEl.textContent = data.role;
+  const data = snap.val();
+
+  headerName.textContent = data.name;
+  headerRole.textContent = data.role;
+
+  // ROLE GATES
+  if (["captain", "co-captain", "system-creator"].includes(data.role)) {
+    adminTab.classList.remove("hidden");
+  }
+
+  if (data.role === "system-creator") {
+    systemTab.classList.remove("hidden");
+  }
 });
