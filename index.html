@@ -1,62 +1,1003 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Rack Café Utd</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rack Café Utd - Pool Team App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --primary-light: #16213e;
+            --accent: #e94560;
+            --accent-hover: #c73e54;
+            --gold: #f5a623;
+            --green: #4ade80;
+            --red: #f87171;
+            --text: #f1f1f1;
+            --text-muted: #a0a0a0;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
 
-  <style>
-    body { font-family: Arial, sans-serif; background:#0f172a; color:#e5e7eb; margin:0; }
-    nav { display:flex; gap:8px; padding:10px; background:#020617; }
-    nav button { background:#1e293b; color:#e5e7eb; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
-    nav button.active { background:#dc2626; }
-    nav button.hidden { display:none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    section { padding:16px; }
-    .hidden { display:none; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    .card { background:#020617; border:1px solid #1e293b; border-radius:12px; padding:12px; margin-bottom:12px; }
-    .fixture { display:flex; justify-content:space-between; gap:12px; background:#020617; border:1px solid #1e293b; border-radius:12px; padding:12px; margin-bottom:10px; }
-    .right { text-align:right; }
-    .pill { background:#1e293b; padding:4px 8px; border-radius:999px; font-size:12px; }
-  </style>
+        .login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .login-logo {
+            width: 120px; height: 120px;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .login-logo i { font-size: 50px; color: white; }
+
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box h1 { text-align: center; margin-bottom: 10px; font-size: 28px; font-weight: 800; }
+        .login-box .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .input-wrapper input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .input-wrapper input:focus { outline: none; border-color: var(--accent); background: rgba(255, 255, 255, 0.08); }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4); }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); margin-top: 10px; }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); box-shadow: none; }
+        .btn-danger { background: linear-gradient(135deg, var(--red), #dc2626); }
+        .btn-danger:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); box-shadow: 0 10px 30px rgba(248, 113, 113, 0.4); }
+        .btn-sm { padding: 8px 12px; font-size: 12px; width: auto; }
+
+        .app-container { display: none; min-height: 100vh; padding-bottom: 80px; }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+
+        .team-brand { display: flex; align-items: center; gap: 15px; }
+        .team-logo-small { width: 50px; height: 50px; background: linear-gradient(135deg, var(--accent), var(--gold)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .team-info h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+        .team-info span { font-size: 12px; color: var(--text-muted); }
+
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sync-status:hover { background: rgba(255, 255, 255, 0.1); }
+        .sync-status.syncing i { animation: spin 1s linear infinite; }
+        .sync-status.saved { color: var(--green); border-color: rgba(74, 222, 128, 0.3); }
+        .sync-status.offline { color: var(--gold); border-color: rgba(245, 166, 35, 0.3); }
+        .sync-status.error { color: var(--red); border-color: rgba(248, 113, 113, 0.3); }
+
+        .notification-btn { position: relative; width: 45px; height: 45px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; }
+        .notification-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .notification-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        .user-menu { position: relative; }
+        .user-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, var(--gold), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: all 0.3s; }
+        .user-avatar:hover { border-color: var(--accent); }
+
+        .dropdown { position: absolute; top: 55px; right: 0; background: var(--primary-light); border: 1px solid var(--border); border-radius: 12px; min-width: 200px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); display: none; overflow: hidden; }
+        .dropdown.show { display: block; animation: slideDown 0.3s ease; }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .dropdown-item { padding: 15px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; border-bottom: 1px solid var(--border); }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .dropdown-item i { width: 20px; color: var(--accent); }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; backdrop-filter: blur(10px); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px; cursor: pointer; transition: all 0.3s; color: var(--text-muted); text-decoration: none; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 22px; }
+        .nav-item span { font-size: 11px; font-weight: 500; }
+
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-header { margin-bottom: 25px; }
+        .section-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; }
+        .section-header p { color: var(--text-muted); font-size: 14px; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); transition: all 0.3s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .card-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .card-title i { color: var(--accent); }
+
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(74, 222, 128, 0.2); color: var(--green); }
+        .badge-warning { background: rgba(245, 166, 35, 0.2); color: var(--gold); }
+
+        .next-match { background: linear-gradient(135deg, var(--accent), #d63050); border: none; color: white; }
+        .next-match .card-title { color: white; }
+        .next-match .card-title i { color: white; }
+
+        .match-teams { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+        .team-display { text-align: center; flex: 1; }
+        .team-display h3 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+        .team-display span { font-size: 12px; opacity: 0.9; }
+        .vs-divider { font-size: 24px; font-weight: 800; opacity: 0.8; padding: 0 20px; }
+
+        .match-details { display: flex; justify-content: center; gap: 30px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+        .match-detail { text-align: center; }
+        .match-detail i { font-size: 18px; margin-bottom: 5px; display: block; }
+        .match-detail span { font-size: 13px; opacity: 0.9; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s; }
+        .stat-box:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .stat-value { font-size: 32px; font-weight: 800; color: var(--accent); margin-bottom: 5px; }
+        .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .top-performer { background: linear-gradient(135deg, var(--gold), #d97706); border: none; color: var(--primary); position: relative; overflow: hidden; }
+        .top-performer .card-title { color: var(--primary); }
+        .top-performer .card-title i { color: var(--primary); }
+        .performer-content { display: flex; align-items: center; gap: 20px; padding: 10px 0; }
+        .performer-avatar { width: 80px; height: 80px; background: rgba(255, 255, 255, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: var(--primary); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .performer-info h3 { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+        .performer-stats { display: flex; gap: 20px; margin-top: 10px; }
+        .performer-stat { text-align: center; }
+        .performer-stat-value { font-size: 28px; font-weight: 800; }
+        .performer-stat-label { font-size: 11px; opacity: 0.8; text-transform: uppercase; }
+        .trophy-icon { position: absolute; top: 20px; right: 20px; font-size: 48px; opacity: 0.2; }
+
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: var(--primary-light); padding: 15px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+        .position { font-weight: 800; width: 40px; }
+        .position.top { color: var(--gold); }
+        .team-cell { display: flex; align-items: center; gap: 10px; }
+        .team-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+        .form-indicator { display: flex; gap: 3px; }
+        .form-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .form-dot.win { background: var(--green); }
+        .form-dot.loss { background: var(--red); }
+        .form-dot.draw { background: var(--gold); }
+
+        .text-success { color: var(--green); }
+        .text-danger { color: var(--red); }
+
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .player-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .player-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); border-color: var(--accent); }
+        .player-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--gold)); }
+        .player-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; }
+        .player-info { display: flex; align-items: center; gap: 15px; }
+        .player-avatar-large { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--gold)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: white; }
+        .player-meta h3 { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+        .player-role { font-size: 12px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .player-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+        .player-stat { text-align: center; }
+        .player-stat-value { font-size: 20px; font-weight: 700; color: var(--text); }
+        .player-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        .availability-toggle { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+
+        .toggle-switch { position: relative; width: 50px; height: 26px; background: var(--primary-light); border-radius: 13px; cursor: pointer; transition: all 0.3s; }
+        .toggle-switch.active { background: var(--green); }
+        .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: all 0.3s; }
+        .toggle-switch.active::after { left: 27px; }
+
+        .lineup-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .lineup-container { grid-template-columns: 1fr; } }
+
+        .lineup-pool { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .pool-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .pool-title i { color: var(--accent); }
+
+        .player-pool-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .player-pool-item:hover { background: rgba(255, 255, 255, 0.06); border-color: var(--accent); }
+        .player-pool-item.selected { background: rgba(233, 69, 96, 0.1); border-color: var(--accent); }
+        .player-pool-info { display: flex; align-items: center; gap: 10px; }
+        .player-pool-avatar { width: 35px; height: 35px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+        .player-pool-stats { font-size: 12px; color: var(--text-muted); }
+        .add-btn { width: 30px; height: 30px; background: var(--accent); border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .add-btn:hover { background: var(--accent-hover); transform: scale(1.1); }
+
+        .lineup-slots { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .lineup-slot { background: rgba(255, 255, 255, 0.03); border: 2px dashed var(--border); border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; min-height: 60px; }
+        .lineup-slot.filled { background: rgba(74, 222, 128, 0.05); border-style: solid; border-color: var(--green); }
+        .slot-number { width: 30px; height: 30px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+        .slot-player { flex: 1; margin-left: 15px; }
+        .slot-player-name { font-weight: 600; font-size: 14px; }
+        .slot-player-stats { font-size: 12px; color: var(--text-muted); }
+        .remove-btn { width: 25px; height: 25px; background: var(--red); border: none; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .suggestion-badge { display: inline-block; padding: 4px 8px; background: var(--gold); color: var(--primary); border-radius: 6px; font-size: 10px; font-weight: 700; margin-left: 8px; }
+
+        .chat-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; height: 600px; display: flex; flex-direction: column; }
+        .chat-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; position: relative; animation: messageSlide 0.3s ease; }
+        @keyframes messageSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.sent { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+        .message.received { align-self: flex-start; background: var(--primary-light); border-bottom-left-radius: 4px; }
+        .message.announcement { background: linear-gradient(135deg, var(--gold), #d97706); color: var(--primary); align-self: center; max-width: 90%; text-align: center; font-weight: 600; }
+        .message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 12px; opacity: 0.8; }
+        .message-time { font-size: 11px; opacity: 0.6; margin-top: 5px; }
+        .message-actions { position: absolute; top: -10px; right: -10px; display: none; }
+        .message:hover .message-actions { display: flex; gap: 5px; }
+        .message-btn { width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .message-btn.delete { background: var(--red); color: white; }
+
+        .chat-input-area { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .chat-input { flex: 1; padding: 12px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; }
+        .chat-input:focus { outline: none; border-color: var(--accent); }
+        .send-btn { width: 45px; height: 45px; background: var(--accent); border: none; border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .send-btn:hover { background: var(--accent-hover); }
+
+        .fixture-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; transition: all 0.2s; position: relative; }
+        .fixture-item:hover { background: rgba(255, 255, 255, 0.06); }
+        .fixture-content { display: flex; align-items: center; flex: 1; }
+        .fixture-date { text-align: center; min-width: 60px; }
+        .fixture-day { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+        .fixture-date-num { font-size: 24px; font-weight: 800; color: var(--accent); }
+        .fixture-teams { flex: 1; margin: 0 20px; }
+        .fixture-team-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+        .fixture-score { font-weight: 800; font-size: 18px; color: var(--gold); }
+        .fixture-venue { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+        .fixture-status { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .fixture-status.upcoming { background: rgba(245, 166, 35, 0.2); color: var(--gold); }
+        .fixture-status.completed { background: rgba(74, 222, 128, 0.2); color: var(--green); }
+        .fixture-actions { display: flex; gap: 8px; margin-left: 10px; }
+        .fixture-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; }
+        .fixture-btn.edit { background: var(--primary-light); color: var(--accent); border: 1px solid var(--border); }
+        .fixture-btn.edit:hover { background: var(--accent); color: white; }
+        .fixture-btn.delete { background: rgba(248, 113, 113, 0.1); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.3); }
+        .fixture-btn.delete:hover { background: var(--red); color: white; }
+
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .admin-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .admin-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); }
+        .admin-card.danger { border-color: var(--red); }
+        .admin-card.danger:hover { border-color: var(--red); box-shadow: 0 15px 40px rgba(248, 113, 113, 0.2); }
+        .admin-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--gold)); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; color: white; }
+        .admin-card.danger .admin-icon { background: linear-gradient(135deg, var(--red), #dc2626); }
+        .admin-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+        .admin-card p { font-size: 13px; color: var(--text-muted); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.show { display: flex; animation: fadeIn 0.3s ease; }
+        .modal-content { background: var(--primary); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 20px; font-weight: 700; }
+        .modal-close { width: 35px; height: 35px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .modal-close:hover { background: var(--red); border-color: var(--red); }
+        .modal-body { padding: 25px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+
+        .btn-group { display: flex; gap: 10px; }
+        .btn-half { flex: 1; }
+
+        .csv-preview { max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; margin-top: 15px; }
+        .csv-row { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr; gap: 10px; padding: 10px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .csv-row.header { background: var(--primary-light); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        .csv-row:hover { background: rgba(255, 255, 255, 0.03); }
+        .file-upload { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .file-upload:hover { border-color: var(--accent); background: rgba(233, 69, 96, 0.05); }
+        .file-upload i { font-size: 48px; color: var(--accent); margin-bottom: 15px; }
+
+        .training-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; }
+        .calendar-day { aspect-ratio: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; }
+        .calendar-day:hover { border-color: var(--accent); }
+        .calendar-day.training { background: rgba(233, 69, 96, 0.1); border-color: var(--accent); }
+        .calendar-day.selected { background: var(--accent); border-color: var(--accent); }
+        .day-name { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        .day-num { font-size: 18px; font-weight: 700; margin-top: 2px; }
+        .training-indicator { position: absolute; bottom: 5px; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+        .attendance-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .attendee { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; font-size: 13px; }
+        .attendee-avatar { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+
+        .notification-item { display: flex; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; transition: all 0.2s; cursor: pointer; }
+        .notification-item:hover { background: rgba(255, 255, 255, 0.06); }
+        .notification-item.unread { border-left: 3px solid var(--accent); }
+        .notification-icon { width: 45px; height: 45px; background: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .notification-content { flex: 1; }
+        .notification-title { font-weight: 600; margin-bottom: 3px; }
+        .notification-text { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        .notification-time { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+
+        .confirm-dialog { text-align: center; padding: 20px; }
+        .confirm-dialog i { font-size: 48px; color: var(--warning); margin-bottom: 15px; }
+        .confirm-dialog h3 { margin-bottom: 10px; font-size: 20px; }
+        .confirm-dialog p { color: var(--text-muted); margin-bottom: 25px; }
+
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 15px 25px; border-radius: 12px; font-weight: 600; z-index: 2000; opacity: 0; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: var(--red); }
+
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 15, 30, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; flex-direction: column; gap: 20px; }
+        .loading-overlay.show { display: flex; }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-text { color: var(--text-muted); font-size: 14px; }
+
+        .config-notice { background: rgba(74, 222, 128, 0.1); border: 1px solid var(--green); border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); }
+        .config-notice i { color: var(--green); margin-right: 8px; }
+
+        .error-notice { background: rgba(248, 113, 113, 0.1); border: 1px solid var(--red); border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); display: none; }
+        .error-notice i { color: var(--red); margin-right: 8px; }
+        .error-notice.show { display: block; }
+
+        @media (max-width: 768px) { .performer-content { flex-direction: column; text-align: center; } }
+    </style>
 </head>
-
 <body>
 
-<nav>
-  <button data-tab="dashboard" class="active">Home</button>
-  <button data-tab="players">Squad</button>
-  <button id="adminTab" data-tab="admin" class="hidden">Admin</button>
-  <button id="systemTab" data-tab="system" class="hidden">System</button>
-  <div style="margin-left:auto">
-    <span id="headerName"></span> · <span id="headerRole"></span>
-    <button id="logoutBtn">Logout</button>
-  </div>
-</nav>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Initializing...</div>
+    </div>
 
-<section id="dashboard">
-  <div class="card">
-    <strong>Dashboard</strong><br>
-    Welcome to Rack Café Utd Pool App
-  </div>
-</section>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-logo">
+            <i class="fas fa-bullseye"></i>
+        </div>
+        <div class="login-box">
+            <h1>Rack Café Utd</h1>
+            <p class="subtitle">Huddersfield Tuesday Night Pool League</p>
+            
+            <div class="input-group">
+                <label>Email</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="loginEmail" placeholder="e.g. thayessmith@rackcafeutd.com" autocomplete="off">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+            </div>
+            
+            <button class="btn" onclick="login()" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+            
+            <button class="btn btn-secondary" onclick="createAccount()" id="createBtn">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
 
-<section id="players" class="hidden">
-  <div class="card"><strong>Squad</strong></div>
-  <div id="playersList"></div>
-</section>
+            <div id="loginError" style="color: var(--red); text-align: center; margin-top: 15px; font-size: 14px; display: none;"></div>
+        </div>
+    </div>
 
-<section id="admin" class="hidden">
-  <div class="card"><strong>Admin Panel</strong></div>
-  <p>Admin features will live here.</p>
-</section>
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="team-brand">
+                    <div class="team-logo-small">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="team-info">
+                        <h2>Rack Café Utd</h2>
+                        <span>Huddersfield Tuesday Night Pool League</span>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="sync-status saved" id="syncStatus" onclick="forceSync()">
+                        <i class="fas fa-check-circle" id="syncIcon"></i>
+                        <span id="syncText">Synced</span>
+                    </div>
+                    
+                    <div class="notification-btn" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notifBadge" style="display: none;">0</span>
+                    </div>
+                    
+                    <div class="user-menu">
+                        <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">--</div>
+                        <div class="dropdown" id="userDropdown">
+                            <div class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span id="dropdownEmail">User</span>
+                            </div>
+                            <div class="dropdown-item" onclick="showSection('profile')">
+                                <i class="fas fa-id-card"></i>
+                                <span>My Profile</span>
+                            </div>
+                            <div class="dropdown-item" id="adminMenuItem" onclick="showSection('admin')">
+                                <i class="fas fa-cog"></i>
+                                <span>Admin Panel</span>
+                            </div>
+                            <div class="dropdown-item" onclick="forceSync()">
+                                <i class="fas fa-sync"></i>
+                                <span>Force Sync Now</span>
+                            </div>
+                            <div class="dropdown-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-<section id="system" class="hidden">
-  <div class="card"><strong>System Creator Panel</strong></div>
-  <p>System tools live here.</p>
-</section>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section class="section active" id="dashboard">
+                <div class="section-header">
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, <span id="welcomeName">Player</span>!</p>
+                </div>
 
-<script type="module" src="./app.js?v=20260127_final"></script>
+                <div class="card next-match" id="nextMatchCard">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-calendar-check"></i>
+                            Next Match
+                        </div>
+                        <span class="badge badge-success" id="nextMatchHome">Home</span>
+                    </div>
+                    
+                    <div class="match-teams">
+                        <div class="team-display">
+                            <h3>Rack Café Utd</h3>
+                            <span>Home</span>
+                        </div>
+                        <div class="vs-divider">VS</div>
+                        <div class="team-display">
+                            <h3 id="nextMatchOpponent">TBD</h3>
+                            <span>Away</span>
+                        </div>
+                    </div>
+                    
+                    <div class="match-details">
+                        <div class="match-detail">
+                            <i class="fas fa-calendar"></i>
+                            <span id="nextMatchDate">TBD</span>
+                        </div>
+                        <div class="match-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>8:00 PM</span>
+                        </div>
+                        <div class="match-detail">
+                            <i class="fas fa-location-dot"></i>
+                            <span id="nextMatchVenue">TBD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="statPosition">-</div>
+                        <div class="stat-label">League Position</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statPlayed">0</div>
+                        <div class="stat-label">Played</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statWon">0</div>
+                        <div class="stat-label">Won</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statWinRate">0%</div>
+                        <div class="stat-label">Win Rate</div>
+                    </div>
+                </div>
+
+                <div class="card top-performer">
+                    <i class="fas fa-trophy trophy-icon"></i>
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-star"></i>
+                            Top Performer
+                        </div>
+                        <span class="badge" style="background: rgba(26, 26, 46, 0.9); color: var(--gold);">This Season</span>
+                    </div>
+                    
+                    <div class="performer-content" id="topPerformerContent">
+                        <div class="performer-avatar" id="topPerformerAvatar">--</div>
+                        <div class="performer-info">
+                            <h3 id="topPerformerName">No Data</h3>
+                            <div style="font-size: 14px; opacity: 0.9;">Win Rate: <span id="topPerformerWinRate">0%</span></div>
+                            <div class="performer-stats">
+                                <div class="performer-stat">
+                                    <div class="performer-stat-value" id="topPerformerWon">0</div>
+                                    <div class="performer-stat-label">Won</div>
+                                </div>
+                                <div class="performer-stat">
+                                    <div class="performer-stat-value" id="topPerformerLost">0</div>
+                                    <div class="performer-stat-label">Lost</div>
+                                </div>
+                                <div class="performer-stat">
+                                    <div class="performer-stat-value" id="topPerformerTotal">0</div>
+                                    <div class="performer-stat-label">Played</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            Recent Form
+                        </div>
+                        <span class="text-success" id="recentFormText">-</span>
+                    </div>
+                    <div class="form-indicator" style="justify-content: center; gap: 10px; margin-top: 10px;" id="recentFormDots">
+                        <div class="form-dot" style="background: var(--text-muted);"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fixtures Section -->
+            <section class="section" id="fixtures">
+                <div class="section-header">
+                    <h1>Fixtures & Results</h1>
+                    <p>Manage your season schedule</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-list"></i>
+                            All Fixtures
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary btn-sm" onclick="showModal('addFixture')">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="fixturesList"></div>
+                </div>
+            </section>
+
+            <!-- League Table Section -->
+            <section class="section" id="table">
+                <div class="section-header">
+                    <h1>League Table</h1>
+                    <p>Huddersfield Tuesday Night Pool League</p>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table id="leagueTable">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Team</th>
+                                    <th>P</th>
+                                    <th>W</th>
+                                    <th>L</th>
+                                    <th>Frames</th>
+                                    <th>Pts</th>
+                                    <th>Form</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leagueTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Players Section -->
+            <section class="section" id="players">
+                <div class="section-header">
+                    <h1>Team Squad</h1>
+                    <p>Player profiles and statistics</p>
+                </div>
+
+                <div class="players-grid" id="playersGrid"></div>
+            </section>
+
+            <!-- Lineup Builder Section -->
+            <section class="section" id="lineup">
+                <div class="section-header">
+                    <h1>Lineup Builder</h1>
+                    <p>Suggest optimal lineup based on stats & availability</p>
+                </div>
+
+                <div class="lineup-container">
+                    <div class="lineup-pool">
+                        <div class="pool-title">
+                            <i class="fas fa-users"></i>
+                            Available Players
+                        </div>
+                        <div id="availablePlayers"></div>
+                    </div>
+
+                    <div class="lineup-slots">
+                        <div class="pool-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Match Lineup (10 Frames)
+                            <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 11px; margin-left: auto;" onclick="autoSuggestLineup()">
+                                <i class="fas fa-magic"></i> Auto-Suggest
+                            </button>
+                        </div>
+                        <div id="lineupSlots"></div>
+                        <button class="btn" style="margin-top: 15px;" onclick="saveLineup()">
+                            <i class="fas fa-save"></i> Save Lineup
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Availability Section -->
+            <section class="section" id="availability">
+                <div class="section-header">
+                    <h1>Availability</h1>
+                    <p>Set your availability for upcoming matches</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-calendar-check"></i>
+                            Next 5 Matches
+                        </div>
+                    </div>
+                    <div id="availabilityList"></div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-bell"></i>
+                            Reminder Settings
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Match Day Reminders</span>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Training Reminders</span>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Lineup Notifications</span>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Section -->
+            <section class="section" id="chat">
+                <div class="section-header">
+                    <h1>Team Chat</h1>
+                    <p>Communicate with your teammates</p>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div>
+                            <h3 style="margin-bottom: 3px;">#general</h3>
+                            <span style="font-size: 12px; color: var(--text-muted);" id="chatMemberCount">6 members</span>
+                        </div>
+                        <button class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 12px;" onclick="postAnnouncement()">
+                            <i class="fas fa-bullhorn"></i> Announcement
+                        </button>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages"></div>
+                    
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Training Section -->
+            <section class="section" id="training">
+                <div class="section-header">
+                    <h1>Training Schedule</h1>
+                    <p>Practice sessions and attendance</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-calendar-days"></i>
+                            February 2026
+                        </div>
+                    </div>
+                    <div class="training-calendar" id="trainingCalendar"></div>
+                </div>
+
+                <div class="card" id="trainingDetails" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-dumbbell"></i>
+                            Training Session - <span id="selectedDate">Feb 6</span>
+                        </div>
+                        <span class="badge badge-success">8:00 PM</span>
+                    </div>
+                    <p style="margin-bottom: 15px; color: var(--text-muted);">Venue: Paparazzi Pool Hall</p>
+                    
+                    <h4 style="margin-bottom: 10px; font-size: 14px;">Attending (0):</h4>
+                    <div class="attendance-list" id="attendanceList"></div>
+                    
+                    <button class="btn" style="margin-top: 20px; width: auto;" onclick="toggleAttendance(this)">
+                        <i class="fas fa-check"></i> I'm Attending
+                    </button>
+                </div>
+            </section>
+
+            <!-- Admin Section -->
+            <section class="section" id="admin">
+                <div class="section-header">
+                    <h1>Admin Panel</h1>
+                    <p>Captain & Co-Captain Controls</p>
+                </div>
+
+                <div class="config-notice">
+                    <i class="fas fa-cloud"></i>
+                    <strong>Firebase Connected:</strong> All changes sync automatically across all devices in real-time.
+                </div>
+
+                <div class="admin-grid">
+                    <div class="admin-card" onclick="showModal('addPlayer')">
+                        <div class="admin-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3>Add New Player</h3>
+                        <p>Create new team member account</p>
+                    </div>
+                    
+                    <div class="admin-card" onclick="showModal('editFixture')">
+                        <div class="admin-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3>Edit Fixtures</h3>
+                        <p>Update match details & results</p>
+                    </div>
+                    
+                    <div class="admin-card" onclick="showModal('manageRoles')">
+                        <div class="admin-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3>Manage Roles</h3>
+                        <p>Assign captain/co-captain status</p>
+                    </div>
+                    
+                    <div class="admin-card" onclick="showModal('importCSV')">
+                        <div class="admin-icon">
+                            <i class="fas fa-file-csv"></i>
+                        </div>
+                        <h3>Import Data</h3>
+                        <p>Import fixtures from CSV file</p>
+                    </div>
+                    
+                    <div class="admin-card danger" onclick="showModal('clearStats')">
+                        <div class="admin-icon">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h3>Clear All Stats</h3>
+                        <p>Reset all player statistics</p>
+                    </div>
+
+                    <div class="admin-card danger" onclick="showModal('deleteMessages')">
+                        <div class="admin-icon">
+                            <i class="fas fa-comment-slash"></i>
+                        </div>
+                        <h3>Delete Messages</h3>
+                        <p>Clear chat history</p>
+                    </div>
+
+                    <div class="admin-card danger" onclick="showModal('deleteAnnouncements')">
+                        <div class="admin-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h3>Delete Announcements</h3>
+                        <p>Remove all announcements</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section class="section" id="profile">
+                <div class="section-header">
+                    <h1>My Profile</h1>
+                    <p>Your personal stats and settings</p>
+                </div>
+
+                <div class="card">
+                    <div style="text-align: center; padding: 30px;">
+                        <div class="player-avatar-large" style="width: 100px; height: 100px; font-size: 40px; margin: 0 auto 20px;" id="profileAvatar">--</div>
+                        <h2 style="margin-bottom: 5px;" id="profileName">User</h2>
+                        <span class="badge badge-warning" style="margin-bottom: 20px; display: inline-block;" id="profileRole">Player</span>
+                        
+                        <div class="player-stats-row" style="max-width: 400px; margin: 0 auto;">
+                            <div class="player-stat">
+                                <div class="player-stat-value text-success" id="profileWon">0</div>
+                                <div class="player-stat-label">Frames Won</div>
+                            </div>
+                            <div class="player-stat">
+                                <div class="player-stat-value text-danger" id="profileLost">0</div>
+                                <div class="player-stat-label">Frames Lost</div>
+                            </div>
+                            <div class="player-stat">
+                                <div class="player-stat-value" id="profileWinRate">0%</div>
+                                <div class="player-stat-label">Win Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a class="nav-item active" onclick="showSection('dashboard')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" onclick="showSection('fixtures')">
+                <i class="fas fa-calendar"></i>
+                <span>Fixtures</span>
+            </a>
+            <a class="nav-item" onclick="showSection('players')">
+                <i class="fas fa-users"></i>
+                <span>Squad</span>
+            </a>
+            <a class="nav-item" onclick="showSection('lineup')">
+                <i class="fas fa-chess-board"></i>
+                <span>Lineup</span>
+            </a>
+            <a class="nav-item" onclick="showSection('chat')">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modals -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Modal Title</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="modal" id="notifModal" onclick="if(event.target===this) closeNotifModal()">
+        <div class="modal-content" style="max-width: 400px; max-height: 80vh;">
+            <div class="modal-header">
+                <h2>Notifications</h2>
+                <button class="modal-close" onclick="closeNotifModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 0;" id="notificationsList"></div>
+        </div>
+    </div>
+
+    
+    <script type="module" src="./app.js"></script>
 </body>
 </html>
