@@ -1,159 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rack Café Utd</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Firebase COMPAT (NO MODULES) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .hidden { display: none; }
+
+    /* LOGIN */
+    #loginScreen {
+      max-width: 360px;
+      margin: 80px auto;
+      padding: 24px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+    }
+
+    #loginScreen input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #334155;
+      border-radius: 6px;
+    }
+
+    #loginScreen button {
+      width: 100%;
+      padding: 10px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      background: #020617;
+      align-items: center;
+    }
+
+    .nav-item {
+      background: #1e293b;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      background: #dc2626;
+    }
+
+    section.section {
+      display: none;
+      padding: 16px;
+    }
+
+    section.section.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <h2>Login</h2>
+
+  <input id="loginEmail" type="email" placeholder="Email" />
+  <input id="loginPassword" type="password" placeholder="Password" />
+
+  <button id="loginBtn" onclick="login()">Login</button>
+
+  <div id="loginError" style="display:none;color:#dc2626;margin-top:10px;"></div>
+</div>
+
+<!-- APP -->
+<div id="appContainer" class="hidden">
+
+  <nav>
+    <button class="nav-item active" onclick="showSection('dashboard')">Home</button>
+    <button class="nav-item" onclick="showSection('players')">Squad</button>
+    <button id="adminTab" class="nav-item hidden" onclick="showSection('admin')">Admin</button>
+    <button id="systemTab" class="nav-item hidden" onclick="showSection('system')">System</button>
+
+    <div style="margin-left:auto">
+      <span id="welcomeName"></span>
+      <button class="nav-item" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <section id="dashboard" class="section active">
+    <h3>Dashboard</h3>
+    Welcome to Rack Café Utd
+  </section>
+
+  <section id="players" class="section">
+    <h3>Squad</h3>
+    <div id="playersList"></div>
+  </section>
+
+  <section id="admin" class="section">
+    <h3>Admin Panel</h3>
+  </section>
+
+  <section id="system" class="section">
+    <h3>System Creator Panel</h3>
+  </section>
+
+</div>
+
+<!-- ================= SCRIPT (INLINE ONLY) ================= -->
 <script>
-/*************************************************
- * FIREBASE INITIALISATION (COMPAT ONLY)
- *************************************************/
-const firebaseConfig = {
+/* FIREBASE INIT */
+firebase.initializeApp({
   apiKey: "AIzaSyAiRXtpn52GM2Rqi-FpdXvWxBjebAjd6_I",
   authDomain: "rackcafepool.firebaseapp.com",
   databaseURL: "https://rackcafepool-default-rtdb.firebaseio.com",
   projectId: "rackcafepool"
-};
+});
 
-firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/*************************************************
- * NAV / TABS (ORIGINAL UI)
- *************************************************/
-window.showSection = function (sectionId) {
-  document.querySelectorAll(".section").forEach(sec => {
-    sec.style.display = "none";
-    sec.classList.remove("active");
+/* NAV */
+window.showSection = function(id) {
+  document.querySelectorAll(".section").forEach(s => {
+    s.classList.remove("active");
   });
 
-  const target = document.getElementById(sectionId);
-  if (target) {
-    target.style.display = "block";
-    target.classList.add("active");
-  }
+  document.getElementById(id).classList.add("active");
 
-  document.querySelectorAll(".nav-item").forEach(btn => {
-    btn.classList.remove("active");
-  });
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
 };
 
-/*************************************************
- * LOGIN (onclick="login()")
- *************************************************/
-window.login = function () {
-  const emailEl =
-    document.getElementById("loginEmail") ||
-    document.getElementById("loginUsername");
-
-  const passEl = document.getElementById("loginPassword");
-  const errorEl = document.getElementById("loginError");
-  const btn = document.getElementById("loginBtn");
-
-  if (!emailEl || !passEl || !errorEl) return;
-
-  errorEl.style.display = "none";
-
-  const email = emailEl.value.trim();
-  const password = passEl.value.trim();
+/* LOGIN */
+window.login = function() {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value;
+  loginError.style.display = "none";
 
   if (!email || !password) {
-    errorEl.textContent = "Email and password required";
-    errorEl.style.display = "block";
+    loginError.textContent = "Email and password required";
+    loginError.style.display = "block";
     return;
-  }
-
-  if (btn) {
-    btn.disabled = true;
-    btn.innerText = "Authenticating…";
   }
 
   auth.signInWithEmailAndPassword(email, password)
     .catch(err => {
-      errorEl.textContent = err.message;
-      errorEl.style.display = "block";
-    })
-    .finally(() => {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "Login";
-      }
+      loginError.textContent = err.message;
+      loginError.style.display = "block";
     });
 };
 
-/*************************************************
- * LOGOUT
- *************************************************/
-window.logout = function () {
+/* LOGOUT */
+window.logout = function() {
   auth.signOut().then(() => location.reload());
 };
 
-/*************************************************
- * AUTH STATE HANDLER
- *************************************************/
+/* AUTH STATE */
 auth.onAuthStateChanged(async user => {
   if (!user) return;
 
-  // Hide login / show app
-  const loginScreen = document.getElementById("loginScreen");
-  const appContainer = document.getElementById("appContainer");
+  loginScreen.classList.add("hidden");
+  appContainer.classList.remove("hidden");
 
-  if (loginScreen) loginScreen.style.display = "none";
-  if (appContainer) appContainer.style.display = "block";
+  const name = user.email.split("@")[0];
+  welcomeName.textContent = name;
 
-  const username = user.email.split("@")[0];
-
-  // Identity (only if elements exist)
-  const welcome = document.getElementById("welcomeName");
-  const avatar = document.getElementById("userAvatar");
-  const dropdown = document.getElementById("dropdownUsername");
-
-  if (welcome) welcome.textContent = username;
-  if (avatar) avatar.textContent = username[0].toUpperCase();
-  if (dropdown) dropdown.textContent = user.email;
-
-  /*************************************************
-   * USER PROFILE / ROLE
-   *************************************************/
-  const userRef = db.ref("users/" + user.uid);
-  const snap = await userRef.get();
+  const ref = db.ref("users/" + user.uid);
+  const snap = await ref.get();
 
   if (!snap.exists()) {
-    await userRef.set({
+    await ref.set({
       email: user.email,
-      name: username,
+      name,
       role: user.email === "thayessmith@rackcafeutd.com"
         ? "system-creator"
         : "player"
     });
   }
 
-  const profile = (await userRef.get()).val();
+  const profile = (await ref.get()).val();
 
-  // Role-based tabs
-  if (["captain", "co-captain", "system-creator"].includes(profile.role)) {
-    const adminTab = document.getElementById("adminTab");
-    if (adminTab) adminTab.style.display = "block";
+  if (["captain","co-captain","system-creator"].includes(profile.role)) {
+    adminTab.classList.remove("hidden");
   }
 
   if (profile.role === "system-creator") {
-    const systemTab = document.getElementById("systemTab");
-    if (systemTab) systemTab.style.display = "block";
+    systemTab.classList.remove("hidden");
   }
 
-  /*************************************************
-   * PLAYERS LIST
-   *************************************************/
   db.ref("users").on("value", snap => {
-    const list = document.getElementById("playersList");
-    if (!list) return;
-
-    list.innerHTML = "";
-    const users = snap.val() || {};
-
-    Object.values(users).forEach(u => {
+    playersList.innerHTML = "";
+    Object.values(snap.val() || {}).forEach(u => {
       const div = document.createElement("div");
       div.textContent = `${u.name} (${u.role})`;
-      list.appendChild(div);
+      playersList.appendChild(div);
     });
   });
-
-  // Default landing section
-  showSection("dashboard");
 });
 </script>
+
+</body>
+</html>
