@@ -34,33 +34,38 @@ const headerName = document.getElementById("headerName");
 const headerRole = document.getElementById("headerRole");
 
 // Login
-if (loginBtn) {
+document.addEventListener("DOMContentLoaded", () => {
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginError = document.getElementById("loginError");
+
+  if (!loginBtn) {
+    console.error("Login button not found in DOM");
+    return;
+  }
+
   loginBtn.onclick = async () => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value;
+
     if (!email || !password) {
       loginError.textContent = "Enter email and password";
       loginError.style.display = "block";
       return;
     }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will handle UI transition
     } catch (err) {
-      if (err.code === "auth/user-not-found") {
-        // auto-create account
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-        } catch (e) {
-          loginError.textContent = e.message;
-          loginError.style.display = "block";
-        }
-      } else {
-        loginError.textContent = err.message;
-        loginError.style.display = "block";
-      }
+      console.error("LOGIN ERROR:", err.code, err.message);
+      loginError.textContent = err.message;
+      loginError.style.display = "block";
     }
   };
-}
+});
+
 
 // Logout
 if (logoutBtn) {
@@ -89,3 +94,4 @@ onAuthStateChanged(auth, async (user) => {
   if (headerName) headerName.textContent = u.name;
   if (headerRole) headerRole.textContent = u.role;
 });
+
