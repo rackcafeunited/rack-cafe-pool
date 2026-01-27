@@ -5,46 +5,25 @@
   <title>Rack Café Utd</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui, Arial, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-    }
-    header {
-      background: #020617;
-      padding: 14px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #1e293b;
-    }
-    nav button {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      margin-right: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    nav button.active {
-      color: #38bdf8;
-    }
-    .container {
-      padding: 20px;
-    }
-    .card {
-      background: #020617;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      border: 1px solid #1e293b;
-    }
-    .hidden { display: none; }
-    .stat {
-      font-size: 28px;
-      font-weight: bold;
-    }
+    body{margin:0;font-family:system-ui,Arial,sans-serif;background:#0f172a;color:#e5e7eb}
+    header{background:#020617;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b}
+    nav{padding:12px 18px}
+    nav button{background:none;border:none;color:#94a3b8;margin-right:12px;font-weight:600;cursor:pointer}
+    nav button.active{color:#38bdf8}
+    .container{padding:20px}
+    .card{background:#020617;padding:18px;border-radius:12px;margin-bottom:16px;border:1px solid #1e293b}
+    .hidden{display:none}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #1e293b;text-align:left}
+    th{color:#94a3b8;font-size:12px;text-transform:uppercase}
+    .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #1e293b}
+    .ok{color:#22c55e}
+    .warn{color:#f59e0b}
+    .danger{color:#ef4444}
+    .frames{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    select{width:100%;padding:8px;border-radius:8px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
+    button.primary{padding:10px 14px;border-radius:10px;border:none;background:#38bdf8;color:#020617;font-weight:700;cursor:pointer}
+    button.secondary{padding:10px 14px;border-radius:10px;border:1px solid #1e293b;background:transparent;color:#e5e7eb;cursor:pointer}
   </style>
 </head>
 <body>
@@ -52,13 +31,12 @@
 <header>
   <div><strong>Rack Café Utd</strong></div>
   <div>
-    <span id="headerName"></span> ·
-    <span id="headerRole"></span>
-    <button id="logoutBtn" style="margin-left:12px;">Logout</button>
+    <span id="headerName"></span> · <span id="headerRole"></span>
+    <button id="logoutBtn" class="secondary" style="margin-left:12px">Logout</button>
   </div>
 </header>
 
-<nav style="padding:12px 18px;">
+<nav>
   <button data-tab="dashboard" class="active">Dashboard</button>
   <button data-tab="fixtures">Fixtures</button>
   <button data-tab="table">League Table</button>
@@ -73,43 +51,64 @@
   <section id="dashboard">
     <div class="card">
       <h2>Dashboard</h2>
-      <p class="muted">Season overview</p>
-    </div>
-
-    <div class="card">
-      <div class="stat" id="statPlayed">0</div>
-      <div>Matches Played</div>
-    </div>
-
-    <div class="card">
-      <div class="stat" id="statPoints">0</div>
-      <div>Frames Won</div>
-    </div>
-
-    <div class="card">
-      <strong>Top Performer</strong>
       <p id="topPerformer">No one yet — no games have been played.</p>
     </div>
   </section>
 
-  <!-- PLACEHOLDER SECTIONS -->
-  <section id="fixtures" class="hidden"><div class="card">Fixtures (next)</div></section>
-  <section id="table" class="hidden"><div class="card">League Table (next)</div></section>
-  <section id="scoresheets" class="hidden"><div class="card">Scoresheets (next)</div></section>
+  <!-- FIXTURES (placeholder for now) -->
+  <section id="fixtures" class="hidden">
+    <div class="card">Fixtures (Phase 4)</div>
+  </section>
+
+  <!-- LEAGUE TABLE -->
+  <section id="table" class="hidden">
+    <div class="card">
+      <h2>League Table</h2>
+      <table>
+        <thead>
+          <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SCORESHEETS -->
+  <section id="scoresheets" class="hidden">
+    <div class="card">
+      <h2>Scoresheet (10 Frames)</h2>
+
+      <label>Home Team</label>
+      <select id="homeTeam"></select>
+
+      <label style="margin-top:10px">Away Team</label>
+      <select id="awayTeam"></select>
+
+      <div class="frames" id="frames"></div>
+
+      <div style="margin-top:12px">
+        <button id="saveSheet" class="secondary">Save</button>
+        <button id="confirmMatch" class="primary">Confirm Match</button>
+        <span id="lockBadge" class="badge hidden">Locked</span>
+      </div>
+    </div>
+  </section>
 
   <!-- ADMIN -->
   <section id="admin" class="hidden">
     <div class="card">
       <h2>Admin Panel</h2>
-      <p>Captain / Co-Captain access</p>
+      <p>Scoresheets editable · Confirm matches</p>
     </div>
   </section>
 
-  <!-- SYSTEM CREATOR -->
+  <!-- SYSTEM -->
   <section id="system" class="hidden">
     <div class="card">
       <h2>System Creator Panel</h2>
-      <p>Full control</p>
+      <button id="resetTable" class="secondary">Reset League Table</button>
+      <button id="unlockMatch" class="secondary" style="margin-left:8px">Unlock Match</button>
+      <div id="auditLog" style="margin-top:12px"></div>
     </div>
   </section>
 
