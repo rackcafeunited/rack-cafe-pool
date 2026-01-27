@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rack Café Utd</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #111827;
+      padding: 24px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    }
+    h1 { margin-bottom: 16px; }
+    label { display:block; margin-top: 12px; font-size: 14px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    .error { color: #f87171; margin-top: 10px; display:none; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+
+<div class="card" id="loginCard">
+  <h1>Rack Café Utd</h1>
+
+  <label>Email</label>
+  <input id="email" type="email" />
+
+  <label>Password</label>
+  <input id="password" type="password" />
+
+  <button id="loginBtn">Login</button>
+  <div class="error" id="loginError"></div>
+</div>
+
+<div class="card hidden" id="appCard">
+  <h1>Welcome</h1>
+  <p><strong>Name:</strong> <span id="userName"></span></p>
+  <p><strong>Role:</strong> <span id="userRole"></span></p>
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
