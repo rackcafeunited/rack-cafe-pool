@@ -426,6 +426,34 @@
     </style>
 </head>
 <body>
+<!-- LOGIN PANEL -->
+<div id="loginPanel" style="max-width:360px;margin:40px auto;padding:20px;border:1px solid #1e293b;border-radius:12px;">
+  <h3>Login</h3>
+
+  <input
+    id="loginEmail"
+    type="email"
+    placeholder="Email"
+    autocomplete="username"
+    style="display:block;width:100%;margin-bottom:10px;padding:8px;"
+  />
+
+  <input
+    id="loginPassword"
+    type="password"
+    placeholder="Password"
+    autocomplete="current-password"
+    style="display:block;width:100%;margin-bottom:10px;padding:8px;"
+  />
+
+  <button id="loginBtn" style="padding:8px 14px;">Login</button>
+
+  <div
+    id="loginError"
+    style="display:none;color:#dc2626;margin-top:10px;"
+  ></div>
+</div>
+<!-- END LOGIN PANEL -->
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
