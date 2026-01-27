@@ -19,7 +19,7 @@
     }
     .hidden { display: none; }
 
-    /* LOGIN */
+    /* ORIGINAL LOGIN STYLE */
     .login-screen {
       max-width: 360px;
       margin: 80px auto;
@@ -47,12 +47,13 @@
       cursor: pointer;
     }
 
-    /* APP */
+    /* ORIGINAL NAV / TABS */
     nav {
       display: flex;
       gap: 8px;
       padding: 10px;
       background: #020617;
+      align-items: center;
     }
     nav button {
       background: #1e293b;
@@ -71,19 +72,20 @@
 
 <body>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN (UNCHANGED BEHAVIOUR) ================= -->
 <div id="loginScreen" class="login-screen">
   <h2>Login</h2>
 
   <input id="loginEmail" type="email" placeholder="Email">
   <input id="loginPassword" type="password" placeholder="Password">
 
+  <!-- ORIGINAL onclick preserved -->
   <button id="loginBtn" onclick="login()">Login</button>
 
   <div id="loginError" style="display:none;color:#dc2626;margin-top:10px;"></div>
 </div>
 
-<!-- APP -->
+<!-- ================= APP ================= -->
 <div id="appContainer" class="hidden">
 
   <nav>
@@ -91,6 +93,7 @@
     <button data-tab="players">Squad</button>
     <button id="adminTab" data-tab="admin" class="hidden">Admin</button>
     <button id="systemTab" data-tab="system" class="hidden">System</button>
+
     <div style="margin-left:auto">
       <span id="welcomeName"></span>
       <button onclick="logout()">Logout</button>
@@ -130,7 +133,7 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
-  /* ================= LOGIN ================= */
+  /* ================= LOGIN (GLOBAL – ORIGINAL UI EXPECTS THIS) ================= */
   function login() {
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
@@ -185,7 +188,7 @@
     const u = (await uref.get()).val();
     document.getElementById("welcomeName").textContent = u.name;
 
-    if (["captain","co-captain","system-creator"].includes(u.role)) {
+    if (["captain", "co-captain", "system-creator"].includes(u.role)) {
       document.getElementById("adminTab").classList.remove("hidden");
     }
     if (u.role === "system-creator") {
@@ -193,13 +196,15 @@
     }
 
     db.ref("users").on("value", snap => {
-      const list = snap.val() || {};
+      const users = snap.val() || {};
       document.getElementById("playersList").innerHTML =
-        Object.values(list).map(p => `<div>${p.name} (${p.role})</div>`).join("");
+        Object.values(users)
+          .map(p => `<div>${p.name} (${p.role})</div>`)
+          .join("");
     });
   });
 
-  /* ================= NAV ================= */
+  /* ================= ORIGINAL TAB LOGIC ================= */
   const sections = document.querySelectorAll("section");
   document.querySelectorAll("nav button[data-tab]").forEach(btn => {
     btn.onclick = () => {
