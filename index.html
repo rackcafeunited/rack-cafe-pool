@@ -28,14 +28,22 @@
     button.secondary{padding:10px 14px;border-radius:10px;border:1px solid #1e293b;background:transparent;color:#e5e7eb;cursor:pointer}
     .fixture{padding:12px;border:1px solid #1e293b;border-radius:10px;margin-top:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
     .fixture small{color:#94a3b8}
-    .right{display:flex;gap:8px;align-items:center}
+    .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pill{display:inline-flex;align-items:center;gap:8px}
+    .small{font-size:12px;color:#94a3b8}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:900px){ .grid2{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
 
 <header>
-  <div><strong>Rack Café Utd</strong></div>
-  <div>
+  <div class="pill">
+    <strong>Rack Café Utd</strong>
+    <span class="badge" id="syncBadge">—</span>
+  </div>
+
+  <div class="pill">
     <span id="headerName"></span> · <span id="headerRole"></span>
     <button id="logoutBtn" class="secondary" style="margin-left:12px">Logout</button>
   </div>
@@ -46,6 +54,7 @@
   <button data-tab="fixtures">Fixtures</button>
   <button data-tab="table">League Table</button>
   <button data-tab="scoresheets">Scoresheets</button>
+  <button data-tab="players">Players</button>
   <button data-tab="admin" id="adminTab" class="hidden">Admin</button>
   <button data-tab="system" id="systemTab" class="hidden">System</button>
 </nav>
@@ -56,6 +65,7 @@
     <div class="card">
       <h2>Dashboard</h2>
       <p id="topPerformer">No one yet — no games have been played.</p>
+      <div class="small" id="dashboardMeta"></div>
     </div>
   </section>
 
@@ -65,27 +75,28 @@
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
         <div>
           <h2 style="margin:0">Fixtures</h2>
-          <small>Admins can add/delete fixtures</small>
+          <small>Admins can add/edit/delete fixtures</small>
         </div>
         <button id="addFixtureBtn" class="primary hidden">Add Fixture</button>
       </div>
 
       <div id="fixturesList"></div>
 
-      <div id="addFixtureForm" class="card hidden" style="margin-top:14px">
-        <h3 style="margin-top:0">Add Fixture</h3>
+      <div id="fixtureFormCard" class="card hidden" style="margin-top:14px">
+        <h3 style="margin-top:0" id="fixtureFormTitle">Add Fixture</h3>
         <div class="row">
-          <input id="fixDate" placeholder="Date (e.g. 2026-02-04)" />
+          <input id="fixDate" placeholder="Date (YYYY-MM-DD)" />
           <input id="fixVenue" placeholder="Venue" />
         </div>
         <div class="row" style="margin-top:10px">
           <select id="fixHome"></select>
           <select id="fixAway"></select>
         </div>
-        <div style="margin-top:12px;display:flex;gap:10px">
-          <button id="saveFixtureBtn" class="primary">Save Fixture</button>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="saveFixtureBtn" class="primary">Save</button>
           <button id="cancelFixtureBtn" class="secondary">Cancel</button>
         </div>
+        <div class="small" style="margin-top:10px" id="fixtureFormHint"></div>
       </div>
     </div>
   </section>
@@ -96,10 +107,11 @@
       <h2>League Table</h2>
       <table>
         <thead>
-        <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
+          <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
+      <div class="small" style="margin-top:8px">Points = frames won (confirmed matches only).</div>
     </div>
   </section>
 
@@ -114,6 +126,7 @@
       <div style="margin-top:10px">
         <span id="fixtureMeta" class="badge"></span>
         <span id="lockBadge" class="badge hidden" style="margin-left:8px">Locked</span>
+        <span id="byeBadge" class="badge hidden" style="margin-left:8px">BYE</span>
       </div>
 
       <div class="row" style="margin-top:12px">
@@ -127,6 +140,27 @@
         <button id="saveSheet" class="secondary">Save</button>
         <button id="confirmMatch" class="primary">Confirm Match</button>
       </div>
+
+      <div class="small" style="margin-top:10px">
+        Only Admins can edit/confirm. Confirm locks the fixture (System Creator can unlock).
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYERS -->
+  <section id="players" class="hidden">
+    <div class="card">
+      <h2>Players</h2>
+      <div class="small">Per-player stats update automatically when you confirm matches (Rack Café Utd only).</div>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Role</th><th>Frames Won</th><th>Frames Lost</th><th>Matches</th><th>Win %</th></tr>
+        </thead>
+        <tbody id="playersBody"></tbody>
+      </table>
     </div>
   </section>
 
@@ -134,22 +168,35 @@
   <section id="admin" class="hidden">
     <div class="card">
       <h2>Admin Panel</h2>
-      <p>Admins can edit scoresheets + confirm matches + manage fixtures.</p>
+      <div class="small">Admins: manage fixtures, scoresheets, confirm matches.</div>
     </div>
   </section>
 
   <!-- SYSTEM -->
   <section id="system" class="hidden">
-    <div class="card">
-      <h2>System Creator Panel</h2>
-      <button id="resetTable" class="secondary">Reset League Table</button>
-      <button id="resetSheets" class="secondary" style="margin-left:8px">Reset All Scoresheets</button>
-      <div style="margin-top:14px">
-        <label>Unlock Fixture (override)</label>
-        <select id="unlockFixtureSelect"></select>
-        <button id="unlockFixtureBtn" class="secondary" style="margin-top:8px">Unlock Selected</button>
+    <div class="grid2">
+      <div class="card">
+        <h2>System Creator Panel</h2>
+        <button id="resetTable" class="secondary">Reset League Table</button>
+        <button id="resetSheets" class="secondary" style="margin-left:8px">Reset All Scoresheets</button>
+
+        <div style="margin-top:14px">
+          <label>Unlock Fixture (override)</label>
+          <select id="unlockFixtureSelect"></select>
+          <button id="unlockFixtureBtn" class="secondary" style="margin-top:8px">Unlock Selected</button>
+        </div>
       </div>
-      <div id="auditLog" style="margin-top:14px"></div>
+
+      <div class="card">
+        <h2>Role Manager</h2>
+        <div class="small">Captain above Co-Captain. Role changes apply instantly.</div>
+        <div id="roleManagerList" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Audit Log</h2>
+      <div id="auditLog"></div>
     </div>
   </section>
 
