@@ -16,14 +16,19 @@
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid #1e293b;text-align:left}
     th{color:#94a3b8;font-size:12px;text-transform:uppercase}
-    .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #1e293b}
+    .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #1e293b;display:inline-block}
     .ok{color:#22c55e}
     .warn{color:#f59e0b}
     .danger{color:#ef4444}
-    .frames{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-    select{width:100%;padding:8px;border-radius:8px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row > *{flex:1;min-width:180px}
+    .frames{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+    select,input{width:100%;padding:8px;border-radius:8px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
     button.primary{padding:10px 14px;border-radius:10px;border:none;background:#38bdf8;color:#020617;font-weight:700;cursor:pointer}
     button.secondary{padding:10px 14px;border-radius:10px;border:1px solid #1e293b;background:transparent;color:#e5e7eb;cursor:pointer}
+    .fixture{padding:12px;border:1px solid #1e293b;border-radius:10px;margin-top:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .fixture small{color:#94a3b8}
+    .right{display:flex;gap:8px;align-items:center}
   </style>
 </head>
 <body>
@@ -47,7 +52,6 @@
 
 <div class="container">
 
-  <!-- DASHBOARD -->
   <section id="dashboard">
     <div class="card">
       <h2>Dashboard</h2>
@@ -55,9 +59,35 @@
     </div>
   </section>
 
-  <!-- FIXTURES (placeholder for now) -->
+  <!-- FIXTURES -->
   <section id="fixtures" class="hidden">
-    <div class="card">Fixtures (Phase 4)</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div>
+          <h2 style="margin:0">Fixtures</h2>
+          <small>Admins can add/delete fixtures</small>
+        </div>
+        <button id="addFixtureBtn" class="primary hidden">Add Fixture</button>
+      </div>
+
+      <div id="fixturesList"></div>
+
+      <div id="addFixtureForm" class="card hidden" style="margin-top:14px">
+        <h3 style="margin-top:0">Add Fixture</h3>
+        <div class="row">
+          <input id="fixDate" placeholder="Date (e.g. 2026-02-04)" />
+          <input id="fixVenue" placeholder="Venue" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <select id="fixHome"></select>
+          <select id="fixAway"></select>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px">
+          <button id="saveFixtureBtn" class="primary">Save Fixture</button>
+          <button id="cancelFixtureBtn" class="secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- LEAGUE TABLE -->
@@ -66,7 +96,7 @@
       <h2>League Table</h2>
       <table>
         <thead>
-          <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
+        <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
@@ -76,20 +106,26 @@
   <!-- SCORESHEETS -->
   <section id="scoresheets" class="hidden">
     <div class="card">
-      <h2>Scoresheet (10 Frames)</h2>
+      <h2>Scoresheets (Per Fixture)</h2>
 
-      <label>Home Team</label>
-      <select id="homeTeam"></select>
+      <label>Select Fixture</label>
+      <select id="fixtureSelect"></select>
 
-      <label style="margin-top:10px">Away Team</label>
-      <select id="awayTeam"></select>
+      <div style="margin-top:10px">
+        <span id="fixtureMeta" class="badge"></span>
+        <span id="lockBadge" class="badge hidden" style="margin-left:8px">Locked</span>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <select id="homeTeam" disabled></select>
+        <select id="awayTeam" disabled></select>
+      </div>
 
       <div class="frames" id="frames"></div>
 
       <div style="margin-top:12px">
         <button id="saveSheet" class="secondary">Save</button>
         <button id="confirmMatch" class="primary">Confirm Match</button>
-        <span id="lockBadge" class="badge hidden">Locked</span>
       </div>
     </div>
   </section>
@@ -98,7 +134,7 @@
   <section id="admin" class="hidden">
     <div class="card">
       <h2>Admin Panel</h2>
-      <p>Scoresheets editable · Confirm matches</p>
+      <p>Admins can edit scoresheets + confirm matches + manage fixtures.</p>
     </div>
   </section>
 
@@ -107,8 +143,13 @@
     <div class="card">
       <h2>System Creator Panel</h2>
       <button id="resetTable" class="secondary">Reset League Table</button>
-      <button id="unlockMatch" class="secondary" style="margin-left:8px">Unlock Match</button>
-      <div id="auditLog" style="margin-top:12px"></div>
+      <button id="resetSheets" class="secondary" style="margin-left:8px">Reset All Scoresheets</button>
+      <div style="margin-top:14px">
+        <label>Unlock Fixture (override)</label>
+        <select id="unlockFixtureSelect"></select>
+        <button id="unlockFixtureBtn" class="secondary" style="margin-top:8px">Unlock Selected</button>
+      </div>
+      <div id="auditLog" style="margin-top:14px"></div>
     </div>
   </section>
 
