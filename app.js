@@ -79,12 +79,18 @@ onAuthStateChanged(auth, async user => {
   headerName.textContent = data.name;
   headerRole.textContent = data.role;
 
-  // ROLE GATES
+// ROLE GATES (safe)
+setTimeout(() => {
+  const adminTab = document.getElementById("adminTab");
+  const systemTab = document.getElementById("systemTab");
+
   if (["captain", "co-captain", "system-creator"].includes(data.role)) {
-    adminTab.classList.remove("hidden");
+    adminTab?.classList.remove("hidden");
   }
 
   if (data.role === "system-creator") {
-    systemTab.classList.remove("hidden");
+    systemTab?.classList.remove("hidden");
   }
-});
+}, 0);
+
+
