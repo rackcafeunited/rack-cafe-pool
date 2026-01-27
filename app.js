@@ -29,6 +29,7 @@ const headerRole = document.getElementById("headerRole");
 const logoutBtn = document.getElementById("logoutBtn");
 const adminTab = document.getElementById("adminTab");
 const systemTab = document.getElementById("systemTab");
+const syncBadge = document.getElementById("syncBadge");
 
 const sections = document.querySelectorAll("section");
 document.querySelectorAll("nav button").forEach(btn => {
@@ -38,6 +39,7 @@ document.querySelectorAll("nav button").forEach(btn => {
     sections.forEach(s => s.classList.add("hidden"));
     document.getElementById(btn.dataset.tab).classList.remove("hidden");
     if (btn.dataset.tab === "table") renderTable();
+    if (btn.dataset.tab === "players") renderPlayers();
   };
 });
 
@@ -46,39 +48,10 @@ logoutBtn.onclick = async () => { await signOut(auth); location.reload(); };
 // Fixtures UI
 const fixturesList = document.getElementById("fixturesList");
 const addFixtureBtn = document.getElementById("addFixtureBtn");
-const addFixtureForm = document.getElementById("addFixtureForm");
-saveFixtureBtn.onclick = async () => {
-  try {
-    if(!isAdmin()) return alert("Admins only");
-
-    const date = fixDate.value.trim();
-    const venue = fixVenue.value.trim();
-    const home = fixHome.value;
-    const away = fixAway.value;
-
-    if(!date || !venue || !home || !away) return alert("Fill all fields");
-    if(home === away) return alert("Home and Away must be different");
-
-    const id = String(Date.now());
-
-    await set(ref(db, `fixtures/${id}`), {
-      id, date, venue, home, away,
-      createdAt: Date.now()
-    });
-
-    audit(`Add fixture ${home} vs ${away} (${date})`);
-
-    addFixtureForm.classList.add("hidden");
-    fixDate.value = "";
-    fixVenue.value = "";
-
-    alert("Fixture added ✅");
-  } catch (err) {
-    console.error("Add fixture failed:", err);
-    alert("Add fixture failed:\n" + (err?.message || err));
-  }
-};
-
+const fixtureFormCard = document.getElementById("fixtureFormCard");
+const fixtureFormTitle = document.getElementById("fixtureFormTitle");
+const fixtureFormHint = document.getElementById("fixtureFormHint");
+const saveFixtureBtn = document.getElementById("saveFixtureBtn");
 const cancelFixtureBtn = document.getElementById("cancelFixtureBtn");
 const fixDate = document.getElementById("fixDate");
 const fixVenue = document.getElementById("fixVenue");
@@ -88,34 +61,56 @@ const fixAway = document.getElementById("fixAway");
 // Scoresheets UI
 const fixtureSelect = document.getElementById("fixtureSelect");
 const fixtureMeta = document.getElementById("fixtureMeta");
+const lockBadge = document.getElementById("lockBadge");
+const byeBadge = document.getElementById("byeBadge");
 const homeSel = document.getElementById("homeTeam");
 const awaySel = document.getElementById("awayTeam");
 const framesDiv = document.getElementById("frames");
 const saveSheetBtn = document.getElementById("saveSheet");
 const confirmMatchBtn = document.getElementById("confirmMatch");
-const lockBadge = document.getElementById("lockBadge");
 
-// System UI
+// Table + dashboard
+const tableBody = document.getElementById("tableBody");
+const topPerformerEl = document.getElementById("topPerformer");
+const dashboardMeta = document.getElementById("dashboardMeta");
+
+// Players
+const playersBody = document.getElementById("playersBody");
+
+// System
 const resetTableBtn = document.getElementById("resetTable");
 const resetSheetsBtn = document.getElementById("resetSheets");
 const unlockFixtureSelect = document.getElementById("unlockFixtureSelect");
 const unlockFixtureBtn = document.getElementById("unlockFixtureBtn");
+const roleManagerList = document.getElementById("roleManagerList");
+
+// Audit
+const auditLogBox = document.getElementById("auditLog");
 
 // ---- STATE ----
 let currentUser = null;
 let currentRole = "player";
-let fixtures = {}; // {fixtureId: {...}}
+let fixtures = {};           // fixtures/{id}
+let users = {};              // users/{uid}
 let selectedFixtureId = null;
 let currentSheetConfirmed = false;
+let fixtureEditId = null;
 
 // ---- Helpers ----
 const isAdmin = () => ["captain","co-captain","system-creator"].includes(currentRole);
 const isSystem = () => currentRole === "system-creator";
+const isCaptainLevel = () => ["captain","system-creator"].includes(currentRole);
 
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function parseDateSafe(s){
+  // expects YYYY-MM-DD, falls back to 0
+  const t = Date.parse(s);
+  return Number.isFinite(t) ? t : 0;
+}
 
-function seedTeamSelect(selectEl){
-  selectEl.innerHTML = TEAMS.map(t => `<option value="${escapeHtml(t)}">${t}</option>`).join("");
+function seedTeamSelect(selectEl, includeBye=true){
+  const list = includeBye ? TEAMS : TEAMS.filter(t => t !== "BYE");
+  selectEl.innerHTML = list.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
 }
 
 function buildFramesUI(){
@@ -141,29 +136,53 @@ function setSheetLocked(locked){
   confirmMatchBtn.disabled = !canEdit || locked;
 }
 
+async function markSaved(actionLabel){
+  // for sync indicator + audit trail
+  try {
+    await set(ref(db, "meta/lastWrite"), { ts: Date.now(), by: currentUser?.uid || null, action: actionLabel || "" });
+  } catch {}
+}
+
+// ---- SYNC STATUS (Cloud Back-up notice) ----
+function setupSyncBadge(){
+  onValue(ref(db, ".info/connected"), (snap) => {
+    const online = !!snap.val();
+    syncBadge.textContent = online ? "🟢 Online" : "🔴 Offline";
+  });
+
+  onValue(ref(db, "meta/lastWrite"), (snap) => {
+    if(!snap.exists()) return;
+    const v = snap.val();
+    const when = new Date(v.ts).toLocaleString();
+    const label = syncBadge.textContent.includes("Offline") ? "🔴 Offline" : "🟢 Online";
+    syncBadge.textContent = `${label} · Last saved ${when}`;
+  });
+}
+
 // ---- AUTH ----
 onAuthStateChanged(auth, async (user) => {
   if(!user) return;
   currentUser = user;
 
-  // user profile
   const uref = ref(db, `users/${user.uid}`);
   let usnap = await get(uref);
   if(!usnap.exists()){
     await set(uref, {
       email: user.email,
       name: user.email.split("@")[0],
-      role: user.email === "thayessmith@rackcafeutd.com" ? "system-creator" : "player"
+      role: user.email === "thayessmith@rackcafeutd.com" ? "system-creator" : "player",
+      stats: { framesWon:0, framesLost:0, matches:0, winPct:0 }
     });
+    await markSaved("Create user profile");
     usnap = await get(uref);
   }
 
   const u = usnap.val();
   currentRole = u.role || "player";
+
   headerName.textContent = u.name || "user";
   headerRole.textContent = currentRole;
 
-  // role gates
   setTimeout(() => {
     if (isAdmin()) adminTab.classList.remove("hidden");
     if (isSystem()) systemTab.classList.remove("hidden");
@@ -171,52 +190,75 @@ onAuthStateChanged(auth, async (user) => {
   }, 0);
 
   // seed UI
-  seedTeamSelect(fixHome);
-  seedTeamSelect(fixAway);
-  buildFramesUI();
-
-  // disable home/away selectors in scoresheet (fixture defines them)
-  seedTeamSelect(homeSel);
-  seedTeamSelect(awaySel);
+  seedTeamSelect(fixHome, true);
+  seedTeamSelect(fixAway, true);
+  seedTeamSelect(homeSel, true);
+  seedTeamSelect(awaySel, true);
   homeSel.disabled = true;
   awaySel.disabled = true;
+  buildFramesUI();
 
-  // listeners
+  setupSyncBadge();
+  setupUsersListener();
   setupFixturesListener();
   setupAuditListener();
+
   renderTable();
+  renderPlayers();
 });
 
-// ---- Fixtures ----
+// ---- USERS ----
+function setupUsersListener(){
+  onValue(ref(db, "users"), (snap) => {
+    users = snap.exists() ? snap.val() : {};
+    renderPlayers();
+    renderRoleManager();
+  });
+}
+
+// ---- FIXTURES ----
 addFixtureBtn.onclick = () => {
   if(!isAdmin()) return;
-  addFixtureForm.classList.remove("hidden");
+  fixtureEditId = null;
+  fixtureFormTitle.textContent = "Add Fixture";
+  fixtureFormHint.textContent = "Tip: use YYYY-MM-DD so sorting works properly.";
+  fixDate.value = "";
+  fixVenue.value = "";
+  fixtureFormCard.classList.remove("hidden");
 };
 
 cancelFixtureBtn.onclick = () => {
-  addFixtureForm.classList.add("hidden");
-  fixDate.value = "";
-  fixVenue.value = "";
+  fixtureFormCard.classList.add("hidden");
+  fixtureEditId = null;
 };
 
 saveFixtureBtn.onclick = async () => {
-  if(!isAdmin()) return alert("Admins only");
+  try {
+    if(!isAdmin()) return alert("Admins only");
 
-  const date = fixDate.value.trim();
-  const venue = fixVenue.value.trim();
-  const home = fixHome.value;
-  const away = fixAway.value;
+    const date = fixDate.value.trim();
+    const venue = fixVenue.value.trim();
+    const home = fixHome.value;
+    const away = fixAway.value;
 
-  if(!date || !venue || !home || !away) return alert("Fill all fields");
-  if(home === away) return alert("Home and Away must be different");
+    if(!date || !venue || !home || !away) return alert("Fill all fields");
+    if(home === away) return alert("Home and Away must be different");
 
-  const id = String(Date.now());
-  await set(ref(db, `fixtures/${id}`), { id, date, venue, home, away, createdAt: Date.now() });
-  audit(`Add fixture ${home} vs ${away} (${date})`);
+    const id = fixtureEditId || String(Date.now());
+    const payload = { id, date, venue, home, away, updatedAt: Date.now() };
+    if(!fixtureEditId) payload.createdAt = Date.now();
 
-  addFixtureForm.classList.add("hidden");
-  fixDate.value = "";
-  fixVenue.value = "";
+    await set(ref(db, `fixtures/${id}`), payload);
+    await markSaved(fixtureEditId ? "Edit fixture" : "Add fixture");
+    audit(`${fixtureEditId ? "Edit" : "Add"} fixture: ${home} vs ${away} (${date})`);
+
+    fixtureFormCard.classList.add("hidden");
+    fixtureEditId = null;
+    alert("Saved ✅");
+  } catch (err) {
+    console.error("Save fixture failed:", err);
+    alert("Save fixture failed:\n" + (err?.message || err));
+  }
 };
 
 async function deleteFixture(id){
@@ -226,7 +268,23 @@ async function deleteFixture(id){
   await remove(ref(db, `fixtures/${id}`));
   await remove(ref(db, `scoresheets/${id}`));
   await remove(ref(db, `results/${id}`));
+  await markSaved("Delete fixture");
   audit(`Delete fixture ${id}`);
+}
+
+function editFixture(id){
+  if(!isAdmin()) return;
+  const f = fixtures[id];
+  if(!f) return;
+
+  fixtureEditId = id;
+  fixtureFormTitle.textContent = "Edit Fixture";
+  fixtureFormHint.textContent = "Editing a fixture does not alter confirmed results already stored.";
+  fixDate.value = f.date || "";
+  fixVenue.value = f.venue || "";
+  fixHome.value = f.home || "Rack Café Utd";
+  fixAway.value = f.away || "Ashfield Massive";
+  fixtureFormCard.classList.remove("hidden");
 }
 
 function setupFixturesListener(){
@@ -234,24 +292,32 @@ function setupFixturesListener(){
     fixtures = snap.exists() ? snap.val() : {};
     renderFixturesList();
     renderFixtureSelects();
+
     if(!selectedFixtureId){
-      const first = Object.keys(fixtures).sort()[0] || null;
+      const first = Object.keys(fixtures).sort((a,b)=>{
+        const fa = fixtures[a], fb = fixtures[b];
+        return parseDateSafe(fa?.date) - parseDateSafe(fb?.date) || Number(a)-Number(b);
+      })[0] || null;
       if(first) {
         selectedFixtureId = first;
         fixtureSelect.value = first;
         loadScoresheetForFixture(first);
       }
     } else {
-      // keep current selection if still exists
-      if(!fixtures[selectedFixtureId]){
-        selectedFixtureId = null;
-      }
+      if(!fixtures[selectedFixtureId]) selectedFixtureId = null;
     }
   });
 }
 
+function fixtureIdsSorted(){
+  return Object.keys(fixtures).sort((a,b)=>{
+    const fa = fixtures[a], fb = fixtures[b];
+    return parseDateSafe(fa?.date) - parseDateSafe(fb?.date) || Number(a)-Number(b);
+  });
+}
+
 function renderFixturesList(){
-  const ids = Object.keys(fixtures).sort((a,b)=>Number(a)-Number(b));
+  const ids = fixtureIdsSorted();
   if(ids.length === 0){
     fixturesList.innerHTML = `<div class="fixture"><div><strong>No fixtures yet</strong><br><small>Add one as Admin</small></div></div>`;
     return;
@@ -259,24 +325,25 @@ function renderFixturesList(){
 
   fixturesList.innerHTML = ids.map(id => {
     const f = fixtures[id];
+    const bye = (f.home === "BYE" || f.away === "BYE");
     return `
       <div class="fixture">
         <div>
-          <strong>${escapeHtml(f.home)} vs ${escapeHtml(f.away)}</strong><br>
-          <small>${escapeHtml(f.date)} · ${escapeHtml(f.venue)}</small>
+          <strong>${esc(f.home)} vs ${esc(f.away)} ${bye ? `<span class="badge" style="margin-left:8px">BYE</span>` : ""}</strong><br>
+          <small>${esc(f.date)} · ${esc(f.venue)}</small>
         </div>
         <div class="right">
           <button class="secondary" onclick="window.__openSheet('${id}')">Scoresheet</button>
+          ${isAdmin() ? `<button class="secondary" onclick="window.__editFix('${id}')">Edit</button>` : ``}
           ${isAdmin() ? `<button class="secondary danger" onclick="window.__delFix('${id}')">Delete</button>` : ``}
         </div>
       </div>
     `;
   }).join("");
 
-  // wire window handlers
   window.__delFix = deleteFixture;
+  window.__editFix = editFixture;
   window.__openSheet = (id) => {
-    // switch to scoresheets tab
     document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     document.querySelector(`nav button[data-tab="scoresheets"]`).classList.add("active");
     sections.forEach(s => s.classList.add("hidden"));
@@ -289,22 +356,26 @@ function renderFixturesList(){
 }
 
 function renderFixtureSelects(){
-  const ids = Object.keys(fixtures).sort((a,b)=>Number(a)-Number(b));
+  const ids = fixtureIdsSorted();
   const opts = ids.map(id=>{
     const f = fixtures[id];
-    return `<option value="${id}">${escapeHtml(f.date)} — ${escapeHtml(f.home)} vs ${escapeHtml(f.away)}</option>`;
+    return `<option value="${id}">${esc(f.date)} — ${esc(f.home)} vs ${esc(f.away)}</option>`;
   }).join("");
 
   fixtureSelect.innerHTML = opts || `<option value="">No fixtures</option>`;
   unlockFixtureSelect.innerHTML = opts || `<option value="">No fixtures</option>`;
 }
 
-// ---- Scoresheets per fixture ----
+// ---- SCORESHEETS per fixture ----
 fixtureSelect.onchange = () => {
   const id = fixtureSelect.value;
   selectedFixtureId = id || null;
   if(id) loadScoresheetForFixture(id);
 };
+
+function isByeFixture(f) {
+  return (f?.home === "BYE" || f?.away === "BYE");
+}
 
 function loadScoresheetForFixture(id){
   const f = fixtures[id];
@@ -314,25 +385,44 @@ function loadScoresheetForFixture(id){
   homeSel.value = f.home;
   awaySel.value = f.away;
 
-  // live listener for THIS fixture sheet
+  const bye = isByeFixture(f);
+  byeBadge.classList.toggle("hidden", !bye);
+
+  // If BYE fixture: lock editing and allow system/admin to confirm quickly
+  if(bye){
+    framesDiv.querySelectorAll("select").forEach(s => { s.value=""; s.disabled = true; });
+    saveSheetBtn.disabled = true;
+    confirmMatchBtn.disabled = !isAdmin();
+    setSheetLocked(false);
+    lockBadge.classList.add("hidden");
+  }
+
   onValue(ref(db, `scoresheets/${id}`), (snap) => {
     const sheet = snap.exists() ? snap.val() : null;
 
     // reset UI frames first
     const selects = [...framesDiv.querySelectorAll("select")];
-    selects.forEach(s => s.value = "");
+    selects.forEach(s => { if(!bye) s.value = ""; });
 
-    if(sheet && Array.isArray(sheet.frames)){
+    if(!bye && sheet && Array.isArray(sheet.frames)){
       sheet.frames.forEach((v,i) => { if(selects[i]) selects[i].value = v || ""; });
     }
 
-    setSheetLocked(!!(sheet && sheet.confirmed));
+    if(!bye) setSheetLocked(!!(sheet && sheet.confirmed));
+    if(bye && sheet?.confirmed) {
+      lockBadge.classList.remove("hidden");
+      lockBadge.textContent = "Locked";
+      confirmMatchBtn.disabled = true;
+    }
   });
 }
 
 saveSheetBtn.onclick = async () => {
   if(!isAdmin()) return alert("Admins only");
   if(!selectedFixtureId) return alert("Select a fixture first");
+
+  const f = fixtures[selectedFixtureId];
+  if(isByeFixture(f)) return alert("BYE fixtures don’t need a scoresheet.");
 
   if(currentSheetConfirmed && !isSystem()){
     return alert("This match is locked. Only System Creator can unlock.");
@@ -347,6 +437,7 @@ saveSheetBtn.onclick = async () => {
     updatedBy: currentUser.uid
   });
 
+  await markSaved("Save scoresheet");
   audit(`Save scoresheet fixture ${selectedFixtureId}`);
   alert("Saved");
 };
@@ -358,132 +449,24 @@ confirmMatchBtn.onclick = async () => {
   const f = fixtures[selectedFixtureId];
   if(!f) return alert("Fixture missing");
 
-  const ssnap = await get(ref(db, `scoresheets/${selectedFixtureId}`));
-  if(!ssnap.exists()) return alert("Save the scoresheet first");
+  // BYE auto-confirm:
+  if(isByeFixture(f)){
+    const rackIsHome = (f.home === "Rack Café Utd");
+    const rackIsAway = (f.away === "Rack Café Utd");
+    // If Rack is playing BYE, give Rack 10-0; otherwise BYE vs BYE or non-rack is 0-0.
+    let homeWins = 0, awayWins = 0;
+    if(rackIsHome && f.away === "BYE") { homeWins = 10; awayWins = 0; }
+    else if(rackIsAway && f.home === "BYE") { homeWins = 0; awayWins = 10; }
 
-  const sheet = ssnap.val();
-  if(sheet.confirmed) return alert("Already confirmed (locked)");
-
-  const frames = Array.isArray(sheet.frames) ? sheet.frames : [];
-  const homeWins = frames.filter(x => x === "H").length;
-  const awayWins = FRAMES - homeWins;
-
-  // write result once at results/{fixtureId}
-  await set(ref(db, `results/${selectedFixtureId}`), {
-    fixtureId: selectedFixtureId,
-    home: f.home,
-    away: f.away,
-    homeWins,
-    awayWins,
-    confirmed: true,
-    confirmedAt: Date.now(),
-    confirmedBy: currentUser.uid
-  });
-
-  // lock sheet
-  await update(ref(db, `scoresheets/${selectedFixtureId}`), { confirmed: true });
-
-  audit(`Confirm match fixture ${selectedFixtureId} (${f.home} ${homeWins}-${awayWins} ${f.away})`);
-  renderTable();
-  alert("Confirmed & locked");
-};
-
-// ---- League Table from results/{fixtureId} ----
-function baseTable(){
-  return TEAMS.map(t=>({team:t,P:0,FF:0,FA:0,PTS:0}));
-}
-
-async function renderTable(){
-  const body = document.getElementById("tableBody");
-  if(!body) return;
-
-  const rows = baseTable();
-  const idx = Object.fromEntries(rows.map((r,i)=>[r.team,i]));
-
-  const rsnap = await get(ref(db,"results"));
-  if(rsnap.exists()){
-    Object.values(rsnap.val()).forEach(m=>{
-      if(!m || !m.confirmed) return;
-      const h = rows[idx[m.home]];
-      const a = rows[idx[m.away]];
-      if(!h || !a) return;
-
-      h.P++; a.P++;
-      h.FF += m.homeWins; h.FA += m.awayWins; h.PTS += m.homeWins;
-      a.FF += m.awayWins; a.FA += m.homeWins; a.PTS += m.awayWins;
+    await set(ref(db, `results/${selectedFixtureId}`), {
+      fixtureId: selectedFixtureId,
+      home: f.home,
+      away: f.away,
+      homeWins,
+      awayWins,
+      confirmed: true,
+      confirmedAt: Date.now(),
+      confirmedBy: currentUser.uid
     });
-  }
 
-  rows.sort((x,y)=>y.PTS-x.PTS || (y.FF-y.FA)-(x.FF-x.FA) || y.FF-x.FF);
-
-  body.innerHTML = rows.map((r,i)=>`
-    <tr><td>${i+1}</td><td>${escapeHtml(r.team)}</td><td>${r.P}</td><td>${r.FF}</td><td>${r.FA}</td><td>${r.PTS}</td></tr>
-  `).join("");
-
-  const rack = rows.find(r=>r.team==="Rack Café Utd");
-  const top = document.getElementById("topPerformer");
-  if(top){
-    top.textContent = rack && rack.P > 0
-      ? `Rack Café Utd: ${rack.PTS} frame points from ${rack.P} match(es).`
-      : "No one yet — no games have been played.";
-  }
-}
-
-// ---- System Creator tools ----
-resetTableBtn.onclick = async () => {
-  if(!isSystem()) return;
-  if(!confirm("Reset ALL results? (League table will clear)")) return;
-  await remove(ref(db, "results"));
-  audit("Reset league table (results cleared)");
-  renderTable();
-};
-
-resetSheetsBtn.onclick = async () => {
-  if(!isSystem()) return;
-  if(!confirm("Reset ALL scoresheets? (Unconfirms everything)")) return;
-  await remove(ref(db, "scoresheets"));
-  audit("Reset all scoresheets");
-};
-
-unlockFixtureBtn.onclick = async () => {
-  if(!isSystem()) return;
-  const id = unlockFixtureSelect.value;
-  if(!id) return alert("Select a fixture");
-  await update(ref(db, `scoresheets/${id}`), { confirmed:false });
-  await remove(ref(db, `results/${id}`));
-  audit(`Unlock fixture ${id} (result removed + sheet unlocked)`);
-  renderTable();
-};
-
-// ---- Audit ----
-function audit(action){
-  if(!currentUser) return;
-  push(ref(db,"audit"), { by: currentUser.uid, action, ts: Date.now() });
-}
-
-function setupAuditListener(){
-  const box = document.getElementById("auditLog");
-  if(!box) return;
-
-  onValue(ref(db,"audit"), (snap)=>{
-    if(!snap.exists()){
-      box.innerHTML = `<div class="card"><strong>Audit Log</strong><br><small>No entries yet</small></div>`;
-      return;
-    }
-    const list = Object.values(snap.val()).sort((a,b)=>b.ts-a.ts).slice(0,12);
-    box.innerHTML = `
-      <div class="card">
-        <strong>Audit Log (latest)</strong>
-        <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
-          ${list.map(e=>`
-            <div style="border:1px solid #1e293b;border-radius:10px;padding:10px">
-              <div><strong>${escapeHtml(e.action)}</strong></div>
-              <small>${new Date(e.ts).toLocaleString()}</small>
-            </div>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  });
-}
-
+    await set(ref
