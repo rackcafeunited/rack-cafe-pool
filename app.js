@@ -47,7 +47,38 @@ logoutBtn.onclick = async () => { await signOut(auth); location.reload(); };
 const fixturesList = document.getElementById("fixturesList");
 const addFixtureBtn = document.getElementById("addFixtureBtn");
 const addFixtureForm = document.getElementById("addFixtureForm");
-const saveFixtureBtn = document.getElementById("saveFixtureBtn");
+saveFixtureBtn.onclick = async () => {
+  try {
+    if(!isAdmin()) return alert("Admins only");
+
+    const date = fixDate.value.trim();
+    const venue = fixVenue.value.trim();
+    const home = fixHome.value;
+    const away = fixAway.value;
+
+    if(!date || !venue || !home || !away) return alert("Fill all fields");
+    if(home === away) return alert("Home and Away must be different");
+
+    const id = String(Date.now());
+
+    await set(ref(db, `fixtures/${id}`), {
+      id, date, venue, home, away,
+      createdAt: Date.now()
+    });
+
+    audit(`Add fixture ${home} vs ${away} (${date})`);
+
+    addFixtureForm.classList.add("hidden");
+    fixDate.value = "";
+    fixVenue.value = "";
+
+    alert("Fixture added ✅");
+  } catch (err) {
+    console.error("Add fixture failed:", err);
+    alert("Add fixture failed:\n" + (err?.message || err));
+  }
+};
+
 const cancelFixtureBtn = document.getElementById("cancelFixtureBtn");
 const fixDate = document.getElementById("fixDate");
 const fixVenue = document.getElementById("fixVenue");
@@ -455,3 +486,4 @@ function setupAuditListener(){
     `;
   });
 }
+
