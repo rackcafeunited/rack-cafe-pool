@@ -6,46 +6,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body{margin:0;font-family:system-ui,Arial,sans-serif;background:#0f172a;color:#e5e7eb}
-    header{background:#020617;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b}
-    nav{padding:12px 18px}
-    nav button{background:none;border:none;color:#94a3b8;margin-right:12px;font-weight:600;cursor:pointer}
-    nav button.active{color:#38bdf8}
-    .container{padding:20px}
-    .card{background:#020617;padding:18px;border-radius:12px;margin-bottom:16px;border:1px solid #1e293b}
+    header{background:#020617;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;gap:12px;flex-wrap:wrap}
+    nav{padding:12px 18px;border-bottom:1px solid #1e293b;background:#0b1220;position:sticky;top:0;z-index:5}
+    nav button{background:none;border:none;color:#94a3b8;margin-right:12px;font-weight:700;cursor:pointer;padding:8px 10px;border-radius:10px}
+    nav button.active{color:#38bdf8;background:rgba(56,189,248,.08)}
+    .container{padding:20px;max-width:1100px;margin:0 auto}
+    .card{background:#020617;padding:18px;border-radius:14px;margin-bottom:16px;border:1px solid #1e293b}
     .hidden{display:none}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid #1e293b;text-align:left}
-    th{color:#94a3b8;font-size:12px;text-transform:uppercase}
-    .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #1e293b;display:inline-block}
+    th{color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+    .badge{padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid #1e293b;display:inline-flex;align-items:center;gap:8px}
     .ok{color:#22c55e}
     .warn{color:#f59e0b}
     .danger{color:#ef4444}
     .row{display:flex;gap:10px;flex-wrap:wrap}
     .row > *{flex:1;min-width:180px}
     .frames{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
-    select,input{width:100%;padding:8px;border-radius:8px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
-    button.primary{padding:10px 14px;border-radius:10px;border:none;background:#38bdf8;color:#020617;font-weight:700;cursor:pointer}
-    button.secondary{padding:10px 14px;border-radius:10px;border:1px solid #1e293b;background:transparent;color:#e5e7eb;cursor:pointer}
-    .fixture{padding:12px;border:1px solid #1e293b;border-radius:10px;margin-top:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    select,input{width:100%;padding:10px 10px;border-radius:10px;border:1px solid #1e293b;background:#020617;color:#e5e7eb}
+    button.primary{padding:10px 14px;border-radius:12px;border:none;background:#38bdf8;color:#020617;font-weight:900;cursor:pointer}
+    button.secondary{padding:10px 14px;border-radius:12px;border:1px solid #1e293b;background:transparent;color:#e5e7eb;cursor:pointer}
+    button.secondary:disabled,button.primary:disabled{opacity:.55;cursor:not-allowed}
+    .fixture{padding:12px;border:1px solid #1e293b;border-radius:12px;margin-top:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}
     .fixture small{color:#94a3b8}
-    .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .pill{display:inline-flex;align-items:center;gap:8px}
-    .small{font-size:12px;color:#94a3b8}
+    .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .muted{color:#94a3b8}
+    .pill{border:1px solid #1e293b;border-radius:999px;padding:6px 10px;font-size:12px;color:#94a3b8}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:900px){ .grid2{grid-template-columns:1fr} }
+    @media (max-width:900px){.grid2{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 
 <header>
-  <div class="pill">
-    <strong>Rack Café Utd</strong>
-    <span class="badge" id="syncBadge">—</span>
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <div style="font-weight:900;font-size:18px">Rack Café Utd</div>
+    <div class="muted" style="font-size:12px">Huddersfield Tuesday Night Pool League · Blackball · 10 Frames</div>
   </div>
 
-  <div class="pill">
-    <span id="headerName"></span> · <span id="headerRole"></span>
-    <button id="logoutBtn" class="secondary" style="margin-left:12px">Logout</button>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+    <span id="syncPill" class="badge"><span id="syncDot">●</span><span id="syncText">Checking…</span></span>
+    <span class="pill"><span id="headerName">—</span> · <span id="headerRole">—</span></span>
+    <button id="logoutBtn" class="secondary">Logout</button>
   </div>
 </header>
 
@@ -63,9 +65,26 @@
 
   <section id="dashboard">
     <div class="card">
-      <h2>Dashboard</h2>
-      <p id="topPerformer">No one yet — no games have been played.</p>
-      <div class="small" id="dashboardMeta"></div>
+      <h2 style="margin-top:0">Dashboard</h2>
+      <div class="grid2">
+        <div class="card" style="margin:0">
+          <h3 style="margin-top:0">Top Performer</h3>
+          <p id="topPerformer">No one yet — no games have been played.</p>
+        </div>
+        <div class="card" style="margin:0">
+          <h3 style="margin-top:0">Team Snapshot</h3>
+          <div class="row">
+            <div>
+              <div class="muted" style="font-size:12px">Matches Confirmed</div>
+              <div style="font-size:28px;font-weight:900" id="statMatches">0</div>
+            </div>
+            <div>
+              <div class="muted" style="font-size:12px">Frame Points</div>
+              <div style="font-size:28px;font-weight:900" id="statPoints">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -75,14 +94,16 @@
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
         <div>
           <h2 style="margin:0">Fixtures</h2>
-          <small>Admins can add/edit/delete fixtures</small>
+          <small class="muted">Admins can add/edit/delete fixtures</small>
         </div>
-        <button id="addFixtureBtn" class="primary hidden">Add Fixture</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="addFixtureBtn" class="primary hidden">Add Fixture</button>
+        </div>
       </div>
 
       <div id="fixturesList"></div>
 
-      <div id="fixtureFormCard" class="card hidden" style="margin-top:14px">
+      <div id="fixtureForm" class="card hidden" style="margin-top:14px">
         <h3 style="margin-top:0" id="fixtureFormTitle">Add Fixture</h3>
         <div class="row">
           <input id="fixDate" placeholder="Date (YYYY-MM-DD)" />
@@ -96,7 +117,7 @@
           <button id="saveFixtureBtn" class="primary">Save</button>
           <button id="cancelFixtureBtn" class="secondary">Cancel</button>
         </div>
-        <div class="small" style="margin-top:10px" id="fixtureFormHint"></div>
+        <div class="muted" style="margin-top:10px;font-size:12px" id="fixtureFormHint"></div>
       </div>
     </div>
   </section>
@@ -104,29 +125,27 @@
   <!-- LEAGUE TABLE -->
   <section id="table" class="hidden">
     <div class="card">
-      <h2>League Table</h2>
+      <h2 style="margin-top:0">League Table</h2>
       <table>
         <thead>
-          <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
+        <tr><th>Pos</th><th>Team</th><th>P</th><th>FF</th><th>FA</th><th>Pts</th></tr>
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
-      <div class="small" style="margin-top:8px">Points = frames won (confirmed matches only).</div>
     </div>
   </section>
 
   <!-- SCORESHEETS -->
   <section id="scoresheets" class="hidden">
     <div class="card">
-      <h2>Scoresheets (Per Fixture)</h2>
+      <h2 style="margin-top:0">Scoresheets (Per Fixture)</h2>
 
-      <label>Select Fixture</label>
+      <label class="muted">Select Fixture</label>
       <select id="fixtureSelect"></select>
 
       <div style="margin-top:10px">
         <span id="fixtureMeta" class="badge"></span>
         <span id="lockBadge" class="badge hidden" style="margin-left:8px">Locked</span>
-        <span id="byeBadge" class="badge hidden" style="margin-left:8px">BYE</span>
       </div>
 
       <div class="row" style="margin-top:12px">
@@ -136,13 +155,13 @@
 
       <div class="frames" id="frames"></div>
 
-      <div style="margin-top:12px">
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
         <button id="saveSheet" class="secondary">Save</button>
         <button id="confirmMatch" class="primary">Confirm Match</button>
       </div>
 
-      <div class="small" style="margin-top:10px">
-        Only Admins can edit/confirm. Confirm locks the fixture (System Creator can unlock).
+      <div class="muted" style="margin-top:10px;font-size:12px">
+        Only Admins can edit scoresheets. Confirming a match locks it and updates the table.
       </div>
     </div>
   </section>
@@ -150,58 +169,41 @@
   <!-- PLAYERS -->
   <section id="players" class="hidden">
     <div class="card">
-      <h2>Players</h2>
-      <div class="small">Per-player stats update automatically when you confirm matches (Rack Café Utd only).</div>
-    </div>
-
-    <div class="card">
-      <table>
-        <thead>
-          <tr><th>Name</th><th>Role</th><th>Frames Won</th><th>Frames Lost</th><th>Matches</th><th>Win %</th></tr>
-        </thead>
-        <tbody id="playersBody"></tbody>
-      </table>
+      <h2 style="margin-top:0">Players</h2>
+      <p class="muted" style="margin-top:6px">Players will appear here after they log in for the first time.</p>
+      <div id="playersList"></div>
     </div>
   </section>
 
   <!-- ADMIN -->
   <section id="admin" class="hidden">
     <div class="card">
-      <h2>Admin Panel</h2>
-      <div class="small">Admins: manage fixtures, scoresheets, confirm matches.</div>
+      <h2 style="margin-top:0">Admin Panel</h2>
+      <p class="muted">Admins can add/edit/delete fixtures, edit scoresheets, and confirm matches.</p>
     </div>
   </section>
 
   <!-- SYSTEM -->
   <section id="system" class="hidden">
-    <div class="grid2">
-      <div class="card">
-        <h2>System Creator Panel</h2>
-        <button id="resetTable" class="secondary">Reset League Table</button>
-        <button id="resetSheets" class="secondary" style="margin-left:8px">Reset All Scoresheets</button>
-
-        <div style="margin-top:14px">
-          <label>Unlock Fixture (override)</label>
-          <select id="unlockFixtureSelect"></select>
-          <button id="unlockFixtureBtn" class="secondary" style="margin-top:8px">Unlock Selected</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Role Manager</h2>
-        <div class="small">Captain above Co-Captain. Role changes apply instantly.</div>
-        <div id="roleManagerList" style="margin-top:12px"></div>
-      </div>
-    </div>
-
     <div class="card">
-      <h2>Audit Log</h2>
-      <div id="auditLog"></div>
+      <h2 style="margin-top:0">System Creator Panel</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button id="resetTable" class="secondary">Reset League Table</button>
+        <button id="resetSheets" class="secondary">Reset All Scoresheets</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <label class="muted">Unlock Fixture (override)</label>
+        <select id="unlockFixtureSelect"></select>
+        <button id="unlockFixtureBtn" class="secondary" style="margin-top:8px">Unlock Selected</button>
+      </div>
+
+      <div id="auditLog" style="margin-top:14px"></div>
     </div>
   </section>
 
 </div>
 
-<script type="module" src="./app.js"></script>
+<script type="module" src="./app_stage5_drop1.js"></script>
 </body>
 </html>
