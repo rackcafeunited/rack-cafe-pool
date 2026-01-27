@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getDatabase, ref, get, set, update, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, get, set, update, push, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAiRXtpn52GM2Rqi-FpdXvWxBjebAjd6_I",
@@ -41,37 +41,123 @@ document.querySelectorAll("nav button").forEach(btn=>{
 
 logoutBtn.onclick=async()=>{ await signOut(auth); location.reload(); };
 
+// Scoresheet UI refs
+const homeSel = document.getElementById("homeTeam");
+const awaySel = document.getElementById("awayTeam");
+const framesDiv = document.getElementById("frames");
+const saveBtn = document.getElementById("saveSheet");
+const confirmBtn = document.getElementById("confirmMatch");
+const lockBadge = document.getElementById("lockBadge");
+
+// ----- STATE -----
+let currentUser = null;
+let currentRole = "player";
+
+// ✅ Seed teams immediately (fixes empty selects)
+seedSelectors();
+
 // ----- AUTH -----
-let currentUser=null, currentRole=null;
 onAuthStateChanged(auth, async user=>{
   if(!user) return;
-  currentUser=user;
+  currentUser = user;
 
-  const uref=ref(db,`users/${user.uid}`);
-  let snap=await get(uref);
+  const uref = ref(db,`users/${user.uid}`);
+  let snap = await get(uref);
+
   if(!snap.exists()){
     await set(uref,{
       email:user.email,
       name:user.email.split("@")[0],
       role: user.email==="thayessmith@rackcafeutd.com" ? "system-creator" : "player"
     });
-    snap=await get(uref);
+    snap = await get(uref);
   }
-  const data=snap.val();
-  currentRole=data.role;
 
-  headerName.textContent=data.name;
-  headerRole.textContent=data.role;
+  const data = snap.val();
+  currentRole = (data.role || "player");
 
-  // role gates
+  headerName.textContent = data.name;
+  headerRole.textContent = data.role;
+
+  // role gates (safe)
   setTimeout(()=>{
     if(["captain","co-captain","system-creator"].includes(currentRole)) adminTab.classList.remove("hidden");
     if(currentRole==="system-creator") systemTab.classList.remove("hidden");
   },0);
 
+  // Seed again after auth (harmless, ensures consistent)
   seedSelectors();
+
+  // Load current sheet + lock state live
+  setupCurrentSheetListener();
+
   renderTable();
 });
+
+// ----- SELECTOR + FRAMES -----
+function seedSelectors(){
+  if(!homeSel || !awaySel || !framesDiv) return;
+
+  homeSel.innerHTML = TEAMS.map(t=>`<option value="${escapeAttr(t)}">${t}</option>`).join("");
+  awaySel.innerHTML = TEAMS.map(t=>`<option value="${escapeAttr(t)}">${t}</option>`).join("");
+
+  framesDiv.innerHTML = "";
+  for(let i=0;i<FRAMES;i++){
+    framesDiv.innerHTML += `
+      <select data-i="${i}">
+        <option value="">Frame ${i+1}</option>
+        <option value="H">Home win</option>
+        <option value="A">Away win</option>
+      </select>
+    `;
+  }
+}
+
+function escapeAttr(s){
+  // minimal attribute escaping
+  return String(s).replace(/"/g, "&quot;");
+}
+
+function setScoresheetLocked(isLocked){
+  if(isLocked){
+    lockBadge.classList.remove("hidden");
+  } else {
+    lockBadge.classList.add("hidden");
+  }
+
+  const canEdit = ["captain","co-captain","system-creator"].includes(currentRole) && (!isLocked || currentRole==="system-creator");
+
+  homeSel.disabled = !canEdit;
+  awaySel.disabled = !canEdit;
+  framesDiv.querySelectorAll("select").forEach(s=>s.disabled = !canEdit);
+  saveBtn.disabled = !canEdit;
+  confirmBtn.disabled = !canEdit || isLocked;
+}
+
+// ----- CURRENT SHEET LIVE -----
+function setupCurrentSheetListener(){
+  onValue(ref(db,"currentSheet"), (snap)=>{
+    if(!snap.exists()){
+      // no sheet yet
+      setScoresheetLocked(false);
+      return;
+    }
+
+    const s = snap.val();
+    // populate UI from DB
+    if(s.home) homeSel.value = s.home;
+    if(s.away) awaySel.value = s.away;
+
+    const frameSelects = [...framesDiv.querySelectorAll("select")];
+    if(Array.isArray(s.frames)){
+      s.frames.forEach((v,i)=>{
+        if(frameSelects[i]) frameSelects[i].value = v || "";
+      });
+    }
+
+    setScoresheetLocked(!!s.confirmed);
+  });
+}
 
 // ----- LEAGUE TABLE -----
 function baseTable(){
@@ -79,101 +165,97 @@ function baseTable(){
 }
 
 async function renderTable(){
-  const body=document.getElementById("tableBody");
-  const rows=baseTable();
-  const idx=Object.fromEntries(rows.map((r,i)=>[r.team,i]));
+  const body = document.getElementById("tableBody");
+  if(!body) return;
 
-  const results=await get(ref(db,"results"));
+  const rows = baseTable();
+  const idx = Object.fromEntries(rows.map((r,i)=>[r.team,i]));
+
+  const results = await get(ref(db,"results"));
   if(results.exists()){
     Object.values(results.val()).forEach(m=>{
       if(!m.confirmed) return;
-      const h=rows[idx[m.home]], a=rows[idx[m.away]];
+      const h = rows[idx[m.home]], a = rows[idx[m.away]];
+      if(!h || !a) return;
+
       h.P++; a.P++;
-      h.FF+=m.homeWins; h.FA+=m.awayWins; h.PTS+=m.homeWins;
-      a.FF+=m.awayWins; a.FA+=m.homeWins; a.PTS+=m.awayWins;
+      h.FF += m.homeWins; h.FA += m.awayWins; h.PTS += m.homeWins;
+      a.FF += m.awayWins; a.FA += m.homeWins; a.PTS += m.awayWins;
     });
   }
 
   rows.sort((x,y)=>y.PTS-x.PTS || (y.FF-y.FA)-(x.FF-x.FA));
-  body.innerHTML=rows.map((r,i)=>`
+  body.innerHTML = rows.map((r,i)=>`
     <tr><td>${i+1}</td><td>${r.team}</td><td>${r.P}</td><td>${r.FF}</td><td>${r.FA}</td><td>${r.PTS}</td></tr>
   `).join("");
 
-  const rack=rows.find(r=>r.team==="Rack Café Utd");
-  document.getElementById("topPerformer").textContent =
-    rack && rack.P>0 ? "Season in progress" : "No one yet — no games have been played.";
-}
-
-// ----- SCORESHEETS -----
-const homeSel=document.getElementById("homeTeam");
-const awaySel=document.getElementById("awayTeam");
-const framesDiv=document.getElementById("frames");
-const saveBtn=document.getElementById("saveSheet");
-const confirmBtn=document.getElementById("confirmMatch");
-const lockBadge=document.getElementById("lockBadge");
-
-let currentSheet=null;
-
-function seedSelectors(){
-  homeSel.innerHTML=awaySel.innerHTML=TEAMS.map(t=>`<option>${t}</option>`).join("");
-  framesDiv.innerHTML="";
-  for(let i=0;i<FRAMES;i++){
-    framesDiv.innerHTML+=`
-      <select data-i="${i}">
-        <option value="">Frame ${i+1}</option>
-        <option value="H">Home win</option>
-        <option value="A">Away win</option>
-      </select>`;
+  const rack = rows.find(r=>r.team==="Rack Café Utd");
+  const top = document.getElementById("topPerformer");
+  if(top){
+    top.textContent = rack && rack.P>0 ? "Season in progress" : "No one yet — no games have been played.";
   }
 }
 
-saveBtn.onclick=async()=>{
+// ----- AUDIT -----
+function audit(action){
+  if(!currentUser) return;
+  push(ref(db,"audit"),{
+    by: currentUser.uid,
+    action,
+    ts: Date.now()
+  });
+}
+
+// ----- SCORESHEET ACTIONS -----
+saveBtn.onclick = async ()=>{
   if(!["captain","co-captain","system-creator"].includes(currentRole)) return alert("Admins only");
-  const frames=[...framesDiv.querySelectorAll("select")].map(s=>s.value);
-  currentSheet={home:homeSel.value,away:awaySel.value,frames,confirmed:false};
-  await set(ref(db,"currentSheet"),currentSheet);
+
+  const frames = [...framesDiv.querySelectorAll("select")].map(s=>s.value);
+  const sheet = { home: homeSel.value, away: awaySel.value, frames, confirmed:false };
+
+  await set(ref(db,"currentSheet"), sheet);
   audit("Save scoresheet");
   alert("Saved");
 };
 
-confirmBtn.onclick=async()=>{
+confirmBtn.onclick = async ()=>{
   if(!["captain","co-captain","system-creator"].includes(currentRole)) return;
-  const snap=await get(ref(db,"currentSheet"));
+
+  const snap = await get(ref(db,"currentSheet"));
   if(!snap.exists()) return alert("Save first");
-  const s=snap.val();
-  const homeWins=s.frames.filter(x=>x==="H").length;
-  const awayWins=FRAMES-homeWins;
+
+  const s = snap.val();
+  const homeWins = (s.frames || []).filter(x=>x==="H").length;
+  const awayWins = FRAMES - homeWins;
 
   await push(ref(db,"results"),{
-    home:s.home, away:s.away,
+    home: s.home, away: s.away,
     homeWins, awayWins,
-    confirmed:true
+    confirmed: true
   });
-  await update(ref(db,"currentSheet"),{confirmed:true});
-  lockBadge.classList.remove("hidden");
+
+  await update(ref(db,"currentSheet"),{ confirmed:true });
   audit("Confirm match");
   renderTable();
 };
 
-document.getElementById("unlockMatch").onclick=async()=>{
-  if(currentRole!=="system-creator") return;
-  await update(ref(db,"currentSheet"),{confirmed:false});
-  lockBadge.classList.add("hidden");
-  audit("Unlock match");
-};
+// System Creator buttons (if present)
+const resetTableBtn = document.getElementById("resetTable");
+const unlockMatchBtn = document.getElementById("unlockMatch");
 
-document.getElementById("resetTable").onclick=async()=>{
-  if(currentRole!=="system-creator") return;
-  await set(ref(db,"results"),null);
-  audit("Reset league table");
-  renderTable();
-};
+if(resetTableBtn){
+  resetTableBtn.onclick = async ()=>{
+    if(currentRole!=="system-creator") return;
+    await set(ref(db,"results"), null);
+    audit("Reset league table");
+    renderTable();
+  };
+}
 
-// ----- AUDIT -----
-function audit(action){
-  push(ref(db,"audit"),{
-    by:currentUser.uid,
-    action,
-    ts:Date.now()
-  });
+if(unlockMatchBtn){
+  unlockMatchBtn.onclick = async ()=>{
+    if(currentRole!=="system-creator") return;
+    await update(ref(db,"currentSheet"), { confirmed:false });
+    audit("Unlock match");
+  };
 }
