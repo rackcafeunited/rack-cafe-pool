@@ -37,7 +37,6 @@
         .form-input, .form-select, .form-textarea { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; font-family: inherit; }
         .form-textarea { min-height: 120px; resize: vertical; padding: 16px; }
         
-        /* Enhanced Dropdown Styling for Readability */
         .form-select { 
             cursor: pointer; 
             appearance: none; 
@@ -61,7 +60,6 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
             line-height: 1.5;
         }
-        /* Ensure dropdown text is readable on all browsers */
         select.form-select {
             color: #ffffff !important;
             background-color: var(--bg-card) !important;
@@ -73,7 +71,6 @@
             font-size: 15px !important;
             font-weight: 600 !important;
         }
-        /* Reserve role styling in dropdowns */
         select.form-select option[value="Reserve"] {
             background-color: #9b59b6 !important;
             color: white !important;
@@ -228,38 +225,6 @@
         .fixture-time { font-size: 12px; color: var(--accent-orange); font-weight: 600; margin-top: 4px; }
         .time-badge { background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); color: #ffd700; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-left: 8px; }
         
-        .training-type-practice { color: #e94560; border-color: #e94560; }
-        .training-type-drills { color: #f39c12; border-color: #f39c12; }
-        .training-type-theory { color: #9b59b6; border-color: #9b59b6; }
-        .training-type-team { color: #2ed573; border-color: #2ed573; }
-        .training-type-fitness { color: #3498db; border-color: #3498db; }
-        
-        /* Attendance Styles */
-        .attendance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
-        .attendance-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-        .attendance-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(233,69,96,0.3); }
-        .attendance-item.selected { background: rgba(46, 213, 115, 0.1); border-color: var(--success); }
-        .attendance-item.selected .attendance-check { background: var(--success); border-color: var(--success); }
-        .attendance-check { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .attendance-check i { opacity: 0; color: white; font-size: 12px; transition: all 0.2s; }
-        .attendance-item.selected .attendance-check i { opacity: 1; }
-        .attendance-avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
-        .attendance-name { font-size: 13px; font-weight: 600; }
-        .attendance-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-        .attendance-fill { height: 100%; background: linear-gradient(90deg, var(--success), var(--accent-orange)); border-radius: 2px; transition: width 0.5s ease; }
-        .attendance-stats { display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-        .attendance-stat { text-align: center; }
-        .attendance-stat-value { font-size: 24px; font-weight: 800; color: var(--success); }
-        .attendance-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-        .attendance-indicator { display: inline-flex; align-items: center; gap: 6px; background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.3); color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 8px; }
-        .attendance-indicator.partial { background: rgba(243, 156, 18, 0.1); border-color: rgba(243, 156, 18, 0.3); color: var(--accent-orange); }
-        .attendance-indicator.low { background: rgba(233, 69, 96, 0.1); border-color: rgba(233, 69, 96, 0.3); color: var(--primary-pink); }
-        .attendance-avatars { display: flex; margin-left: auto; }
-        .attendance-avatars .mini-avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 2px solid var(--bg-card); margin-left: -8px; }
-        .attendance-avatars .mini-avatar:first-child { margin-left: 0; }
-        .attendance-avatars .mini-avatar.more { background: var(--border-color); color: var(--text-secondary); }
-        
-        /* Network Status Indicator */
         .network-status { 
             position: fixed; 
             top: 20px; 
@@ -282,7 +247,6 @@
         .network-status.offline { background: rgba(255, 71, 87, 0.9); color: #fff; }
         .network-status.syncing { background: rgba(0, 255, 255, 0.9); color: #000; }
         
-        /* Conflict Resolution Dialog */
         .conflict-dialog { 
             position: fixed; 
             top: 0; 
@@ -320,7 +284,6 @@
 </head>
 <body>
 
-    <!-- Network Status Indicator -->
     <div id="networkStatus" class="network-status">
         <i class="fas fa-circle"></i>
         <span>Online</span>
@@ -331,105 +294,12 @@
         <span>Syncing data...</span>
     </div>
 
-    <!-- Conflict Resolution Dialog -->
     <div id="conflictDialog" class="conflict-dialog">
         <div class="conflict-content">
             <h3 style="color: var(--primary-pink); margin-bottom: 16px;"><i class="fas fa-exclamation-triangle"></i> Sync Conflict Detected</h3>
             <p style="margin-bottom: 16px; color: var(--text-secondary);">Data was modified on another device while you were offline. Choose which version to keep:</p>
             <div id="conflictOptions"></div>
             <button class="submit-btn" onclick="resolveConflict()" style="margin-top: 16px;">Resolve Conflict</button>
-        </div>
-    </div>
-
-    <!-- Attendance Modal -->
-    <div class="modal-overlay" id="attendanceModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-clipboard-check" style="color: var(--success);"></i> Training Attendance</div>
-                <button class="modal-close" onclick="closeAttendanceModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="font-weight: 800; font-size: 16px;" id="attendanceSessionTitle">Session Title</div>
-                        <div style="color: var(--text-secondary); font-size: 13px;" id="attendanceSessionDate">Date</div>
-                    </div>
-                    <div style="color: var(--text-muted); font-size: 13px;" id="attendanceSessionType">Type</div>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <label class="form-label" style="margin: 0;">Mark Attendance</label>
-                        <button onclick="toggleSelectAllAttendance()" style="background: none; border: none; color: var(--info); font-size: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase;">Select All</button>
-                    </div>
-                    <div class="attendance-grid" id="attendanceGrid"></div>
-                </div>
-                
-                <div class="attendance-stats">
-                    <div class="attendance-stat">
-                        <div class="attendance-stat-value" id="attendanceCount">0</div>
-                        <div class="attendance-stat-label">Attending</div>
-                    </div>
-                    <div class="attendance-stat">
-                        <div class="attendance-stat-value" id="attendanceTotal">0</div>
-                        <div class="attendance-stat-label">Total Squad</div>
-                    </div>
-                    <div class="attendance-stat">
-                        <div class="attendance-stat-value" id="attendancePercent">0%</div>
-                        <div class="attendance-stat-label">Attendance</div>
-                    </div>
-                </div>
-                
-                <button type="button" class="submit-btn" onclick="saveAttendance()">
-                    <i class="fas fa-save" style="margin-right: 8px;"></i> Save Attendance
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="addTrainingModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-dumbbell" style="color: var(--primary-pink);"></i> Schedule Practice Session</div>
-                <button class="modal-close" onclick="closeAddTrainingModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="trainingDate" style="padding-left: 16px;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Start Time</label>
-                        <input type="time" class="form-input" id="trainingTime" style="padding-left: 16px;" value="19:00">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Session Type</label>
-                    <select class="form-select" id="trainingType" style="padding-left: 16px;">
-                        <option value="Practice Match">Practice Match</option>
-                        <option value="Drills & Skills">Drills & Skills</option>
-                        <option value="Theory & Tactics">Theory & Tactics</option>
-                        <option value="Team Building">Team Building</option>
-                        <option value="Fitness">Fitness Training</option>
-                        <option value="Open Table">Open Table</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-location-dot"></i>
-                        <input type="text" class="form-input" id="trainingLocation" placeholder="e.g., Rack Café - Table 3" style="padding-left: 48px;">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Notes / Focus Points</label>
-                    <textarea class="form-textarea" id="trainingNotes" placeholder="What should the team focus on? e.g., Safety play, Breaking, Positional shots..."></textarea>
-                </div>
-                <button type="button" class="submit-btn" onclick="submitTrainingSession()">
-                    <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Schedule Session
-                </button>
-            </div>
         </div>
     </div>
 
@@ -731,7 +601,7 @@
                     <div class="avatar" id="userAvatar" onclick="toggleDropdown(event)">--</div>
                     <div class="dropdown-menu" id="profileDropdown">
                         <div class="user-info"><div class="user-name" id="dropdownUserName">User</div><div class="user-role" id="dropdownUserRole">Player</div></div>
-                        <div class="dropdown-item" onclick="switchTab('profileTab', document.querySelectorAll('.nav-item')[5]); toggleDropdown();"><i class="fas fa-user"></i><span>My Profile</span></div>
+                        <div class="dropdown-item" onclick="switchTab('profileTab', document.querySelectorAll('.nav-item')[4]); toggleDropdown();"><i class="fas fa-user"></i><span>My Profile</span></div>
                         <div id="adminMenuItems" style="display: none;">
                             <div class="dropdown-divider"></div>
                             <div class="dropdown-item admin-only" onclick="openAdminPanel(); toggleDropdown();"><i class="fas fa-shield-alt"></i><span>Captain's Panel</span></div>
@@ -819,52 +689,9 @@
             </div>
 
             <div class="tab-content" id="teamTab">
-                <div class="page-title"><h1>Team</h1><p>Squad Statistics & Training Attendance</p></div>
+                <div class="page-title"><h1>Team</h1><p>Squad Statistics</p></div>
                 <div id="playersGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
                 <div class="last-updated" id="teamLastUpdated" style="text-align: center; margin-top: 16px;"></div>
-            </div>
-
-            <div class="tab-content" id="trainingTab">
-                <div class="page-title"><h1>Training & Practice</h1><p>Squad Development Sessions</p></div>
-                <div id="adminTrainingPanel" style="display: none;">
-                    <div class="admin-panel">
-                        <div class="section-title" style="color: var(--gold-primary); margin-bottom: 8px;">
-                            <i class="fas fa-dumbbell"></i> Training Management
-                        </div>
-                        <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">Schedule practice sessions and track attendance</p>
-                        <button class="admin-btn" onclick="openAddTrainingModal()">
-                            <i class="fas fa-plus-circle"></i> Schedule Practice Session
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Training Stats Summary -->
-                <div class="stats-grid" style="margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalTrainingSessions">0</div>
-                        <div class="stat-label">Total Sessions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="avgAttendanceRate">0%</div>
-                        <div class="stat-label">Avg Attendance</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="topAttendee">--</div>
-                        <div class="stat-label">Top Attendee</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="sessionsThisMonth">0</div>
-                        <div class="stat-label">This Month</div>
-                    </div>
-                </div>
-                
-                <div class="filter-tabs">
-                    <button class="filter-btn active" onclick="filterTraining('upcoming', this)">Upcoming</button>
-                    <button class="filter-btn" onclick="filterTraining('past', this)">History</button>
-                    <button class="filter-btn" onclick="filterTraining('all', this)">All</button>
-                </div>
-                <div id="trainingList"></div>
-                <div class="last-updated" id="trainingLastUpdated" style="text-align: center; margin-top: 16px;"></div>
             </div>
 
             <div class="tab-content" id="profileTab">
@@ -873,28 +700,6 @@
                     <div id="profileAvatar" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800;">--</div>
                     <div id="profileDisplayName" style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">User</div>
                     <div id="profileRoleText" style="color: var(--text-secondary); font-size: 14px;">Player</div>
-                </div>
-                
-                <!-- Personal Training Stats -->
-                <div class="recent-form">
-                    <div class="section-title" style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> Your Training Stats</div>
-                    <div id="personalTrainingStats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
-                        <div>
-                            <div class="stat-value" id="personalSessionsAttended" style="font-size: 28px;">0</div>
-                            <div class="stat-label">Sessions Attended</div>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="personalAttendanceRate" style="font-size: 28px;">0%</div>
-                            <div class="stat-label">Attendance Rate</div>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="personalStreak" style="font-size: 28px;">0</div>
-                            <div class="stat-label">Current Streak</div>
-                        </div>
-                    </div>
-                    <div class="attendance-bar" style="margin-top: 20px;">
-                        <div class="attendance-fill" id="personalAttendanceBar" style="width: 0%;"></div>
-                    </div>
                 </div>
             </div>
 
@@ -921,15 +726,12 @@
             <button class="nav-item" onclick="switchTab('fixturesTab', this)"><i class="fas fa-calendar-days"></i><span>Fixtures</span></button>
             <button class="nav-item" onclick="switchTab('tableTab', this)"><i class="fas fa-table"></i><span>Table</span></button>
             <button class="nav-item" onclick="switchTab('teamTab', this)"><i class="fas fa-users"></i><span>Team</span></button>
-            <button class="nav-item" onclick="switchTab('trainingTab', this)"><i class="fas fa-dumbbell"></i><span>Training</span></button>
             <button class="nav-item" onclick="switchTab('profileTab', this)"><i class="fas fa-user"></i><span>Profile</span></button>
         </nav>
     </div>
 
     <script>
-        // ==================== FIREBASE CONFIGURATION ====================
-        // Replace with your Firebase config from Firebase Console
-       const firebaseConfig = {
+        const firebaseConfig = {
   apiKey: "AIzaSyAYQy0hTbsTkAg8_vqnvRVsXDxg_yg2DVY",
   authDomain: "rack-cafe-united-app.firebaseapp.com",
   projectId: "rack-cafe-united-app",
@@ -938,11 +740,9 @@
   appId: "1:754292454573:web:188ec818666c77a3ef8224"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        // Enable offline persistence
         db.enablePersistence({synchronizeTabs: true})
             .then(() => console.log("Offline persistence enabled"))
             .catch(err => {
@@ -965,10 +765,10 @@
         };
 
         let teamData = [
-            { id: 1, name: 'Brandon Dannatt', initials: 'BD', role: 'Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 2, name: 'Tom Hayes-Smith', initials: 'THS', role: 'System Creator + Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 4, name: 'John Reserve', initials: 'JR', role: 'Reserve', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 }
+            { id: 1, name: 'Brandon Dannatt', initials: 'BD', role: 'Captain', played: 0, won: 0, lost: 0, winRate: 0 },
+            { id: 2, name: 'Tom Hayes-Smith', initials: 'THS', role: 'System Creator + Co-Captain', played: 0, won: 0, lost: 0, winRate: 0 },
+            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0 },
+            { id: 4, name: 'John Reserve', initials: 'JR', role: 'Reserve', played: 0, won: 0, lost: 0, winRate: 0 }
         ];
 
         let opponentsList = [
@@ -985,19 +785,15 @@
 
         let fixturesData = [];
         let announcements = [];
-        let trainingSessions = [];
         let currentUser = null;
         let currentFilter = 'all';
-        let currentTrainingFilter = 'upcoming';
         let autoSyncInterval = null;
         let countdownInterval = null;
         let lastDataHash = '';
-        let currentEditingSessionId = null;
         let isOnline = navigator.onLine;
         let unsubscribeFirestore = null;
         let pendingChanges = false;
 
-        // ==================== NETWORK STATUS ====================
         function updateNetworkStatus(online) {
             isOnline = online;
             const statusEl = document.getElementById('connectionStatus');
@@ -1050,7 +846,6 @@
             }, 3000);
         }
 
-        // ==================== FIRESTORE SYNC ====================
         function subscribeToFirestore() {
             if (unsubscribeFirestore) unsubscribeFirestore();
             
@@ -1059,7 +854,6 @@
                     if (doc.exists) {
                         const data = doc.data();
                         if (data && data.lastDevice !== DEVICE_ID) {
-                            // Data changed from another device
                             showAutoSyncIndicator();
                             loadFromFirestoreData(data);
                             showToast('Data synced from cloud');
@@ -1084,7 +878,6 @@
                     fixturesData,
                     announcements,
                     opponentsList,
-                    trainingSessions,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     lastDevice: DEVICE_ID,
                     version: '2.1'
@@ -1102,20 +895,18 @@
         }
 
         function loadFromFirestoreData(data) {
-            if (data.teamData) teamData = data.teamData.map(p => ({...p, trainingAttended: p.trainingAttended || 0}));
+            if (data.teamData) teamData = data.teamData;
             if (data.leagueData) leagueData = data.leagueData;
             if (data.fixturesData) fixturesData = data.fixturesData;
             if (data.announcements) announcements = data.announcements;
             if (data.opponentsList) opponentsList = data.opponentsList;
-            if (data.trainingSessions) trainingSessions = data.trainingSessions.map(s => ({...s, attendance: s.attendance || []}));
             
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             updateAllDisplays();
         }
 
-        // ==================== DATA PERSISTENCE ====================
         function getDataHash() {
-            return JSON.stringify({ fixturesData, leagueData, teamData, opponentsList, trainingSessions }).length.toString(36);
+            return JSON.stringify({ fixturesData, leagueData, teamData, opponentsList }).length.toString(36);
         }
 
         async function persistData() {
@@ -1125,7 +916,6 @@
                 fixturesData,
                 announcements,
                 opponentsList,
-                trainingSessions,
                 timestamp: new Date().toISOString(),
                 version: '2.1'
             };
@@ -1135,7 +925,6 @@
             pendingChanges = true;
             updateLastUpdatedTimes();
             
-            // Auto sync to Firebase if online
             if (isOnline) {
                 await syncToFirestore();
             }
@@ -1146,12 +935,11 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     const data = JSON.parse(saved);
-                    if (data.teamData) teamData = data.teamData.map(p => ({...p, trainingAttended: p.trainingAttended || 0}));
+                    if (data.teamData) teamData = data.teamData;
                     if (data.leagueData) leagueData = data.leagueData;
                     if (data.fixturesData) fixturesData = data.fixturesData;
                     if (data.announcements) announcements = data.announcements;
                     if (data.opponentsList) opponentsList = data.opponentsList;
-                    if (data.trainingSessions) trainingSessions = data.trainingSessions.map(s => ({...s, attendance: s.attendance || []}));
                     lastDataHash = getDataHash();
                     return true;
                 }
@@ -1162,7 +950,6 @@
         }
 
         function initAutoSync() {
-            // Check for external changes
             autoSyncInterval = setInterval(() => {
                 const currentHash = getDataHash();
                 if (currentHash !== lastDataHash && !pendingChanges) {
@@ -1175,10 +962,8 @@
                 updateNextMatchCountdown();
             }, 1000);
             
-            // Subscribe to Firestore changes
             subscribeToFirestore();
             
-            // Listen for localStorage changes (from other tabs)
             window.addEventListener('storage', (e) => {
                 if (e.key === STORAGE_KEY) {
                     showAutoSyncIndicator();
@@ -1207,14 +992,11 @@
             showToast('Manual sync completed');
         }
 
-        // ==================== EXISTING FUNCTIONS ====================
-        // (All existing functions remain unchanged below this point)
-        
         function updateLastUpdatedTimes() {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
             
-            const elements = ['lastUpdated', 'fixturesLastUpdated', 'tableLastUpdated', 'teamLastUpdated', 'formLastUpdated', 'trainingLastUpdated'];
+            const elements = ['lastUpdated', 'fixturesLastUpdated', 'tableLastUpdated', 'teamLastUpdated', 'formLastUpdated'];
             elements.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = `Last updated: ${timeString}`;
@@ -1331,7 +1113,6 @@
             document.getElementById('userAvatar').textContent = userData.initials;
             document.getElementById('dropdownUserName').textContent = userData.name;
             
-            // Apply Reserve styling if needed
             const roleEl = document.getElementById('dropdownUserRole');
             roleEl.textContent = userData.role;
             if (userData.role === 'Reserve') {
@@ -1362,9 +1143,7 @@
             updateAdminPanelVisibility();
             initAutoSync();
             updateAllDisplays();
-            updatePersonalTrainingStats();
             
-            // Initial sync
             if (isOnline) {
                 syncToFirestore();
             }
@@ -1394,17 +1173,6 @@
             
             if (tabId === 'adminTab') {
                 updateAdminPanelVisibility();
-            } else if (tabId === 'trainingTab') {
-                const adminPanel = document.getElementById('adminTrainingPanel');
-                if (adminPanel) {
-                    adminPanel.style.display = (currentUser && currentUser.isAdmin) ? 'block' : 'none';
-                }
-                updateTrainingStats();
-                renderTraining();
-            } else if (tabId === 'profileTab') {
-                updatePersonalTrainingStats();
-            } else if (tabId === 'teamTab') {
-                renderPlayersWithTraining();
             }
         }
 
@@ -1490,398 +1258,6 @@
         
         function openSystemCreatorModal() { document.getElementById('systemCreatorModal').classList.add('show'); }
         function closeSystemCreatorModal() { document.getElementById('systemCreatorModal').classList.remove('show'); }
-
-        function openAddTrainingModal() {
-            if (!currentUser || !currentUser.isAdmin) {
-                showToast('Only Captains can schedule training', 'error');
-                return;
-            }
-            document.getElementById('addTrainingModal').classList.add('show');
-            document.getElementById('trainingDate').valueAsDate = new Date();
-            document.getElementById('trainingTime').value = '19:00';
-            document.getElementById('trainingLocation').value = '';
-            document.getElementById('trainingNotes').value = '';
-            document.getElementById('trainingType').value = 'Practice Match';
-        }
-
-        function closeAddTrainingModal() {
-            document.getElementById('addTrainingModal').classList.remove('show');
-        }
-
-        // Attendance Functions
-        function openAttendanceModal(sessionId) {
-            if (!currentUser || !currentUser.isAdmin) {
-                showToast('Only Captains can mark attendance', 'error');
-                return;
-            }
-            
-            currentEditingSessionId = sessionId;
-            const session = trainingSessions.find(s => s.id === sessionId);
-            if (!session) return;
-            
-            document.getElementById('attendanceSessionTitle').textContent = session.type;
-            document.getElementById('attendanceSessionDate').textContent = new Date(session.date).toLocaleDateString();
-            document.getElementById('attendanceSessionType').textContent = session.location + (session.time ? ` • ${session.time}` : '');
-            
-            renderAttendanceGrid(session);
-            updateAttendanceStats();
-            
-            document.getElementById('attendanceModal').classList.add('show');
-        }
-
-        function closeAttendanceModal() {
-            document.getElementById('attendanceModal').classList.remove('show');
-            currentEditingSessionId = null;
-        }
-
-        function renderAttendanceGrid(session) {
-            const grid = document.getElementById('attendanceGrid');
-            const attendance = session.attendance || [];
-            
-            grid.innerHTML = teamData.map(player => {
-                const isSelected = attendance.includes(player.id);
-                return `
-                    <div class="attendance-item ${isSelected ? 'selected' : ''}" onclick="togglePlayerAttendance(${player.id})">
-                        <div class="attendance-check"><i class="fas fa-check"></i></div>
-                        <div class="attendance-avatar">${player.initials}</div>
-                        <div class="attendance-name">${player.name.split(' ')[0]}</div>
-                    </div>
-                `;
-            }).join('');
-            
-            document.getElementById('attendanceTotal').textContent = teamData.length;
-        }
-
-        function togglePlayerAttendance(playerId) {
-            const items = document.querySelectorAll('.attendance-item');
-            const index = teamData.findIndex(p => p.id === playerId);
-            if (items[index]) {
-                items[index].classList.toggle('selected');
-                updateAttendanceStats();
-            }
-        }
-
-        function toggleSelectAllAttendance() {
-            const items = document.querySelectorAll('.attendance-item');
-            const allSelected = Array.from(items).every(item => item.classList.contains('selected'));
-            
-            items.forEach(item => {
-                if (allSelected) {
-                    item.classList.remove('selected');
-                } else {
-                    item.classList.add('selected');
-                }
-            });
-            updateAttendanceStats();
-        }
-
-        function updateAttendanceStats() {
-            const selectedCount = document.querySelectorAll('.attendance-item.selected').length;
-            const total = teamData.length;
-            const percent = total > 0 ? Math.round((selectedCount / total) * 100) : 0;
-            
-            document.getElementById('attendanceCount').textContent = selectedCount;
-            document.getElementById('attendancePercent').textContent = percent + '%';
-        }
-
-        async function saveAttendance() {
-            const session = trainingSessions.find(s => s.id === currentEditingSessionId);
-            if (!session) return;
-            
-            const selectedIds = [];
-            const items = document.querySelectorAll('.attendance-item');
-            
-            items.forEach((item, index) => {
-                if (item.classList.contains('selected')) {
-                    selectedIds.push(teamData[index].id);
-                }
-            });
-            
-            session.attendance = selectedIds;
-            
-            // Update player training stats
-            teamData.forEach(player => {
-                const attended = trainingSessions.filter(s => s.attendance && s.attendance.includes(player.id)).length;
-                player.trainingAttended = attended;
-            });
-            
-            await persistData();
-            closeAttendanceModal();
-            renderTraining();
-            showToast(`Attendance saved: ${selectedIds.length}/${teamData.length} players`);
-        }
-
-        function updateTrainingStats() {
-            const now = new Date();
-            const pastSessions = trainingSessions.filter(s => new Date(s.date + 'T' + (s.time || '23:59')) < now);
-            const totalSessions = pastSessions.length;
-            
-            document.getElementById('totalTrainingSessions').textContent = trainingSessions.length;
-            document.getElementById('sessionsThisMonth').textContent = trainingSessions.filter(s => {
-                const date = new Date(s.date);
-                return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-            }).length;
-            
-            let totalAttendance = 0;
-            pastSessions.forEach(session => {
-                totalAttendance += (session.attendance || []).length;
-            });
-            
-            const avgRate = totalSessions > 0 ? Math.round((totalAttendance / (totalSessions * teamData.length)) * 100) : 0;
-            document.getElementById('avgAttendanceRate').textContent = avgRate + '%';
-            
-            // Find top attendee
-            let maxAttended = 0;
-            let topPlayer = '--';
-            teamData.forEach(player => {
-                const attended = pastSessions.filter(s => s.attendance && s.attendance.includes(player.id)).length;
-                if (attended > maxAttended) {
-                    maxAttended = attended;
-                    topPlayer = player.initials;
-                }
-            });
-            document.getElementById('topAttendee').textContent = topPlayer;
-        }
-
-        function updatePersonalTrainingStats() {
-            if (!currentUser) return;
-            
-            const player = teamData.find(p => p.name === currentUser.name);
-            if (!player) return;
-            
-            const now = new Date();
-            const pastSessions = trainingSessions.filter(s => new Date(s.date + 'T' + (s.time || '23:59')) < now);
-            const attended = pastSessions.filter(s => s.attendance && s.attendance.includes(player.id)).length;
-            const rate = pastSessions.length > 0 ? Math.round((attended / pastSessions.length) * 100) : 0;
-            
-            // Calculate streak
-            let streak = 0;
-            const sortedSessions = [...pastSessions].sort((a, b) => new Date(b.date) - new Date(a.date));
-            for (let session of sortedSessions) {
-                if (session.attendance && session.attendance.includes(player.id)) {
-                    streak++;
-                } else {
-                    break;
-                }
-            }
-            
-            document.getElementById('personalSessionsAttended').textContent = attended;
-            document.getElementById('personalAttendanceRate').textContent = rate + '%';
-            document.getElementById('personalStreak').textContent = streak;
-            document.getElementById('personalAttendanceBar').style.width = rate + '%';
-        }
-
-        function renderPlayersWithTraining() {
-            const grid = document.getElementById('playersGrid');
-            if (!grid) return;
-            
-            const now = new Date();
-            const pastSessions = trainingSessions.filter(s => new Date(s.date + 'T' + (s.time || '23:59')) < now);
-            
-            grid.innerHTML = teamData.map(p => {
-                const attended = pastSessions.filter(s => s.attendance && s.attendance.includes(p.id)).length;
-                const rate = pastSessions.length > 0 ? Math.round((attended / pastSessions.length) * 100) : 0;
-                const isReserve = p.role === 'Reserve';
-                
-                return `
-                    <div class="player-card">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                            <div class="player-avatar" style="background: ${isReserve ? 'linear-gradient(135deg, #9b59b6, #8e44ad)' : 'linear-gradient(135deg, var(--accent-orange), var(--primary-pink))'}; margin: 0;">
-                                ${p.initials}
-                            </div>
-                            <div>
-                                <div style="font-weight: 800;">${p.name}</div>
-                                <div style="font-size: 12px; ${isReserve ? 'color: var(--reserve-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;' : 'color: var(--text-muted);'}">
-                                    ${isReserve ? '<i class="fas fa-user-clock"></i> ' + p.role : p.role}
-                                </div>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                                <span style="color: var(--text-muted);">Training Attendance</span>
-                                <span style="font-weight: 700; color: ${rate >= 80 ? 'var(--success)' : (rate >= 50 ? 'var(--accent-orange)' : 'var(--danger)')};">${rate}%</span>
-                            </div>
-                            <div class="attendance-bar">
-                                <div class="attendance-fill" style="width: ${rate}%; background: ${rate >= 80 ? 'var(--success)' : (rate >= 50 ? 'var(--accent-orange)' : 'var(--danger)')}"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; justify-content: space-around; text-align: center; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 20px; font-weight: 800;">${p.played}</div>
-                                <div style="font-size: 10px; color: var(--text-muted);">Played</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 20px; font-weight: 800; color: #2ed573;">${p.won}</div>
-                                <div style="font-size: 10px; color: var(--text-muted);">Won</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 20px; font-weight: 800;">${attended}</div>
-                                <div style="font-size: 10px; color: var(--text-muted);">Sessions</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function submitTrainingSession() {
-            const date = document.getElementById('trainingDate').value;
-            const time = document.getElementById('trainingTime').value;
-            const type = document.getElementById('trainingType').value;
-            const location = document.getElementById('trainingLocation').value.trim();
-            const notes = document.getElementById('trainingNotes').value.trim();
-            
-            if (!date) return showToast('Select a date', 'error');
-            if (!location) return showToast('Enter location', 'error');
-            
-            const newSession = {
-                id: Date.now(),
-                date,
-                time: time || '19:00',
-                type,
-                location,
-                notes,
-                createdBy: currentUser.name,
-                timestamp: new Date().toISOString(),
-                attendance: []
-            };
-            
-            trainingSessions.push(newSession);
-            closeAddTrainingModal();
-            await persistData();
-            renderTraining();
-            showToast('Practice session scheduled', 'success');
-        }
-
-        function renderTraining() {
-            const now = new Date();
-            let sessions = trainingSessions.filter(s => {
-                const sessionDate = new Date(s.date + 'T' + s.time);
-                if (currentTrainingFilter === 'upcoming') return sessionDate >= now;
-                if (currentTrainingFilter === 'past') return sessionDate < now;
-                return true;
-            }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
-            
-            const container = document.getElementById('trainingList');
-            const isAdmin = currentUser && currentUser.isAdmin;
-            
-            if (!container) return;
-            
-            if (sessions.length === 0) {
-                container.innerHTML = `<div style="text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color);">
-                    <i class="fas fa-dumbbell" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No ${currentTrainingFilter} sessions</div>
-                    <div style="font-size: 13px;">${currentTrainingFilter === 'upcoming' ? 'Schedule a practice session to get started' : 'No historical sessions recorded yet'}</div>
-                </div>`;
-            } else {
-                container.innerHTML = sessions.map((s, idx) => {
-                    const sessionDate = new Date(s.date + 'T' + s.time);
-                    const isPast = sessionDate < now;
-                    const attendance = s.attendance || [];
-                    const attendanceCount = attendance.length;
-                    const attendanceRate = teamData.length > 0 ? Math.round((attendanceCount / teamData.length) * 100) : 0;
-                    
-                    let typeColor = '#e94560';
-                    let typeIcon = 'fa-dumbbell';
-                    let bgGradient = 'rgba(233,69,96,0.1)';
-                    
-                    switch(s.type) {
-                        case 'Theory & Tactics': typeColor = '#9b59b6'; typeIcon = 'fa-chess'; bgGradient = 'rgba(155,89,182,0.1)'; break;
-                        case 'Practice Match': typeColor = '#e94560'; typeIcon = 'fa-trophy'; bgGradient = 'rgba(233,69,96,0.1)'; break;
-                        case 'Team Building': typeColor = '#2ed573'; typeIcon = 'fa-users'; bgGradient = 'rgba(46,213,115,0.1)'; break;
-                        case 'Fitness': typeColor = '#3498db'; typeIcon = 'fa-heart-pulse'; bgGradient = 'rgba(52,152,219,0.1)'; break;
-                        case 'Open Table': typeColor = '#f39c12'; typeIcon = 'fa-table'; bgGradient = 'rgba(243,156,18,0.1)'; break;
-                        case 'Drills & Skills': typeColor = '#e67e22'; typeIcon = 'fa-bullseye'; bgGradient = 'rgba(230,126,34,0.1)'; break;
-                    }
-                    
-                    // Build attendance avatars
-                    let avatarsHtml = '';
-                    if (attendanceCount > 0) {
-                        const maxDisplay = 3;
-                        const displayAttendees = attendance.slice(0, maxDisplay);
-                        avatarsHtml = `<div class="attendance-avatars" style="margin-right: 12px;">`;
-                        displayAttendees.forEach(playerId => {
-                            const player = teamData.find(p => p.id === playerId);
-                            if (player) {
-                                avatarsHtml += `<div class="mini-avatar" style="background: ${player.role === 'Reserve' ? 'linear-gradient(135deg, #9b59b6, #8e44ad)' : 'linear-gradient(135deg, var(--accent-orange), var(--primary-pink))'};">${player.initials}</div>`;
-                            }
-                        });
-                        if (attendanceCount > maxDisplay) {
-                            avatarsHtml += `<div class="mini-avatar more">+${attendanceCount - maxDisplay}</div>`;
-                        }
-                        avatarsHtml += `</div>`;
-                    }
-                    
-                    return `
-                    <div class="fixture-card" style="animation-delay: ${idx * 0.05}s; ${isPast ? 'opacity: 0.8;' : ''} border-left: 3px solid ${typeColor}; background: linear-gradient(135deg, ${bgGradient} 0%, transparent 100%);">
-                        <div style="display: flex; align-items: center; flex: 1;">
-                            <div class="fixture-date" style="min-width: 60px; text-align: center; margin-right: 16px;">
-                                <div class="date-day" style="color: ${typeColor};">${new Date(s.date).getDate()}</div>
-                                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">${new Date(s.date).toLocaleString('default', {month: 'short'})}</div>
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 800; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                    <i class="fas ${typeIcon}" style="color: ${typeColor};"></i> ${s.type}
-                                </div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">
-                                    <i class="fas fa-clock" style="margin-right: 4px;"></i> ${s.time}
-                                </div>
-                                <div style="font-size: 13px; color: var(--text-primary); margin-bottom: 4px;">
-                                    <i class="fas fa-location-dot" style="margin-right: 4px; color: var(--primary-pink);"></i> ${s.location}
-                                </div>
-                                ${s.notes ? `<div style="font-size: 12px; color: var(--text-secondary); font-style: italic; background: rgba(255,255,255,0.03); padding: 6px 8px; border-radius: 6px; margin-top: 4px;"><i class="fas fa-note-sticky" style="margin-right: 4px;"></i> ${s.notes}</div>` : ''}
-                                
-                                ${isPast ? `
-                                <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                    <div class="attendance-indicator ${attendanceRate >= 80 ? '' : (attendanceRate >= 50 ? 'partial' : 'low')}" style="margin: 0;">
-                                        <i class="fas fa-users"></i> ${attendanceCount}/${teamData.length} attended (${attendanceRate}%)
-                                    </div>
-                                    ${isAdmin ? `<button onclick="openAttendanceModal(${s.id})" style="background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.3); color: #00ffff; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 700;">
-                                        <i class="fas fa-edit"></i> Edit Attendance
-                                    </button>` : ''}
-                                </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                            ${!isPast ? `
-                                <div style="color: ${typeColor}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Upcoming</div>
-                                ${isAdmin ? `
-                                <button onclick="openAttendanceModal(${s.id})" style="background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.3); color: #00ffff; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 700;">
-                                    <i class="fas fa-clipboard-check"></i> Attendance
-                                </button>
-                                <button onclick="deleteTrainingSession(${s.id})" style="background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.3); color: #ff4757; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;" title="Delete Session">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                ` : ''}
-                            ` : avatarsHtml}
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-            
-            updateTrainingStats();
-            
-            const lastUpdated = document.getElementById('trainingLastUpdated');
-            if (lastUpdated) {
-                lastUpdated.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-            }
-        }
-
-        function filterTraining(type, btn) {
-            currentTrainingFilter = type;
-            document.querySelectorAll('#trainingTab .filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderTraining();
-        }
-
-        async function deleteTrainingSession(id) {
-            if (!confirm('Delete this practice session?')) return;
-            trainingSessions = trainingSessions.filter(s => s.id !== id);
-            await persistData();
-            renderTraining();
-            showToast('Session deleted');
-        }
 
         function openOpponentManager() {
             renderOpponentsList();
@@ -2023,8 +1399,7 @@
                 played: 0,
                 won: 0,
                 lost: 0,
-                winRate: 0,
-                trainingAttended: 0
+                winRate: 0
             });
             
             await persistData();
@@ -2142,7 +1517,6 @@
                 document.getElementById('dropdownUserRole').textContent = newRole;
                 document.getElementById('profileRoleText').textContent = newRole;
                 
-                // Apply Reserve color if needed
                 if (newRole === 'Reserve') {
                     document.getElementById('dropdownUserRole').classList.add('reserve');
                     document.getElementById('profileRoleText').style.color = 'var(--reserve-color)';
@@ -2305,7 +1679,6 @@
                 fixturesData,
                 announcements,
                 opponentsList,
-                trainingSessions,
                 exportedAt: new Date().toISOString(),
                 version: '2.1'
             };
@@ -2335,12 +1708,11 @@
                         
                         if (!confirm('This will overwrite ALL current data. Continue?')) return;
                         
-                        teamData = data.teamData.map(p => ({...p, trainingAttended: p.trainingAttended || 0}));
+                        teamData = data.teamData;
                         leagueData = data.leagueData;
                         fixturesData = data.fixturesData;
                         if (data.announcements) announcements = data.announcements;
                         if (data.opponentsList) opponentsList = data.opponentsList;
-                        if (data.trainingSessions) trainingSessions = data.trainingSessions.map(s => ({...s, attendance: s.attendance || []}));
                         
                         await persistData();
                         updateAllDisplays();
@@ -2355,9 +1727,9 @@
         }
 
         function exportCSV() {
-            let csv = 'Player,Role,Played,Won,Lost,Win Rate,Training Attended\n';
+            let csv = 'Player,Role,Played,Won,Lost,Win Rate\n';
             teamData.forEach(p => {
-                csv += `${p.name},${p.role},${p.played},${p.won},${p.lost},${p.winRate}%,${p.trainingAttended || 0}\n`;
+                csv += `${p.name},${p.role},${p.played},${p.won},${p.lost},${p.winRate}%\n`;
             });
             
             const blob = new Blob([csv], {type: 'text/csv'});
@@ -2429,24 +1801,6 @@
                 }
             }
             
-            // Add some test training sessions with attendance
-            for(let i=0; i<3; i++) {
-                const date = new Date(Date.now() - (i * 7 * 24 * 60 * 60 * 1000));
-                const attendance = teamData.map(p => p.id).filter(() => Math.random() > 0.3);
-                
-                trainingSessions.push({
-                    id: Date.now() + i + 1000,
-                    date: date.toISOString().split('T')[0],
-                    time: '19:00',
-                    type: 'Practice Match',
-                    location: 'Rack Café - Table 3',
-                    notes: 'Test session',
-                    createdBy: 'System',
-                    timestamp: new Date().toISOString(),
-                    attendance: attendance
-                });
-            }
-            
             await persistData();
             updateAllDisplays();
             showToast('Test data added');
@@ -2488,12 +1842,6 @@
                         opp.lost++;
                     }
                 }
-            });
-            
-            // Recalculate training attendance
-            teamData.forEach(player => {
-                const attended = trainingSessions.filter(s => s.attendance && s.attendance.includes(player.id)).length;
-                player.trainingAttended = attended;
             });
             
             await persistData();
@@ -2541,8 +1889,7 @@
                     leagueData: JSON.parse(JSON.stringify(leagueData)),
                     fixturesData: JSON.parse(JSON.stringify(fixturesData)),
                     announcements: JSON.parse(JSON.stringify(announcements)),
-                    opponentsList: [...opponentsList],
-                    trainingSessions: JSON.parse(JSON.stringify(trainingSessions))
+                    opponentsList: [...opponentsList]
                 }
             };
             
@@ -2550,7 +1897,6 @@
             archives.push(archive);
             localStorage.setItem('rackCafe_archives', JSON.stringify(archives));
             
-            // Also save to Firestore archive collection
             if (isOnline) {
                 try {
                     await db.collection('rackCafe_archives').add(archive);
@@ -2581,7 +1927,6 @@
                 p.won = 0;
                 p.lost = 0;
                 p.winRate = 0;
-                p.trainingAttended = 0;
             });
             
             leagueData.forEach(t => {
@@ -2589,10 +1934,6 @@
                 t.won = 0;
                 t.lost = 0;
                 t.points = 0;
-            });
-            
-            trainingSessions.forEach(s => {
-                s.attendance = [];
             });
             
             await persistData();
@@ -2624,8 +1965,7 @@
             const logs = [
                 `Last backup: ${lastSync ? new Date(lastSync).toLocaleString() : 'Never'}`,
                 `Total fixtures: ${fixturesData.length}`,
-                `Training sessions: ${trainingSessions.length}`,
-                `Database size: ${(JSON.stringify({teamData, leagueData, fixturesData, trainingSessions}).length / 1024).toFixed(2)} KB`,
+                `Database size: ${(JSON.stringify({teamData, leagueData, fixturesData}).length / 1024).toFixed(2)} KB`,
                 `Active opponents: ${opponentsList.length}`,
                 `Current session: ${currentUser ? currentUser.name : 'None'}`,
                 `Device ID: ${DEVICE_ID}`,
@@ -2641,7 +1981,6 @@
             }
             
             fixturesData = [];
-            trainingSessions = [];
             announcements = [];
             opponentsList = [];
             teamData.forEach(p => {
@@ -2649,7 +1988,6 @@
                 p.won = 0;
                 p.lost = 0;
                 p.winRate = 0;
-                p.trainingAttended = 0;
             });
             leagueData.forEach(t => {
                 t.played = 0;
@@ -2733,7 +2071,38 @@
             
             const playersGrid = document.getElementById('playersGrid');
             if (playersGrid && document.getElementById('teamTab').classList.contains('active')) {
-                renderPlayersWithTraining();
+                playersGrid.innerHTML = teamData.map(p => {
+                    const isReserve = p.role === 'Reserve';
+                    return `
+                        <div class="player-card">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <div class="player-avatar" style="background: ${isReserve ? 'linear-gradient(135deg, #9b59b6, #8e44ad)' : 'linear-gradient(135deg, var(--accent-orange), var(--primary-pink))'}; margin: 0;">
+                                    ${p.initials}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800;">${p.name}</div>
+                                    <div style="font-size: 12px; ${isReserve ? 'color: var(--reserve-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;' : 'color: var(--text-muted);'}">
+                                        ${isReserve ? '<i class="fas fa-user-clock"></i> ' + p.role : p.role}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-around; text-align: center; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 800;">${p.played}</div>
+                                    <div style="font-size: 10px; color: var(--text-muted);">Played</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #2ed573;">${p.won}</div>
+                                    <div style="font-size: 10px; color: var(--text-muted);">Won</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 800; color: #e94560;">${p.lost}</div>
+                                    <div style="font-size: 10px; color: var(--text-muted);">Lost</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
             
             const recent = fixturesData.filter(f => f.played).sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
@@ -2763,10 +2132,6 @@
             
             renderFixtures();
             updateLastUpdatedTimes();
-            
-            if (document.getElementById('trainingTab') && document.getElementById('trainingTab').classList.contains('active')) {
-                renderTraining();
-            }
         }
 
         function animateValue(id, start, end) {
@@ -2827,7 +2192,6 @@
             `).join('') : '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No matches found</div>';
         }
 
-        // Check connection status on load
         updateNetworkStatus(navigator.onLine);
         
         window.onload = function() { 
