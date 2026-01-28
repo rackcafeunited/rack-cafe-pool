@@ -13,7 +13,7 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --bg-dark: #0a0a14; --bg-card: #151520; --primary-pink: #e94560; --primary-pink-dark: #d63d56; --accent-orange: #f39c12; --gold-primary: #ffd700; --text-primary: #ffffff; --text-secondary: #a0a0b8; --text-muted: #606070; --border-color: #2a2a3a; --success: #2ed573; --danger: #ff4757; --info: #00ffff; }
+        :root { --bg-dark: #0a0a14; --bg-card: #151520; --primary-pink: #e94560; --primary-pink-dark: #d63d56; --accent-orange: #f39c12; --gold-primary: #ffd700; --text-primary: #ffffff; --text-secondary: #a0a0b8; --text-muted: #606070; --border-color: #2a2a3a; --success: #2ed573; --danger: #ff4757; --info: #00ffff; --reserve-color: #9b59b6; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1420 100%); color: var(--text-primary); min-height: 100vh; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -36,9 +36,49 @@
         .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
         .form-input, .form-select, .form-textarea { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; font-family: inherit; }
         .form-textarea { min-height: 120px; resize: vertical; padding: 16px; }
-        .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a0a0b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
-        .form-select:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
-        .form-select option { background: var(--bg-card); color: white; font-size: 15px; padding: 8px; }
+        
+        /* Enhanced Dropdown Styling for Readability */
+        .form-select { 
+            cursor: pointer; 
+            appearance: none; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a0a0b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); 
+            background-repeat: no-repeat; 
+            background-position: right 16px center; 
+            padding-right: 40px; 
+            font-weight: 600;
+        }
+        .form-select:focus { 
+            outline: none; 
+            border-color: var(--primary-pink); 
+            background: rgba(255, 255, 255, 0.08); 
+        }
+        .form-select option { 
+            background: var(--bg-card); 
+            color: #ffffff; 
+            font-size: 15px; 
+            padding: 12px; 
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            line-height: 1.5;
+        }
+        /* Ensure dropdown text is readable on all browsers */
+        select.form-select {
+            color: #ffffff !important;
+            background-color: var(--bg-card) !important;
+        }
+        select.form-select option {
+            background-color: #151520 !important;
+            color: #ffffff !important;
+            padding: 12px !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+        }
+        /* Reserve role styling in dropdowns */
+        select.form-select option[value="Reserve"] {
+            background-color: #9b59b6 !important;
+            color: white !important;
+        }
+        
         input[type="time"].form-input { padding-left: 16px; }
         .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
         .login-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; box-shadow: 0 4px 25px rgba(233, 69, 96, 0.4); transition: all 0.3s; }
@@ -78,6 +118,7 @@
         .user-info { padding: 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
         .user-name { font-weight: 800; font-size: 15px; margin-bottom: 2px; }
         .user-role { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .user-role.reserve { color: var(--reserve-color); }
         .main-content { padding: 24px 20px; max-width: 900px; margin: 0 auto; }
         .page-title { margin-bottom: 24px; animation: slideUp 0.5s ease; }
         .page-title h1 { font-size: 32px; margin-bottom: 6px; font-weight: 800; }
@@ -132,6 +173,7 @@
         
         .player-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; transition: all 0.3s; }
         .player-avatar { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin-bottom: 16px; }
+        .player-role-reserve { color: var(--reserve-color); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 15, 25, 0.98); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; transition: all 0.3s; cursor: pointer; background: none; border: none; font-family: inherit; }
         .nav-item.active { color: var(--primary-pink); }
@@ -887,7 +929,7 @@
     <script>
         // ==================== FIREBASE CONFIGURATION ====================
         // Replace with your Firebase config from Firebase Console
-        const firebaseConfig = {
+       const firebaseConfig = {
   apiKey: "AIzaSyAYQy0hTbsTkAg8_vqnvRVsXDxg_yg2DVY",
   authDomain: "rack-cafe-united-app.firebaseapp.com",
   projectId: "rack-cafe-united-app",
@@ -918,13 +960,15 @@
         const teamCredentials = {
             'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD' },
             'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true },
-            'CShearon': { password: 'Rack2026', name: 'Chris Shearon', role: 'Co-Captain', isAdmin: true, initials: 'CS' }
+            'CShearon': { password: 'Rack2026', name: 'Chris Shearon', role: 'Co-Captain', isAdmin: true, initials: 'CS' },
+            'JReserve': { password: 'Reserve01', name: 'John Reserve', role: 'Reserve', isAdmin: false, initials: 'JR' }
         };
 
         let teamData = [
             { id: 1, name: 'Brandon Dannatt', initials: 'BD', role: 'Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
             { id: 2, name: 'Tom Hayes-Smith', initials: 'THS', role: 'System Creator + Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 }
+            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
+            { id: 4, name: 'John Reserve', initials: 'JR', role: 'Reserve', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 }
         ];
 
         let opponentsList = [
@@ -1187,7 +1231,9 @@
             const container = document.getElementById('countdownContainer');
             const timer = document.getElementById('countdownTimer');
             
-            if (upcoming && upcoming.date && container && timer) {
+            if (!container || !timer) return;
+            
+            if (upcoming && upcoming.date) {
                 const matchDateTime = new Date(upcoming.date + 'T' + (upcoming.time || '20:00'));
                 const now = new Date();
                 const diff = matchDateTime - now;
@@ -1284,19 +1330,31 @@
             
             document.getElementById('userAvatar').textContent = userData.initials;
             document.getElementById('dropdownUserName').textContent = userData.name;
-            document.getElementById('dropdownUserRole').textContent = userData.role;
+            
+            // Apply Reserve styling if needed
+            const roleEl = document.getElementById('dropdownUserRole');
+            roleEl.textContent = userData.role;
+            if (userData.role === 'Reserve') {
+                roleEl.classList.add('reserve');
+            } else {
+                roleEl.classList.remove('reserve');
+            }
+            
             document.getElementById('welcomeText').textContent = `Welcome back, ${userData.name.split(' ')[0]}!`;
             
             document.getElementById('profileAvatar').textContent = userData.initials;
             document.getElementById('profileDisplayName').textContent = userData.name;
-            document.getElementById('profileRoleText').textContent = userData.role;
+            
+            const profileRoleEl = document.getElementById('profileRoleText');
+            profileRoleEl.textContent = userData.role;
+            if (userData.role === 'Reserve') {
+                profileRoleEl.style.color = 'var(--reserve-color)';
+            }
             
             if (userData.isAdmin) document.getElementById('adminMenuItems').style.display = 'block';
             if (userData.isSystemCreator) document.getElementById('systemCreatorMenuItem').style.display = 'block';
             
             if (!loadPersistedData()) {
-                initializeLeagueData();
-            } else {
                 initializeLeagueData();
             }
             
@@ -1623,14 +1681,19 @@
             grid.innerHTML = teamData.map(p => {
                 const attended = pastSessions.filter(s => s.attendance && s.attendance.includes(p.id)).length;
                 const rate = pastSessions.length > 0 ? Math.round((attended / pastSessions.length) * 100) : 0;
+                const isReserve = p.role === 'Reserve';
                 
                 return `
                     <div class="player-card">
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                            <div class="player-avatar" style="background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); margin: 0;">${p.initials}</div>
+                            <div class="player-avatar" style="background: ${isReserve ? 'linear-gradient(135deg, #9b59b6, #8e44ad)' : 'linear-gradient(135deg, var(--accent-orange), var(--primary-pink))'}; margin: 0;">
+                                ${p.initials}
+                            </div>
                             <div>
                                 <div style="font-weight: 800;">${p.name}</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">${p.role}</div>
+                                <div style="font-size: 12px; ${isReserve ? 'color: var(--reserve-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;' : 'color: var(--text-muted);'}">
+                                    ${isReserve ? '<i class="fas fa-user-clock"></i> ' + p.role : p.role}
+                                </div>
                             </div>
                         </div>
                         <div style="margin-bottom: 16px;">
@@ -1740,7 +1803,7 @@
                         displayAttendees.forEach(playerId => {
                             const player = teamData.find(p => p.id === playerId);
                             if (player) {
-                                avatarsHtml += `<div class="mini-avatar" style="background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink));">${player.initials}</div>`;
+                                avatarsHtml += `<div class="mini-avatar" style="background: ${player.role === 'Reserve' ? 'linear-gradient(135deg, #9b59b6, #8e44ad)' : 'linear-gradient(135deg, var(--accent-orange), var(--primary-pink))'};">${player.initials}</div>`;
                             }
                         });
                         if (attendanceCount > maxDisplay) {
@@ -1923,7 +1986,7 @@
             const name = prompt('Enter full name:');
             if (!name) return;
             
-            const role = prompt('Select role:\n1. Player\n2. Co-Captain\n3. Captain', 'Player');
+            const role = prompt('Select role:\n1. Player\n2. Co-Captain\n3. Captain\n4. Reserve', 'Player');
             if (!role) return;
             
             let normalizedRole = 'Player';
@@ -1935,6 +1998,9 @@
             } else if (role === '3' || role.toLowerCase().includes('captain')) {
                 normalizedRole = 'Captain';
                 isAdmin = true;
+            } else if (role === '4' || role.toLowerCase().includes('reserve')) {
+                normalizedRole = 'Reserve';
+                isAdmin = false;
             }
             
             const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 3);
@@ -2025,13 +2091,17 @@
                 ...data
             }));
             
-            container.innerHTML = users.map(u => `
+            container.innerHTML = users.map(u => {
+                const isReserve = u.role === 'Reserve';
+                const roleColor = u.isSystemCreator ? '#00ffff' : (u.isAdmin ? '#ffd700' : (isReserve ? '#9b59b6' : '#a0a0b8'));
+                
+                return `
                 <div class="opponent-item" style="padding: 12px; display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;">
                     <div>
                         <div style="font-weight: 800;">${u.name}</div>
                         <div style="font-size: 11px; color: var(--text-muted);">@${u.username}</div>
                     </div>
-                    <div style="font-size: 11px; color: ${u.isSystemCreator ? '#00ffff' : (u.isAdmin ? '#ffd700' : '#a0a0b8')}; text-transform: uppercase; letter-spacing: 1px;">
+                    <div style="font-size: 11px; color: ${roleColor}; text-transform: uppercase; letter-spacing: 1px;">
                         ${u.role}
                     </div>
                     <select onchange="updateUserRole('${u.username}', this.value)" 
@@ -2040,10 +2110,11 @@
                         <option value="Player" ${u.role === 'Player' ? 'selected' : ''}>Player</option>
                         <option value="Co-Captain" ${u.role.includes('Co-Captain') && !u.role.includes('System') ? 'selected' : ''}>Co-Captain</option>
                         <option value="Captain" ${u.role === 'Captain' ? 'selected' : ''}>Captain</option>
+                        <option value="Reserve" ${u.role === 'Reserve' ? 'selected' : ''}>Reserve</option>
                         <option value="System Creator + Co-Captain" ${u.isSystemCreator ? 'selected' : ''} disabled>System Creator</option>
                     </select>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         async function updateUserRole(username, newRole) {
@@ -2070,6 +2141,15 @@
                 currentUser.isAdmin = user.isAdmin;
                 document.getElementById('dropdownUserRole').textContent = newRole;
                 document.getElementById('profileRoleText').textContent = newRole;
+                
+                // Apply Reserve color if needed
+                if (newRole === 'Reserve') {
+                    document.getElementById('dropdownUserRole').classList.add('reserve');
+                    document.getElementById('profileRoleText').style.color = 'var(--reserve-color)';
+                } else {
+                    document.getElementById('dropdownUserRole').classList.remove('reserve');
+                    document.getElementById('profileRoleText').style.color = '';
+                }
             }
             
             await persistData();
@@ -2275,9 +2355,9 @@
         }
 
         function exportCSV() {
-            let csv = 'Player,Played,Won,Lost,Win Rate,Training Attended\n';
+            let csv = 'Player,Role,Played,Won,Lost,Win Rate,Training Attended\n';
             teamData.forEach(p => {
-                csv += `${p.name},${p.played},${p.won},${p.lost},${p.winRate}%,${p.trainingAttended || 0}\n`;
+                csv += `${p.name},${p.role},${p.played},${p.won},${p.lost},${p.winRate}%,${p.trainingAttended || 0}\n`;
             });
             
             const blob = new Blob([csv], {type: 'text/csv'});
