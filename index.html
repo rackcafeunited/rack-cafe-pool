@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rack Café Utd - Pool League</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css  ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,6 +17,9 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .sync-indicator { animation: spin 1s linear infinite; }
         
         .maintenance-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%); z-index: 2147483647; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .maintenance-overlay.active { display: flex !important; animation: fadeIn 0.3s ease; }
@@ -51,7 +58,9 @@
         .header-title h2 { font-size: 17px; font-weight: 800; display: flex; align-items: center; }
         .header-title p { font-size: 12px; color: var(--text-secondary); }
         .header-right { display: flex; align-items: center; gap: 12px; position: relative; }
-        .sync-badge { background: rgba(46, 213, 115, 0.15); color: #2ed573; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(46, 213, 115, 0.3); cursor: pointer; }
+        .sync-badge { background: rgba(46, 213, 115, 0.15); color: #2ed573; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(46, 213, 115, 0.3); cursor: pointer; transition: all 0.3s; }
+        .sync-badge.syncing { background: rgba(243, 156, 18, 0.15); color: var(--accent-orange); border-color: rgba(243, 156, 18, 0.3); }
+        .sync-badge.offline { background: rgba(255, 71, 87, 0.15); color: #ff4757; border-color: rgba(255, 71, 87, 0.3); }
         .profile-container { position: relative; display: none; }
         .profile-container.show { display: block; }
         .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-pink) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
@@ -80,7 +89,6 @@
         .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #e94560, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
         .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
         
-        /* WWLDW Panel Styles */
         .form-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
         .form-display { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
         .form-badge { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; }
@@ -88,13 +96,11 @@
         .form-l { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
         .form-d { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
         
-        /* Announcement Styles */
         .announcement-card { background: linear-gradient(135deg, rgba(233,69,96,0.1) 0%, rgba(255,215,0,0.05) 100%); border: 1px solid rgba(233,69,96,0.3); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
         .announcement-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .announcement-date { font-size: 11px; color: var(--text-muted); }
         .announcement-delete { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(255,71,87,0.2); border: none; color: #ff4757; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         
-        /* Training Tab Styles */
         .training-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
         .training-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
         .training-date { font-size: 20px; font-weight: 800; color: var(--primary-pink); }
@@ -108,7 +114,6 @@
         .btn-yes { background: rgba(46, 213, 115, 0.2); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
         .btn-no { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
         
-        /* Scorecard Styles */
         .frame-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 20px 0; }
         @media (max-width: 768px) { .frame-grid { grid-template-columns: repeat(2, 1fr); } }
         .frame-box { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 16px; text-align: center; position: relative; cursor: pointer; transition: all 0.3s; }
@@ -132,29 +137,10 @@
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4); }
         .submit-btn.secondary { background: rgba(255,255,255,0.1); margin-top: 12px; }
         
-        /* Admin Panel Modal Specific Styles */
         .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
-        .admin-btn { 
-            background: rgba(212, 175, 55, 0.15); 
-            border: 1px solid rgba(212, 175, 55, 0.3); 
-            color: var(--gold-primary); 
-            padding: 16px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            font-family: inherit; 
-            font-weight: 700; 
-            font-size: 14px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 8px; 
-        }
-        .admin-btn:hover { 
-            background: rgba(212, 175, 55, 0.25); 
-            transform: translateY(-2px); 
-        }
+        .admin-btn { background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-primary); padding: 16px; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-family: inherit; font-weight: 700; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .admin-btn:hover { background: rgba(212, 175, 55, 0.25); transform: translateY(-2px); }
         
         #systemCreatorModal .modal-container { border: 2px solid rgba(0, 255, 255, 0.3); }
         #systemCreatorModal .modal-title { color: #00ffff; }
@@ -170,25 +156,8 @@
         .fixture-date { min-width: 60px; text-align: center; margin-right: 20px; }
         .date-day { font-size: 28px; font-weight: 900; color: #e94560; line-height: 1; }
         
-        /* DELETE FIXTURE BUTTON - Only visible to System Creator */
-        .delete-fixture-btn {
-            background: rgba(255, 71, 87, 0.2);
-            color: #ff4757;
-            border: 1px solid rgba(255, 71, 87, 0.3);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 12px;
-            transition: all 0.2s;
-        }
-        .delete-fixture-btn:hover {
-            background: rgba(255, 71, 87, 0.4);
-            transform: scale(1.1);
-        }
+        .delete-fixture-btn { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 12px; transition: all 0.2s; }
+        .delete-fixture-btn:hover { background: rgba(255, 71, 87, 0.4); transform: scale(1.1); }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 15, 25, 0.98); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; transition: all 0.3s; cursor: pointer; background: none; border: none; font-family: inherit; }
@@ -217,9 +186,18 @@
         
         .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; font-weight: 800; font-size: 18px; }
         .section-title i { color: var(--primary-pink); margin-right: 8px; }
+        
+        .connection-status { position: fixed; top: 80px; right: 20px; background: rgba(255, 71, 87, 0.9); color: white; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; display: none; align-items: center; gap: 8px; z-index: 1001; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); animation: slideUp 0.3s ease; }
+        .connection-status.show { display: flex; }
+        .connection-status.online { background: rgba(46, 213, 115, 0.9); }
     </style>
 </head>
 <body>
+
+    <div id="connectionStatus" class="connection-status">
+        <i class="fas fa-wifi"></i>
+        <span id="connectionText">Offline - Changes will sync when reconnected</span>
+    </div>
 
     <div id="maintenanceOverlay" class="maintenance-overlay">
         <i class="fas fa-radiation maintenance-icon"></i>
@@ -260,7 +238,10 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="sync-badge" id="syncBadge" onclick="manualSync()"><i class="fas fa-check-circle"></i><span id="syncStatus">Synced</span></div>
+                <div class="sync-badge" id="syncBadge" onclick="manualSync()">
+                    <i class="fas fa-check-circle" id="syncIcon"></i>
+                    <span id="syncStatus">Synced</span>
+                </div>
                 <button id="headerLoginBtn" class="header-login-btn" onclick="showLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
                 <div class="profile-container" id="profileContainer">
                     <div class="avatar" id="userAvatar" onclick="toggleDropdown(event)">--</div>
@@ -285,14 +266,12 @@
         </header>
 
         <main class="main-content">
-            <!-- HOME TAB -->
             <div class="tab-content active" id="homeTab">
                 <div class="page-title">
                     <h1>Dashboard</h1>
                     <p id="welcomeText">Welcome to Rack Café Utd</p>
                 </div>
                 
-                <!-- Live Form Panel WWLDW -->
                 <div class="form-panel">
                     <div class="section-title"><span><i class="fas fa-chart-line"></i> Live Form (WWLDW)</span></div>
                     <div class="form-display" id="wwldwPanel">
@@ -305,7 +284,6 @@
                     <div style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">Last 5 Matches</div>
                 </div>
 
-                <!-- Latest Announcements -->
                 <div class="form-panel" id="announcementsPanel" style="display: none;">
                     <div class="section-title"><span><i class="fas fa-bullhorn"></i> Latest Announcements</span></div>
                     <div id="announcementsList"></div>
@@ -335,7 +313,6 @@
                 </div>
             </div>
 
-            <!-- FIXTURES TAB -->
             <div class="tab-content" id="fixturesTab">
                 <div class="page-title"><h1>Fixtures</h1><p>2025/26 Season</p></div>
                 <div style="display: flex; gap: 10px; margin-bottom: 24px;">
@@ -345,19 +322,16 @@
                 <div id="fixturesList"></div>
             </div>
 
-            <!-- TABLE TAB -->
             <div class="tab-content" id="tableTab">
                 <div class="page-title"><h1>League Table</h1><p>Current Standings</p></div>
                 <div id="leagueTable"></div>
             </div>
 
-            <!-- TEAM TAB -->
             <div class="tab-content" id="teamTab">
                 <div class="page-title"><h1>Squad</h1><p>Team Roster & Roles</p></div>
                 <div id="teamList"></div>
             </div>
 
-            <!-- TRAINING TAB -->
             <div class="tab-content" id="trainingTab">
                 <div class="page-title"><h1>Training</h1><p>Schedule & Attendance</p></div>
                 <div id="adminTrainingControls" style="display: none; margin-bottom: 20px;">
@@ -368,13 +342,11 @@
                 <div id="trainingList"></div>
             </div>
 
-            <!-- SCORECARD TAB -->
             <div class="tab-content" id="scorecardTab">
                 <div class="page-title"><h1>Scorecards</h1><p>Frame-by-Frame Results</p></div>
                 <div id="scorecardList"></div>
             </div>
 
-            <!-- PROFILE TAB -->
             <div class="tab-content" id="profileTab">
                 <div class="page-title"><h1>My Profile</h1><p>Player Statistics & History</p></div>
                 <div id="profileContent"></div>
@@ -390,9 +362,7 @@
         </nav>
     </div>
 
-    <!-- MODALS -->
-
-    <!-- Admin Panel Modal -->
+    <!-- Modals remain the same as previous version -->
     <div class="modal-overlay" id="adminPanelModal">
         <div class="modal-container">
             <div class="modal-header" style="background: linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(243,156,18,0.1) 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
@@ -418,7 +388,6 @@
                     </button>
                 </div>
                 
-                <!-- System Creator Section -->
                 <div id="adminPanelSystemCreatorSection" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
                     <div style="color: #00ffff; margin-bottom: 16px; font-size: 14px; font-weight: 700;">
                         <i class="fas fa-terminal"></i> System Creator Tools
@@ -442,7 +411,6 @@
         </div>
     </div>
 
-    <!-- System Creator Modal -->
     <div class="modal-overlay" id="systemCreatorModal">
         <div class="modal-container wide" style="border: 2px solid rgba(0, 255, 255, 0.3);">
             <div class="modal-header" style="background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(147,0,255,0.1) 100%); border-bottom: 1px solid rgba(0,255,255,0.2);">
@@ -452,6 +420,7 @@
             <div class="modal-body" id="systemCreatorContent">
                 <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; color: #00ffff; font-size: 12px; height: 200px; overflow-y: auto;" id="systemConsole">
                     <div style="color: #00ff00;">> System Creator v2.0 initialized...</div>
+                    <div style="color: #00ffff;">> Firebase connection established...</div>
                     <div style="color: #00ffff;">> Awaiting commands...</div>
                 </div>
                 <button class="submit-btn" onclick="closeModal('systemCreatorModal')" style="margin-top: 12px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; color: #00ffff;">Close Panel</button>
@@ -459,7 +428,6 @@
         </div>
     </div>
 
-    <!-- Player Manager Modal -->
     <div class="modal-overlay" id="playerManagerModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-users-cog" style="color: var(--primary-pink);"></i> Manage Players</div><button class="modal-close" onclick="closeModal('playerManagerModal')"><i class="fas fa-times"></i></button></div>
@@ -476,7 +444,6 @@
         </div>
     </div>
 
-    <!-- Role Manager Modal -->
     <div class="modal-overlay" id="roleManagerModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-user-tag" style="color: var(--primary-pink);"></i> Change Player Roles</div><button class="modal-close" onclick="closeModal('roleManagerModal')"><i class="fas fa-times"></i></button></div>
@@ -486,7 +453,6 @@
         </div>
     </div>
 
-    <!-- Login Info Modal -->
     <div class="modal-overlay" id="loginInfoModal">
         <div class="modal-container wide">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-history" style="color: var(--primary-pink);"></i> Login History</div><button class="modal-close" onclick="closeModal('loginInfoModal')"><i class="fas fa-times"></i></button></div>
@@ -501,7 +467,6 @@
         </div>
     </div>
 
-    <!-- Add Result Modal -->
     <div class="modal-overlay" id="addResultModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Add Match Result</div><button class="modal-close" onclick="closeModal('addResultModal')"><i class="fas fa-times"></i></button></div>
@@ -524,7 +489,6 @@
                 <div style="margin: 20px 0;">
                     <div style="text-align: center; margin-bottom: 12px; font-weight: 700;">Frame Details (10 Frames)</div>
                     <div class="frame-grid" id="frameInputs">
-                        <!-- Frame inputs generated by JS -->
                     </div>
                 </div>
 
@@ -533,7 +497,6 @@
         </div>
     </div>
 
-    <!-- Schedule Match Modal -->
     <div class="modal-overlay" id="scheduleModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-calendar-plus" style="color: var(--primary-pink);"></i> Schedule Match</div><button class="modal-close" onclick="closeModal('scheduleModal')"><i class="fas fa-times"></i></button></div>
@@ -548,7 +511,6 @@
         </div>
     </div>
 
-    <!-- Announcement Modal -->
     <div class="modal-overlay" id="announcementModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-bullhorn" style="color: var(--primary-pink);"></i> New Announcement</div><button class="modal-close" onclick="closeModal('announcementModal')"><i class="fas fa-times"></i></button></div>
@@ -560,7 +522,6 @@
         </div>
     </div>
 
-    <!-- Schedule Training Modal -->
     <div class="modal-overlay" id="scheduleTrainingModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-dumbbell" style="color: var(--primary-pink);"></i> Schedule Training</div><button class="modal-close" onclick="closeModal('scheduleTrainingModal')"><i class="fas fa-times"></i></button></div>
@@ -574,7 +535,6 @@
         </div>
     </div>
 
-    <!-- Frame Detail Modal -->
     <div class="modal-overlay" id="frameDetailModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-eye" style="color: var(--primary-pink);"></i> Frame Details</div><button class="modal-close" onclick="closeModal('frameDetailModal')"><i class="fas fa-times"></i></button></div>
@@ -585,14 +545,35 @@
     <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Success</span></div>
 
     <script>
-        // ===================================================================
-        // CONFIGURATION & DATA
-        // ===================================================================
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYQy0hTbsTkAg8_vqnvRVsXDxg_yg2DVY",
+            authDomain: "rack-cafe-united-app.firebaseapp.com",
+            projectId: "rack-cafe-united-app",
+            storageBucket: "rack-cafe-united-app.firebasestorage.app",
+            messagingSenderId: "754292454573",
+            appId: "1:754292454573:web:188ec818666c77a3ef8224"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
         
+        // Enable offline persistence
+        db.enablePersistence({ experimentalTabSynchronization: true })
+            .catch((err) => {
+                if (err.code == 'failed-precondition') {
+                    console.log("Multiple tabs open, persistence enabled in first tab only");
+                } else if (err.code == 'unimplemented') {
+                    console.log("Browser doesn't support persistence");
+                }
+            });
+
+        // Configuration & Data
         const STORAGE_KEY = 'rackCafeData_v3';
         const SESSION_KEY = 'rackCafeSession';
+        const DOC_ID = 'main';
         
-        // Initial data structure
         let teamCredentials = {
             'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD', lastLogin: null, loginHistory: [] },
             'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true, lastLogin: null, loginHistory: [] },
@@ -612,13 +593,190 @@
         let currentUser = null;
         let currentFilter = 'all';
         let maintenanceMode = false;
+        let isOnline = true;
+        let unsubscribe = null;
 
-        // ===================================================================
-        // INITIALIZATION
-        // ===================================================================
-        
+        // Firebase Sync Functions
+        function initFirebaseSync() {
+            unsubscribe = db.collection('rackCafe').doc(DOC_ID)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        console.log('Firebase sync received');
+                        
+                        if (data.teamData) teamData = data.teamData;
+                        if (data.leagueData) leagueData = data.leagueData;
+                        if (data.fixturesData) fixturesData = data.fixturesData;
+                        if (data.opponentsList) opponentsList = data.opponentsList;
+                        if (data.announcements) announcements = data.announcements;
+                        if (data.trainingSessions) trainingSessions = data.trainingSessions;
+                        if (data.scorecards) scorecards = data.scorecards;
+                        if (data.maintenanceMode !== undefined) maintenanceMode = data.maintenanceMode;
+                        if (data.teamCredentials) {
+                            Object.assign(teamCredentials, data.teamCredentials);
+                        }
+                        
+                        updateDisplays();
+                        setSyncStatus('synced');
+                        
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                            teamData, leagueData, fixturesData, opponentsList, 
+                            announcements, trainingSessions, scorecards, 
+                            maintenanceMode, teamCredentials,
+                            lastSave: new Date().toISOString()
+                        }));
+                    } else {
+                        saveToFirebase();
+                    }
+                }, (error) => {
+                    console.error('Firebase sync error:', error);
+                    setSyncStatus('offline');
+                    loadFromLocalStorage();
+                });
+
+            db.collection('.info/connected').onSnapshot((snap) => {
+                if (snap.data()) {
+                    isOnline = true;
+                    document.getElementById('connectionStatus').classList.remove('show');
+                    setSyncStatus('synced');
+                } else {
+                    isOnline = false;
+                    document.getElementById('connectionStatus').classList.add('show');
+                    setSyncStatus('offline');
+                }
+            });
+        }
+
+        async function saveToFirebase() {
+            if (!isOnline) {
+                console.log('Offline - saving to localStorage only');
+                saveToLocalStorage();
+                return;
+            }
+            
+            setSyncStatus('syncing');
+            
+            try {
+                const data = {
+                    teamData,
+                    leagueData,
+                    fixturesData,
+                    opponentsList,
+                    announcements,
+                    trainingSessions,
+                    scorecards,
+                    maintenanceMode,
+                    teamCredentials,
+                    lastModified: firebase.firestore.FieldValue.serverTimestamp(),
+                    modifiedBy: currentUser ? currentUser.username : 'anonymous'
+                };
+                
+                await db.collection('rackCafe').doc(DOC_ID).set(data);
+                setSyncStatus('synced');
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                setSyncStatus('offline');
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                const data = {
+                    teamData,
+                    leagueData,
+                    fixturesData,
+                    opponentsList,
+                    announcements,
+                    trainingSessions,
+                    scorecards,
+                    maintenanceMode,
+                    teamCredentials,
+                    lastSave: new Date().toISOString()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.error('LocalStorage save failed:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.teamData) teamData = data.teamData;
+                    if (data.leagueData) leagueData = data.leagueData;
+                    if (data.fixturesData) fixturesData = data.fixturesData;
+                    if (data.opponentsList) opponentsList = data.opponentsList;
+                    if (data.announcements) announcements = data.announcements;
+                    if (data.trainingSessions) trainingSessions = data.trainingSessions;
+                    if (data.scorecards) scorecards = data.scorecards;
+                    if (data.maintenanceMode !== undefined) maintenanceMode = data.maintenanceMode;
+                    if (data.teamCredentials) {
+                        Object.assign(teamCredentials, data.teamCredentials);
+                    }
+                } else {
+                    syncTeamDataWithCredentials();
+                }
+            } catch (e) {
+                console.error('LocalStorage load failed:', e);
+            }
+        }
+
+        function setSyncStatus(status) {
+            const badge = document.getElementById('syncBadge');
+            const icon = document.getElementById('syncIcon');
+            const text = document.getElementById('syncStatus');
+            
+            badge.className = 'sync-badge';
+            
+            if (status === 'syncing') {
+                badge.classList.add('syncing');
+                icon.className = 'fas fa-spinner sync-indicator';
+                text.textContent = 'Syncing...';
+            } else if (status === 'offline') {
+                badge.classList.add('offline');
+                icon.className = 'fas fa-cloud';
+                text.textContent = 'Offline';
+            } else {
+                badge.classList.add('synced');
+                icon.className = 'fas fa-check-circle';
+                text.textContent = 'Synced';
+            }
+        }
+
+        function saveData() {
+            saveToFirebase();
+        }
+
+        function loadData() {
+            loadFromLocalStorage();
+        }
+
+        function syncTeamDataWithCredentials() {
+            teamData = Object.keys(teamCredentials).map((username, idx) => {
+                const cred = teamCredentials[username];
+                const existing = teamData.find(t => t.name === cred.name);
+                return {
+                    id: idx + 1,
+                    username: username,
+                    name: cred.name,
+                    initials: cred.initials,
+                    role: cred.role,
+                    played: existing ? existing.played : 0,
+                    won: existing ? existing.won : 0,
+                    lost: existing ? existing.lost : 0,
+                    winRate: existing ? existing.winRate : 0,
+                    gameHistory: existing ? existing.gameHistory : []
+                };
+            });
+        }
+
+        // Initialization
         function init() {
             loadData();
+            initFirebaseSync();
             checkSession();
             updateDisplays();
             setupEventListeners();
@@ -646,77 +804,7 @@
             });
         }
 
-        // ===================================================================
-        // DATA MANAGEMENT
-        // ===================================================================
-
-        function loadData() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.teamData) teamData = data.teamData;
-                    if (data.leagueData) leagueData = data.leagueData;
-                    if (data.fixturesData) fixturesData = data.fixturesData;
-                    if (data.opponentsList) opponentsList = data.opponentsList;
-                    if (data.announcements) announcements = data.announcements;
-                    if (data.trainingSessions) trainingSessions = data.trainingSessions;
-                    if (data.scorecards) scorecards = data.scorecards;
-                    if (data.maintenanceMode !== undefined) maintenanceMode = data.maintenanceMode;
-                    if (data.teamCredentials) {
-                        Object.assign(teamCredentials, data.teamCredentials);
-                    }
-                } else {
-                    syncTeamDataWithCredentials();
-                }
-            } catch (e) {
-                console.error('Load failed:', e);
-            }
-        }
-
-        function saveData() {
-            try {
-                const data = {
-                    teamData,
-                    leagueData,
-                    fixturesData,
-                    opponentsList,
-                    announcements,
-                    trainingSessions,
-                    scorecards,
-                    maintenanceMode,
-                    teamCredentials,
-                    lastSave: new Date().toISOString()
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            } catch (e) {
-                console.error('Save failed:', e);
-            }
-        }
-
-        function syncTeamDataWithCredentials() {
-            teamData = Object.keys(teamCredentials).map((username, idx) => {
-                const cred = teamCredentials[username];
-                const existing = teamData.find(t => t.name === cred.name);
-                return {
-                    id: idx + 1,
-                    username: username,
-                    name: cred.name,
-                    initials: cred.initials,
-                    role: cred.role,
-                    played: existing ? existing.played : 0,
-                    won: existing ? existing.won : 0,
-                    lost: existing ? existing.lost : 0,
-                    winRate: existing ? existing.winRate : 0,
-                    gameHistory: existing ? existing.gameHistory : []
-                };
-            });
-        }
-
-        // ===================================================================
-        // AUTHENTICATION
-        // ===================================================================
-
+        // Authentication
         function showLogin() {
             document.getElementById('loginScreen').classList.add('show');
         }
@@ -785,12 +873,10 @@
             document.getElementById('roleText').textContent = currentUser.role;
             document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
             
-            // Show Admin Menu for Captains, Co-Captains and System Creator
             if (currentUser.isAdmin) {
                 document.getElementById('adminMenuItem').style.display = 'flex';
             }
             
-            // Show Training controls for Captains and Co-Captains
             if (currentUser.isAdmin) {
                 document.getElementById('adminTrainingControls').style.display = 'block';
             }
@@ -848,10 +934,7 @@
             switchTab(tabId, navElement);
         }
 
-        // ===================================================================
-        // UI FUNCTIONS
-        // ===================================================================
-
+        // UI Functions
         function toggleDropdown(e) {
             if (e) e.stopPropagation();
             document.getElementById('profileDropdown').classList.toggle('show');
@@ -927,10 +1010,6 @@
             renderFixtures();
         }
 
-        // ===================================================================
-        // WWLDW PANEL 
-        // ===================================================================
-
         function renderWWLDW() {
             const panel = document.getElementById('wwldwPanel');
             const last5 = fixturesData
@@ -954,17 +1033,12 @@
             }).join('');
         }
 
-        // ===================================================================
-        // ADMIN PANEL FUNCTIONS
-        // ===================================================================
-
         function openAdminPanel() {
             if (!currentUser || !currentUser.isAdmin) {
                 showToast('Admin access required', 'error');
                 return;
             }
             
-            // Show/hide role manager button based on permissions (Captain or System Creator only)
             const roleBtn = document.getElementById('adminRoleManagerBtn');
             if (currentUser.role === 'Captain' || currentUser.isSystemCreator) {
                 roleBtn.style.display = 'flex';
@@ -972,7 +1046,6 @@
                 roleBtn.style.display = 'none';
             }
             
-            // Show System Creator section only for System Creator
             const sysCreatorSection = document.getElementById('adminPanelSystemCreatorSection');
             if (currentUser.isSystemCreator) {
                 sysCreatorSection.style.display = 'block';
@@ -991,10 +1064,6 @@
             openModal('systemCreatorModal');
             logToConsole('System Creator panel accessed by ' + currentUser.name);
         }
-
-        // ===================================================================
-        // ANNOUNCEMENTS
-        // ===================================================================
 
         function openAnnouncementModal() {
             openModal('announcementModal');
@@ -1056,10 +1125,6 @@
             showToast('Announcement deleted');
         }
 
-        // ===================================================================
-        // FIXTURES & SYSTEM CREATOR DELETE
-        // ===================================================================
-
         function filterFixtures(type, btn) {
             currentFilter = type;
             const buttons = btn.parentElement.querySelectorAll('.admin-btn');
@@ -1110,7 +1175,6 @@
             `).join('');
         }
 
-        // DELETE FIXTURE FUNCTION - SYSTEM CREATOR ONLY
         function deleteFixture(fixtureId) {
             if (!currentUser || !currentUser.isSystemCreator) {
                 showToast('System Creator access required', 'error');
@@ -1122,31 +1186,26 @@
             
             if (!confirm(`Delete ${fixture.played ? 'match result' : 'fixture'} vs ${fixture.opponent}?\n\nThis will also reverse any league table changes if the match was completed.\n\nThis action cannot be undone.`)) return;
             
-            // If match was played, reverse the league table updates
             if (fixture.played) {
                 const us = leagueData[0];
                 const opponent = leagueData.find(t => t.name === fixture.opponent);
                 
-                // Reverse Rack Café stats
                 us.played--;
                 us.points -= fixture.ourScore;
                 if (fixture.ourScore > fixture.theirScore) us.won--;
                 else if (fixture.ourScore < fixture.theirScore) us.lost--;
                 
-                // Reverse opponent stats (find existing team in league data)
                 if (opponent && !opponent.isUs) {
                     opponent.played--;
                     opponent.points -= fixture.theirScore;
                     if (fixture.theirScore > fixture.ourScore) opponent.won--;
                     else if (fixture.theirScore < fixture.ourScore) opponent.lost--;
                     
-                    // Remove opponent from league if they have 0 played and are not our team
                     if (opponent.played === 0 && !opponent.isUs) {
                         leagueData = leagueData.filter(t => t.name !== fixture.opponent);
                     }
                 }
                 
-                // Reverse player stats
                 const scorecard = scorecards.find(s => s.fixtureId === fixtureId);
                 if (scorecard && scorecard.frames) {
                     scorecard.frames.forEach(frame => {
@@ -1161,7 +1220,6 @@
                                 } else {
                                     player.winRate = 0;
                                 }
-                                // Remove this game from history
                                 if (player.gameHistory) {
                                     player.gameHistory = player.gameHistory.filter(g => g.date !== fixture.date || g.opponent !== fixture.opponent);
                                 }
@@ -1170,11 +1228,9 @@
                     });
                 }
                 
-                // Remove scorecard
                 scorecards = scorecards.filter(s => s.fixtureId !== fixtureId);
             }
             
-            // Remove the fixture
             fixturesData = fixturesData.filter(f => f.id !== fixtureId);
             
             saveData();
@@ -1182,15 +1238,10 @@
             renderFixtures();
             showToast('Fixture deleted successfully', 'error');
             
-            // Log to system console if available
             if (typeof logToConsole === 'function') {
                 logToConsole(`Fixture deleted: ${fixture.opponent} (${fixture.played ? 'completed' : 'scheduled'}) by ${currentUser.name}`);
             }
         }
-
-        // ===================================================================
-        // LEAGUE TABLE
-        // ===================================================================
 
         function renderLeagueTable() {
             const container = document.getElementById('leagueTable');
@@ -1214,10 +1265,6 @@
                 <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-muted);">* Rack Café Utd</div>
             `;
         }
-
-        // ===================================================================
-        // TEAM & ROLES
-        // ===================================================================
 
         function renderTeam() {
             const container = document.getElementById('teamList');
@@ -1298,10 +1345,6 @@
                 completeLogin();
             }
         }
-
-        // ===================================================================
-        // SYSTEM CREATOR FUNCTIONS
-        // ===================================================================
 
         function openPlayerManagerModal() {
             if (!currentUser || !currentUser.isSystemCreator) {
@@ -1434,10 +1477,6 @@
             }
         }
 
-        // ===================================================================
-        // TRAINING
-        // ===================================================================
-
         function openScheduleTrainingModal() {
             if (!currentUser || !currentUser.isAdmin) {
                 showToast('Admin access required', 'error');
@@ -1561,10 +1600,6 @@
             renderTraining();
             showToast('Training cancelled');
         }
-
-        // ===================================================================
-        // SCORECARDS & MATCH RESULTS
-        // ===================================================================
 
         function renderScorecards() {
             const container = document.getElementById('scorecardList');
@@ -1818,15 +1853,6 @@
             showToast('Match scheduled');
         }
 
-        function viewScorecard(fixtureId) {
-            // Just a placeholder - in real implementation would scroll to specific scorecard
-            showToast('Viewing scorecard details');
-        }
-
-        // ===================================================================
-        // PROFILE
-        // ===================================================================
-
         function renderProfile() {
             if (!currentUser) return;
             
@@ -1886,10 +1912,6 @@
             `;
         }
 
-        // ===================================================================
-        // UTILITIES
-        // ===================================================================
-
         function attemptMaintenanceLogin() {
             document.getElementById('maintenanceOverlay').classList.remove('active');
             showLogin();
@@ -1902,10 +1924,7 @@
             showToast('Data refreshed');
         }
 
-        // ===================================================================
-        // STARTUP
-        // ===================================================================
-        
+        // Startup
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
