@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rack Café Utd - Pool League</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css  ">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -88,39 +88,6 @@
         .form-l { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
         .form-d { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
         
-        /* WWLDW Live Updates Styles */
-        .live-update-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 16px; 
-            padding: 16px; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 12px; 
-            margin-bottom: 12px; 
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
-            animation: slideUp 0.4s ease;
-        }
-        .live-update-item:hover { border-color: var(--primary-pink); background: rgba(255,255,255,0.05); }
-        .live-update-badge { 
-            min-width: 48px; 
-            height: 48px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            font-size: 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .live-update-content { flex: 1; }
-        .live-update-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
-        .live-update-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
-        .live-update-score { font-size: 20px; font-weight: 900; color: var(--text-primary); }
-        .live-update-item.win { border-left: 3px solid #2ed573; }
-        .live-update-item.loss { border-left: 3px solid #ff4757; }
-        .live-update-item.draw { border-left: 3px solid #ffd700; }
-        
         /* Announcement Styles */
         .announcement-card { background: linear-gradient(135deg, rgba(233,69,96,0.1) 0%, rgba(255,215,0,0.05) 100%); border: 1px solid rgba(233,69,96,0.3); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
         .announcement-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -198,10 +165,30 @@
         .badge-co-captain { background: rgba(243, 156, 18, 0.15); border-color: #f39c12; color: #f39c12; }
         .badge-player { background: rgba(160, 160, 184, 0.15); border-color: var(--text-secondary); color: var(--text-secondary); }
         
-        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; cursor: pointer; }
+        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
         .fixture-card:hover { border-color: var(--primary-pink); }
         .fixture-date { min-width: 60px; text-align: center; margin-right: 20px; }
         .date-day { font-size: 28px; font-weight: 900; color: #e94560; line-height: 1; }
+        
+        /* DELETE FIXTURE BUTTON - Only visible to System Creator */
+        .delete-fixture-btn {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 12px;
+            transition: all 0.2s;
+        }
+        .delete-fixture-btn:hover {
+            background: rgba(255, 71, 87, 0.4);
+            transform: scale(1.1);
+        }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 15, 25, 0.98); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; transition: all 0.3s; cursor: pointer; background: none; border: none; font-family: inherit; }
@@ -316,17 +303,6 @@
                         <div class="form-badge form-w">W</div>
                     </div>
                     <div style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">Last 5 Matches</div>
-                </div>
-
-                <!-- WWLDW Live Updates - REPLACES ADMIN PANELS -->
-                <div class="form-panel" id="wwldwLivePanel">
-                    <div class="section-title">
-                        <span><i class="fas fa-bolt"></i> WWLDW Live Updates</span>
-                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Real-time Results</span>
-                    </div>
-                    <div id="wwldwLiveList" style="max-height: 400px; overflow-y: auto;">
-                        <!-- Populated by JavaScript -->
-                    </div>
                 </div>
 
                 <!-- Latest Announcements -->
@@ -929,7 +905,6 @@
 
         function updateDisplays() {
             renderWWLDW();
-            renderWWLDWLiveUpdates();
             renderAnnouncements();
             
             const us = leagueData[0];
@@ -953,7 +928,7 @@
         }
 
         // ===================================================================
-        // WWLDW PANEL & LIVE UPDATES
+        // WWLDW PANEL 
         // ===================================================================
 
         function renderWWLDW() {
@@ -976,61 +951,6 @@
                 
                 const className = result === 'W' ? 'form-w' : result === 'L' ? 'form-l' : 'form-d';
                 return `<div class="form-badge ${className}">${result}</div>`;
-            }).join('');
-        }
-
-        function renderWWLDWLiveUpdates() {
-            const container = document.getElementById('wwldwLiveList');
-            const last5 = fixturesData
-                .filter(f => f.played)
-                .sort((a,b) => new Date(b.date) - new Date(b.date))
-                .slice(0, 5);
-            
-            if (last5.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px;"><i class="fas fa-info-circle" style="display: block; margin-bottom: 8px; font-size: 24px;"></i>No recent match updates available</div>';
-                return;
-            }
-            
-            container.innerHTML = last5.map(match => {
-                let resultClass, resultText, resultColor;
-                if (match.ourScore > match.theirScore) {
-                    resultClass = 'win';
-                    resultText = 'W';
-                    resultColor = '#2ed573';
-                } else if (match.ourScore < match.theirScore) {
-                    resultClass = 'loss';
-                    resultText = 'L';
-                    resultColor = '#ff4757';
-                } else {
-                    resultClass = 'draw';
-                    resultText = 'D';
-                    resultColor = '#ffd700';
-                }
-                
-                const dateStr = new Date(match.date).toLocaleDateString('en-GB', { 
-                    day: 'numeric', 
-                    month: 'short', 
-                    year: '2-digit' 
-                });
-                
-                return `
-                    <div class="live-update-item ${resultClass}">
-                        <div class="live-update-badge" style="background: ${resultColor}20; color: ${resultColor}; border: 2px solid ${resultColor};">
-                            ${resultText}
-                        </div>
-                        <div class="live-update-content">
-                            <div class="live-update-title">vs ${match.opponent}</div>
-                            <div class="live-update-meta">
-                                <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-                                <span><i class="fas fa-map-marker-alt"></i> ${match.venue === 'home' ? 'Home' : 'Away'}</span>
-                                ${match.ourScore !== undefined ? `<span><i class="fas fa-trophy"></i> ${match.ourScore > match.theirScore ? 'Victory' : match.ourScore < match.theirScore ? 'Defeat' : 'Draw'}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="live-update-score" style="color: ${resultColor};">
-                            ${match.ourScore !== undefined ? `${match.ourScore} <span style="color: var(--text-muted); font-size: 14px;">-</span> ${match.theirScore}` : '-'}
-                        </div>
-                    </div>
-                `;
             }).join('');
         }
 
@@ -1137,7 +1057,7 @@
         }
 
         // ===================================================================
-        // FIXTURES
+        // FIXTURES & SYSTEM CREATOR DELETE
         // ===================================================================
 
         function filterFixtures(type, btn) {
@@ -1167,8 +1087,8 @@
             }
             
             list.innerHTML = matches.map(m => `
-                <div class="fixture-card" onclick="${m.played ? `viewScorecard(${m.id})` : ''}">
-                    <div style="display: flex; align-items: center;">
+                <div class="fixture-card" data-fixture-id="${m.id}" style="position: relative;">
+                    <div style="display: flex; align-items: center; flex: 1;">
                         <div class="fixture-date">
                             <div class="date-day">${new Date(m.date).getDate()}</div>
                             <div style="font-size: 11px; color: var(--text-muted);">${new Date(m.date).toLocaleString('default', {month: 'short'})}</div>
@@ -1178,9 +1098,94 @@
                             <div style="font-size: 12px; color: var(--text-muted);">${m.played ? 'Completed' : (m.time || '20:00')}</div>
                         </div>
                     </div>
-                    ${m.played ? `<div style="font-weight: 800; font-size: 20px; color: ${m.result === 'W' ? '#2ed573' : m.result === 'L' ? '#ff4757' : '#ffd700'};">${m.ourScore}-${m.theirScore}</div>` : ''}
+                    <div style="display: flex; align-items: center;">
+                        ${m.played ? `<div style="font-weight: 800; font-size: 20px; color: ${m.result === 'W' ? '#2ed573' : m.result === 'L' ? '#ff4757' : '#ffd700'};">${m.ourScore}-${m.theirScore}</div>` : ''}
+                        ${currentUser && currentUser.isSystemCreator ? `
+                            <button class="delete-fixture-btn" onclick="deleteFixture(${m.id}); event.stopPropagation();" title="Delete Fixture">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
             `).join('');
+        }
+
+        // DELETE FIXTURE FUNCTION - SYSTEM CREATOR ONLY
+        function deleteFixture(fixtureId) {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
+            
+            const fixture = fixturesData.find(f => f.id === fixtureId);
+            if (!fixture) return;
+            
+            if (!confirm(`Delete ${fixture.played ? 'match result' : 'fixture'} vs ${fixture.opponent}?\n\nThis will also reverse any league table changes if the match was completed.\n\nThis action cannot be undone.`)) return;
+            
+            // If match was played, reverse the league table updates
+            if (fixture.played) {
+                const us = leagueData[0];
+                const opponent = leagueData.find(t => t.name === fixture.opponent);
+                
+                // Reverse Rack Café stats
+                us.played--;
+                us.points -= fixture.ourScore;
+                if (fixture.ourScore > fixture.theirScore) us.won--;
+                else if (fixture.ourScore < fixture.theirScore) us.lost--;
+                
+                // Reverse opponent stats (find existing team in league data)
+                if (opponent && !opponent.isUs) {
+                    opponent.played--;
+                    opponent.points -= fixture.theirScore;
+                    if (fixture.theirScore > fixture.ourScore) opponent.won--;
+                    else if (fixture.theirScore < fixture.ourScore) opponent.lost--;
+                    
+                    // Remove opponent from league if they have 0 played and are not our team
+                    if (opponent.played === 0 && !opponent.isUs) {
+                        leagueData = leagueData.filter(t => t.name !== fixture.opponent);
+                    }
+                }
+                
+                // Reverse player stats
+                const scorecard = scorecards.find(s => s.fixtureId === fixtureId);
+                if (scorecard && scorecard.frames) {
+                    scorecard.frames.forEach(frame => {
+                        if (frame.player && frame.result) {
+                            const player = teamData.find(p => p.name === frame.player);
+                            if (player) {
+                                player.played--;
+                                if (frame.result === 'W') player.won--;
+                                else if (frame.result === 'L') player.lost--;
+                                if (player.played > 0) {
+                                    player.winRate = Math.round((player.won / player.played) * 100);
+                                } else {
+                                    player.winRate = 0;
+                                }
+                                // Remove this game from history
+                                if (player.gameHistory) {
+                                    player.gameHistory = player.gameHistory.filter(g => g.date !== fixture.date || g.opponent !== fixture.opponent);
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Remove scorecard
+                scorecards = scorecards.filter(s => s.fixtureId !== fixtureId);
+            }
+            
+            // Remove the fixture
+            fixturesData = fixturesData.filter(f => f.id !== fixtureId);
+            
+            saveData();
+            updateDisplays();
+            renderFixtures();
+            showToast('Fixture deleted successfully', 'error');
+            
+            // Log to system console if available
+            if (typeof logToConsole === 'function') {
+                logToConsole(`Fixture deleted: ${fixture.opponent} (${fixture.played ? 'completed' : 'scheduled'}) by ${currentUser.name}`);
+            }
         }
 
         // ===================================================================
@@ -1189,7 +1194,7 @@
 
         function renderLeagueTable() {
             const container = document.getElementById('leagueTable');
-            const sorted = [...leagueData].sort((a,b) => b.points - a.points || b.won - a.won);
+            const sorted = [...leagueData].sort((a,b) => b.points - a.points);
             
             container.innerHTML = `
                 <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden;">
