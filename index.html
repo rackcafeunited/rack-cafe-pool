@@ -6,64 +6,18 @@
     <title>Rack Café Utd - Pool League</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --bg-dark: #0a0a14; --bg-card: #151520; --primary-pink: #e94560; --primary-pink-dark: #d63d56; --accent-orange: #f39c12; --gold-primary: #ffd700; --text-primary: #ffffff; --text-secondary: #a0a0b8; --text-muted: #606070; --border-color: #2a2a3a; --success: #2ed573; --danger: #ff4757; --info: #00ffff; --reserve-color: #9b59b6; --silver: #c0c0c0; }
+        :root { --bg-dark: #0a0a14; --bg-card: #151520; --primary-pink: #e94560; --primary-pink-dark: #d63d56; --accent-orange: #f39c12; --gold-primary: #ffd700; --text-primary: #ffffff; --text-secondary: #a0a0b8; --text-muted: #606070; --border-color: #2a2a3a; --success: #2ed573; --danger: #ff4757; --info: #00ffff; --reserve-color: #9b59b6; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1420 100%); color: var(--text-primary); min-height: 100vh; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        /* Role Badges */
-        .role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 8px;
-            border: 1px solid;
-            vertical-align: middle;
-        }
-        
-        .badge-system-creator {
-            background: rgba(0, 255, 255, 0.15);
-            border-color: #00ffff;
-            color: #00ffff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-            animation: pulse 2s infinite;
-        }
-        
-        .badge-captain {
-            background: rgba(255, 215, 0, 0.15);
-            border-color: #ffd700;
-            color: #ffd700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-        }
-        
-        .badge-co-captain {
-            background: rgba(243, 156, 18, 0.15);
-            border-color: #f39c12;
-            color: #f39c12;
-        }
-        
-        .badge-reserve {
-            background: rgba(155, 89, 182, 0.15);
-            border-color: #9b59b6;
-            color: #9b59b6;
-        }
-        
-        /* Maintenance Mode Overlay */
+        /* MAINTENANCE OVERLAY - CRITICAL FIXES */
         .maintenance-overlay {
             position: fixed;
             top: 0;
@@ -71,18 +25,19 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%);
-            z-index: 10000;
+            z-index: 999999; /* Highest possible z-index */
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px;
             text-align: center;
+            backdrop-filter: blur(20px);
         }
         
         .maintenance-overlay.active {
-            display: flex;
-            animation: fadeIn 0.5s ease;
+            display: flex !important; /* Force display */
+            animation: fadeIn 0.3s ease;
         }
         
         .maintenance-icon {
@@ -114,832 +69,168 @@
             position: fixed;
             bottom: 40px;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.3);
             font-family: monospace;
-        }
-        
-        /* Secret Key Indicator */
-        .secret-key-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            color: #00ffff;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-family: monospace;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 2000;
-            pointer-events: none;
-        }
-        
-        .secret-key-indicator.show {
-            opacity: 1;
+            animation: blink 3s infinite;
         }
 
-        .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #151525 0%, #0a0a14 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; }
+        .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #151525 0%, #0a0a14 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99998; }
         .login-screen.show { display: flex; }
-        .logo { width: 110px; height: 110px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #e94560 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4); position: relative; animation: float 6s ease-in-out infinite; cursor: pointer; }
+        .logo { width: 110px; height: 110px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #e94560 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4); position: relative; cursor: pointer; }
         .logo::before { content: ''; position: absolute; width: 50%; height: 50%; border: 5px solid rgba(255,255,255,0.95); border-radius: 50%; }
         .logo::after { content: ''; position: absolute; width: 22%; height: 22%; background: white; border-radius: 50%; }
         .login-card { background: rgba(21, 21, 32, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6); animation: slideUp 0.6s ease; }
         .login-header { text-align: center; margin-bottom: 35px; }
         .login-header h1 { font-size: 32px; margin-bottom: 8px; font-weight: 800; }
-        .login-header p { color: var(--text-secondary); font-size: 14px; }
+        .login-error { background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); color: #ff4757; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; display: none; align-items: center; gap: 8px; }
+        .login-error.show { display: flex; }
         .form-group { margin-bottom: 24px; }
         .form-label { display: block; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700; }
         .input-wrapper { position: relative; }
         .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
-        .form-input, .form-select, .form-textarea { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; font-family: inherit; }
-        .form-textarea { min-height: 120px; resize: vertical; padding: 16px; }
-        .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a0a0b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; font-weight: 600; }
-        .form-select:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
-        .form-select option { background: var(--bg-card); color: #ffffff; font-size: 15px; padding: 12px; font-weight: 600; }
-        select.form-select { color: #ffffff !important; background-color: var(--bg-card) !important; }
-        select.form-select option { background-color: #151520 !important; color: #ffffff !important; padding: 12px !important; font-size: 15px !important; font-weight: 600 !important; }
-        input[type="time"].form-input { padding-left: 16px; }
-        input[type="date"].form-input { padding-left: 16px; }
-        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
-        .login-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; box-shadow: 0 4px 25px rgba(233, 69, 96, 0.4); transition: all 0.3s; }
+        .form-input { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; }
+        .form-input:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
+        .login-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; box-shadow: 0 4px 25px rgba(233, 69, 96, 0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 35px rgba(233, 69, 96, 0.5); }
-        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .login-error { background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); color: #ff4757; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; display: none; align-items: center; gap: 8px; }
-        .login-error.show { display: flex; }
+        
         .dashboard { display: none; min-height: 100vh; padding-bottom: 90px; }
         .dashboard.active { display: block; animation: fadeIn 0.5s; }
         .header { background: rgba(15, 15, 25, 0.98); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-logo { width: 42px; height: 42px; background: linear-gradient(135deg, #ff6b35 0%, #e94560 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .header-logo::before { content: ''; position: absolute; width: 20px; height: 20px; border: 3px solid white; border-radius: 50%; }
-        .header-logo::after { content: ''; position: absolute; width: 8px; height: 8px; background: white; border-radius: 50%; }
-        .header-title h2 { font-size: 17px; font-weight: 800; display: flex; align-items: center; }
+        .header-logo { width: 42px; height: 42px; background: linear-gradient(135deg, #ff6b35 0%, #e94560 100%); border-radius: 10px; position: relative; }
+        .header-logo::before { content: ''; position: absolute; width: 20px; height: 20px; border: 3px solid white; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        .header-title h2 { font-size: 17px; font-weight: 800; }
         .header-title p { font-size: 12px; color: var(--text-secondary); }
-        .header-right { display: flex; align-items: center; gap: 12px; position: relative; }
-        .sync-badge { background: rgba(46, 213, 115, 0.15); color: #2ed573; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(46, 213, 115, 0.3); cursor: pointer; transition: all 0.3s; }
-        .sync-badge.syncing { animation: pulse 1.5s infinite; background: rgba(233, 69, 96, 0.15); color: #e94560; border-color: rgba(233, 69, 96, 0.3); }
-        .sync-badge.offline { background: rgba(255, 193, 7, 0.15); color: #ffc107; border-color: rgba(255, 193, 7, 0.3); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .sync-badge { background: rgba(46, 213, 115, 0.15); color: #2ed573; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(46, 213, 115, 0.3); cursor: pointer; }
+        
         .profile-container { position: relative; display: none; }
         .profile-container.show { display: block; }
-        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-pink) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; position: relative; user-select: none; }
-        .avatar:hover { transform: scale(1.05); border-color: rgba(233, 69, 96, 0.5); box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3); }
-        .avatar.active { border-color: var(--primary-pink); box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.2); }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-pink) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .avatar:hover { transform: scale(1.05); }
+        
         .dropdown-menu { position: absolute; top: calc(100% + 12px); right: 0; background: rgba(21, 21, 32, 0.98); backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: 16px; padding: 8px; min-width: 280px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; }
         .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-menu::before { content: ''; position: absolute; top: -6px; right: 16px; width: 12px; height: 12px; background: rgba(21, 21, 32, 0.98); border-left: 1px solid var(--border-color); border-top: 1px solid var(--border-color); transform: rotate(45deg); }
-        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--text-primary); font-size: 14px; font-weight: 600; }
-        .dropdown-item:hover { background: rgba(255, 255, 255, 0.05); }
-        .dropdown-item.admin-only { color: var(--gold-primary); }
-        .dropdown-item.admin-only:hover { background: rgba(212, 175, 55, 0.1); }
-        .dropdown-item.system-creator { color: #00ffff; background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.2); margin: 4px 0; }
-        .dropdown-item.system-creator:hover { background: rgba(0, 255, 255, 0.15); }
-        .dropdown-item.logout:hover { background: rgba(233, 69, 96, 0.1); color: #ff4757; }
-        .dropdown-item i { width: 24px; text-align: center; font-size: 16px; }
-        .dropdown-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
-        .user-info { padding: 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
-        .user-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-        .user-role { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
-        .main-content { padding: 24px 20px; max-width: 900px; margin: 0 auto; }
-        .page-title { margin-bottom: 24px; animation: slideUp 0.5s ease; }
-        .page-title h1 { font-size: 32px; margin-bottom: 6px; font-weight: 800; }
-        .page-title p { color: var(--text-secondary); font-size: 15px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        .admin-panel { background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; }
-        .admin-panel::before { content: '\f132'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: -20px; right: 20px; font-size: 100px; opacity: 0.05; color: var(--gold-primary); }
-        .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; position: relative; z-index: 1; }
+        
+        .admin-panel { background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; position: relative; }
+        .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
         @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
         .admin-btn { background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-primary); padding: 16px; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-family: inherit; font-weight: 700; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .admin-btn:hover { background: rgba(212, 175, 55, 0.25); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2); }
+        .admin-btn:hover { background: rgba(212, 175, 55, 0.25); transform: translateY(-2px); }
+        
         .next-match-card { background: linear-gradient(135deg, #e94560 0%, #c73e54 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 15px 50px rgba(233, 69, 96, 0.3); }
-        .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .match-label { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
-        .home-badge { background: rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
-        .match-teams { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-        .team { text-align: center; flex: 1; }
-        .team-name { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
-        .vs { font-size: 28px; font-weight: 900; opacity: 0.5; margin: 0 30px; font-style: italic; }
-        .match-details { display: flex; justify-content: center; gap: 50px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 10px; text-align: center; transition: all 0.3s; }
-        .stat-card:hover { transform: translateY(-4px); border-color: rgba(233, 69, 96, 0.3); }
-        .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #e94560, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; transition: all 0.3s ease; }
-        .stat-value.updated { animation: pulse 0.5s ease; transform: scale(1.2); }
+        .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #e94560, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-        .recent-form { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; margin-bottom: 24px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .section-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-        .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
-        .live-dot { width: 8px; height: 8px; background: #2ed573; border-radius: 50%; box-shadow: 0 0 10px #2ed573; animation: pulse 2s infinite; }
-        .form-list { display: flex; flex-direction: column; gap: 12px; }
-        .form-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; border: 1px solid var(--border-color); transition: all 0.3s; animation: slideUp 0.3s ease; }
-        .form-item:hover { background: rgba(255, 255, 255, 0.05); transform: translateX(4px); }
-        .result-w { background: rgba(46, 213, 115, 0.2); color: #2ed573; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
-        .result-l { background: rgba(233, 69, 96, 0.2); color: #e94560; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
-        .result-bye { background: rgba(255, 215, 0, 0.15); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
-        .filter-tabs { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px 20px; border-radius: 25px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-family: inherit; }
-        .filter-btn.active { background: linear-gradient(135deg, #e94560 0%, #d63d56 100%); color: white; border-color: transparent; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3); }
-        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; animation: slideUp 0.3s ease; }
-        .fixture-card:hover { transform: translateY(-2px); border-color: rgba(233, 69, 96, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .fixture-card.bye-week { border-left: 3px solid #ffd700; background: rgba(255, 215, 0, 0.05); }
-        .fixture-date { min-width: 60px; text-align: center; margin-right: 20px; }
-        .date-day { font-size: 28px; font-weight: 900; color: #e94560; line-height: 1; }
-        .date-day.bye { color: #ffd700; }
         
-        .table-header { display: grid; grid-template-columns: 50px 1fr 60px 60px 60px 60px; gap: 8px; padding: 12px 16px; background: rgba(255,255,255,0.03); border-radius: 12px 12px 0 0; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
-        .table-row { display: grid; grid-template-columns: 50px 1fr 60px 60px 60px 60px; gap: 8px; padding: 16px; border-bottom: 1px solid var(--border-color); align-items: center; font-size: 14px; background: var(--bg-card); animation: slideUp 0.3s ease; }
+        .main-content { padding: 24px 20px; max-width: 900px; margin: 0 auto; }
+        .page-title { margin-bottom: 24px; }
+        .page-title h1 { font-size: 32px; margin-bottom: 6px; font-weight: 800; }
+        .page-title p { color: var(--text-secondary); font-size: 15px; }
         
-        .player-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; transition: all 0.3s; }
-        .player-avatar { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin-bottom: 16px; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 15, 25, 0.98); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; transition: all 0.3s; cursor: pointer; background: none; border: none; font-family: inherit; }
-        .nav-item.active { color: var(--primary-pink); }
-        
-        /* Maintenance Toggle Switch */
-        .maintenance-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid rgba(255, 71, 87, 0.3);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .maintenance-toggle:hover {
-            background: rgba(255, 71, 87, 0.15);
-        }
-        
-        .maintenance-toggle.active {
-            background: rgba(0, 255, 255, 0.1);
-            border-color: rgba(0, 255, 255, 0.3);
-        }
-        
-        .toggle-switch {
-            width: 50px;
-            height: 26px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 13px;
-            position: relative;
-            transition: all 0.3s;
-        }
-        
-        .maintenance-toggle.active .toggle-switch {
-            background: #00ffff;
-        }
-        
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: all 0.3s;
-        }
-        
-        .maintenance-toggle.active .toggle-switch::after {
-            left: 26px;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal-overlay.show { display: flex; }
         .modal-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); animation: slideUp 0.3s ease; }
         .modal-header { background: linear-gradient(135deg, rgba(233,69,96,0.2) 0%, rgba(243,156,18,0.1) 100%); padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .modal-title { font-size: 20px; font-weight: 800; }
         .modal-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .modal-body { padding: 24px; max-height: 70vh; overflow-y: auto; }
-        .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; transition: all 0.3s; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .score-input-container { display: flex; align-items: center; gap: 16px; justify-content: center; margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--border-color); }
-        .score-input { width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 900; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: var(--text-primary); }
+        .modal-body { padding: 24px; }
+        .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; }
+        
+        #systemCreatorModal .modal-container { max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3); }
+        
+        .maintenance-toggle { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
+        .maintenance-toggle.active { background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); }
+        .toggle-switch { width: 50px; height: 26px; background: rgba(255, 255, 255, 0.1); border-radius: 13px; position: relative; transition: all 0.3s; }
+        .maintenance-toggle.active .toggle-switch { background: #00ffff; }
+        .toggle-switch::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: all 0.3s; }
+        .maintenance-toggle.active .toggle-switch::after { left: 26px; }
+        
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; z-index: 2000; opacity: 0; transition: all 0.3s ease; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
-        #systemCreatorModal .modal-container { max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3); background: linear-gradient(135deg, #0a0a1a 0%, #1a1020 100%); }
-        #systemCreatorModal .modal-title { color: #00ffff; text-shadow: 0 0 10px rgba(0,255,255,0.5); }
-        #secretOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; z-index: 9999; align-items: center; justify-content: center; flex-direction: column; font-family: monospace; }
+        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .fixture-date { min-width: 60px; text-align: center; }
+        .date-day { font-size: 28px; font-weight: 900; color: #e94560; line-height: 1; }
         
-        .opponent-list { max-height: 300px; overflow-y: auto; margin: 16px 0; border: 1px solid rgba(0,255,255,0.2); border-radius: 8px; padding: 8px; background: rgba(0,0,0,0.3); }
-        .opponent-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; }
-        .opponent-item:last-child { border-bottom: none; }
-        .opponent-item:hover { background: rgba(0,255,255,0.05); }
-        .opponent-name { font-weight: 600; color: #fff; }
-        .opponent-delete { background: rgba(255,71,87,0.2); border: 1px solid rgba(255,71,87,0.4); color: #ff4757; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
-        .opponent-delete:hover { background: rgba(255,71,87,0.4); }
-        .opponent-add-row { display: flex; gap: 8px; margin-bottom: 16px; }
-        .opponent-input { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; color: #fff; font-family: inherit; }
-        .opponent-input:focus { outline: none; border-color: #00ffff; }
-        .opponent-add-btn { padding: 12px 20px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; color: #00ffff; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
-        .opponent-add-btn:hover { background: rgba(0,255,255,0.2); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 15, 25, 0.98); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; cursor: pointer; background: none; border: none; font-family: inherit; }
+        .nav-item.active { color: var(--primary-pink); }
         
-        .last-updated { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 4px; font-style: italic; }
-        .countdown-timer { font-size: 14px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; margin-top: 8px; display: inline-block; }
-        .auto-sync-indicator { position: fixed; top: 80px; right: 20px; background: rgba(46, 213, 115, 0.9); color: #000; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; display: none; align-items: center; gap: 8px; z-index: 999; animation: slideUp 0.3s ease; }
-        .auto-sync-indicator.show { display: flex; }
-        .new-item-badge { background: #e94560; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; animation: pulse 2s infinite; }
+        .header-login-btn { background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 10px; color: white; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .header-login-btn.hidden { display: none !important; }
         
-        .network-status { 
-            position: fixed; 
-            top: 20px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            padding: 8px 16px; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            font-weight: 700; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            z-index: 9999; 
-            opacity: 0; 
-            transition: opacity 0.3s; 
-            pointer-events: none;
-        }
-        .network-status.show { opacity: 1; }
-        .network-status.online { background: rgba(46, 213, 115, 0.9); color: #000; }
-        .network-status.offline { background: rgba(255, 71, 87, 0.9); color: #fff; }
-        .network-status.syncing { background: rgba(0, 255, 255, 0.9); color: #000; }
+        .role-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-left: 8px; border: 1px solid; }
+        .badge-system-creator { background: rgba(0, 255, 255, 0.15); border-color: #00ffff; color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); animation: pulse 2s infinite; }
+        .badge-captain { background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700; }
         
-        /* Training Specific Styles */
-        .training-card { background: linear-gradient(135deg, rgba(233,69,96,0.1) 0%, transparent 100%); border-left: 3px solid #e94560; }
-        .attendance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
-        .attendance-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-        .attendance-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(233,69,96,0.3); }
-        .attendance-item.selected { background: rgba(46, 213, 115, 0.1); border-color: var(--success); }
-        .attendance-item.selected .attendance-check { background: var(--success); border-color: var(--success); }
-        .attendance-check { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .attendance-check i { opacity: 0; color: white; font-size: 12px; transition: all 0.2s; }
-        .attendance-item.selected .attendance-check i { opacity: 1; }
-        .attendance-avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
-        .attendance-name { font-size: 13px; font-weight: 600; }
-        .attendance-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-        .attendance-fill { height: 100%; background: linear-gradient(90deg, var(--success), var(--accent-orange)); border-radius: 2px; transition: width 0.5s ease; }
-        .attendance-stats { display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-        .attendance-stat { text-align: center; }
-        .attendance-stat-value { font-size: 24px; font-weight: 800; color: var(--success); }
-        .attendance-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-
-        .guest-banner {
-            background: rgba(233, 69, 96, 0.1);
-            border: 1px solid rgba(233, 69, 96, 0.3);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .guest-banner-text { font-size: 13px; color: var(--text-secondary); }
-        .guest-banner-text strong { color: var(--primary-pink); }
-        .header-login-btn {
-            background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
-        }
-        .header-login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
-        .header-login-btn.hidden { display: none; }
-        .nav-item.guest-disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        kbd { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; border: 1px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <!-- Network Status Indicator -->
-    <div id="networkStatus" class="network-status">
-        <i class="fas fa-circle"></i>
-        <span>Online</span>
-    </div>
-
-    <div id="autoSyncIndicator" class="auto-sync-indicator">
-        <i class="fas fa-sync-alt fa-spin"></i>
-        <span>Syncing data...</span>
-    </div>
-
-    <!-- Maintenance Mode Overlay -->
-    <div class="maintenance-overlay" id="maintenanceOverlay">
+    <!-- MAINTENANCE OVERLAY - ENSURE THIS IS FIRST IN BODY -->
+    <div id="maintenanceOverlay" class="maintenance-overlay">
         <i class="fas fa-radiation maintenance-icon"></i>
         <div class="maintenance-title">SYSTEM MAINTENANCE</div>
-        <div class="maintenance-message" id="maintenanceMessage">
+        <div id="maintenanceMessageText" class="maintenance-message">
             The server is currently undergoing scheduled maintenance.<br>
             Only authorized System Administrators may access the platform at this time.
         </div>
         <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
-            <button onclick="attemptMaintenanceLogin()" class="login-btn" style="width: auto; padding: 12px 32px;">
+            <button onclick="attemptMaintenanceLogin()" class="login-btn" style="width: auto; padding: 12px 32px; background: rgba(0,0,0,0.5); border: 1px solid #00ffff; color: #00ffff;">
                 <i class="fas fa-terminal"></i> SYS_ADMIN LOGIN
             </button>
         </div>
         <div class="maintenance-hint">
-            Press <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Ctrl</kbd> + <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Shift</kbd> + <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">M</kbd> to reveal login
+            Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> to reveal login
         </div>
     </div>
 
-    <!-- Secret Key Indicator -->
-    <div class="secret-key-indicator" id="secretKeyIndicator">
-        <i class="fas fa-key"></i> Secret Key Active: Press Ctrl+Shift+M
-    </div>
-
-    <!-- First Login Password Change Modal -->
-    <div class="modal-overlay" id="firstLoginModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title" style="color: var(--gold-primary);">
-                    <i class="fas fa-key"></i> Change Required
-                </div>
-            </div>
-            <div class="modal-body">
-                <div style="background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <i class="fas fa-info-circle" style="color: var(--gold-primary); font-size: 20px;"></i>
-                        <span style="font-weight: 700; color: var(--gold-primary);">First Login Security</span>
-                    </div>
-                    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5;">
-                        Welcome to Rack Café Utd! For security reasons, you must change your password before accessing the dashboard.
-                    </p>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Current Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" class="form-input" id="currentPassword" placeholder="Enter current password" style="padding-left: 48px;" readonly>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">New Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-key"></i>
-                        <input type="password" class="form-input" id="newPasswordFirst" placeholder="Create new password" style="padding-left: 48px;" oninput="validatePasswordStrength()">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Confirm New Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-check-circle"></i>
-                        <input type="password" class="form-input" id="confirmPasswordFirst" placeholder="Confirm new password" style="padding-left: 48px;">
-                    </div>
-                </div>
-
-                <div class="password-requirements">
-                    <div style="font-weight: 700; margin-bottom: 8px;">Password Requirements:</div>
-                    <ul style="margin: 8px 0 0 0; padding-left: 16px; list-style: none;">
-                        <li id="req-length" class="invalid">At least 8 characters</li>
-                        <li id="req-upper" class="invalid">One uppercase letter</li>
-                        <li id="req-lower" class="invalid">One lowercase letter</li>
-                        <li id="req-number" class="invalid">One number</li>
-                        <li id="req-match" class="invalid">Passwords match</li>
-                    </ul>
-                </div>
-
-                <button type="button" class="submit-btn" onclick="submitFirstLoginPassword()">
-                    <i class="fas fa-save" style="margin-right: 8px;"></i> Update Password & Continue
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Training Modal -->
-    <div class="modal-overlay" id="addTrainingModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-dumbbell" style="color: var(--primary-pink);"></i> Schedule Practice Session</div>
-                <button class="modal-close" onclick="closeAddTrainingModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="trainingDate" style="padding-left: 16px;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Start Time</label>
-                        <input type="time" class="form-input" id="trainingTime" style="padding-left: 16px;" value="19:00">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Session Type</label>
-                    <select class="form-select" id="trainingType" style="padding-left: 16px;">
-                        <option value="Practice Match">Practice Match</option>
-                        <option value="Drills & Skills">Drills & Skills</option>
-                        <option value="Theory & Tactics">Theory & Tactics</option>
-                        <option value="Team Building">Team Building</option>
-                        <option value="Fitness">Fitness Training</option>
-                        <option value="Open Table">Open Table</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-location-dot"></i>
-                        <input type="text" class="form-input" id="trainingLocation" placeholder="e.g., Rack Café - Table 3" style="padding-left: 48px;">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Notes / Focus Points</label>
-                    <textarea class="form-textarea" id="trainingNotes" placeholder="What should the team focus on? e.g., Safety play, Breaking, Positional shots..."></textarea>
-                </div>
-                <button type="button" class="submit-btn" onclick="submitTrainingSession()">
-                    <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Schedule Session
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Attendance Modal -->
-    <div class="modal-overlay" id="attendanceModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-clipboard-check" style="color: var(--success);"></i> Training Attendance</div>
-                <button class="modal-close" onclick="closeAttendanceModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="font-weight: 800; font-size: 16px;" id="attendanceSessionTitle">Session Title</div>
-                        <div style="color: var(--text-secondary); font-size: 13px;" id="attendanceSessionDate">Date</div>
-                    </div>
-                    <div style="color: var(--text-muted); font-size: 13px;" id="attendanceSessionType">Type</div>
-                    <div id="attendanceRoleBanner" style="margin-top: 8px; font-size: 11px; color: var(--accent-orange); display: none;">
-                        <i class="fas fa-info-circle"></i> <span id="attendanceBannerText">You can only edit your own attendance</span>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <label class="form-label" id="attendanceGridLabel" style="margin: 0;">Mark Attendance</label>
-                        <button onclick="toggleSelectAllAttendance()" id="selectAllBtn" style="background: none; border: none; color: var(--info); font-size: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase;">Select All</button>
-                    </div>
-                    <div class="attendance-grid" id="attendanceGrid"></div>
-                </div>
-                
-                <div class="attendance-stats">
-                    <div class="attendance-stat">
-                        <div class="attendance-stat-value" id="attendanceCount">0</div>
-                        <div class="attendance-stat-label">Attending</div>
-                    </div>
-                    <div class="attendance-stat">
-                        <div class="attendance-stat-value" id="attendanceTotal">0</div>
-                        <div class="attendance-stat-label">Total Squad</div>
-                    </div>
-                    <div class="attendance-stat">
-                        <div class="attendance-stat-value" id="attendancePercent">0%</div>
-                        <div class="attendance-stat-label">Attendance</div>
-                    </div>
-                </div>
-                
-                <button type="button" class="submit-btn" onclick="saveAttendance()">
-                    <i class="fas fa-save" style="margin-right: 8px;"></i> 
-                    <span id="saveAttendanceText">Save Attendance</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="addResultModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Add Match Result</div>
-                <button class="modal-close" onclick="closeAddResultModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Opponent</label>
-                        <select class="form-select" id="resultOpponent" style="padding-left: 16px;">
-                            <option value="">Select opponent...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Venue</label>
-                        <select class="form-select" id="resultVenue" style="padding-left: 16px;">
-                            <option value="home">Home</option>
-                            <option value="away">Away</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Match Date</label>
-                    <input type="date" class="form-input" id="resultDate" style="padding-left: 16px;">
-                </div>
-                <div class="score-input-container">
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Rack Café</div>
-                        <input type="number" class="score-input" id="ourScore" min="0" max="10" value="0">
-                    </div>
-                    <div style="font-size: 24px; font-weight: 700; color: var(--text-secondary);">-</div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Opponent</div>
-                        <input type="number" class="score-input" id="theirScore" min="0" max="10" value="0">
-                    </div>
-                </div>
-                <button type="button" class="submit-btn" onclick="submitMatchResult()"><i class="fas fa-save" style="margin-right: 8px;"></i> Save Result</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="scheduleModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-calendar-plus" style="color: var(--primary-pink);"></i> Schedule Match</div>
-                <button class="modal-close" onclick="closeScheduleModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Opponent</label>
-                    <select class="form-select" id="scheduleOpponent" style="padding-left: 16px;">
-                        <option value="">Select opponent...</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="scheduleDate" style="padding-left: 16px;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Start Time</label>
-                        <input type="time" class="form-input" id="scheduleTime" style="padding-left: 16px;" value="20:00">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Venue</label>
-                    <select class="form-select" id="scheduleVenue" style="padding-left: 16px;">
-                        <option value="home">Home</option>
-                        <option value="away">Away</option>
-                    </select>
-                </div>
-                <button type="button" class="submit-btn" onclick="submitSchedule()"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Schedule</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="updateStatsModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-chart-bar" style="color: var(--primary-pink);"></i> Update Stats</div>
-                <button class="modal-close" onclick="closeUpdateStatsModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" id="statsEditorGrid"></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="announcementsModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-bullhorn" style="color: var(--primary-pink);"></i> Announcements</div>
-                <button class="modal-close" onclick="closeAnnouncementsModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Title</label>
-                    <input type="text" class="form-input" id="announcementTitle" style="padding-left: 16px;">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-textarea" id="announcementContent"></textarea>
-                </div>
-                <button type="button" class="submit-btn" onclick="submitAnnouncement()">Post</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="opponentManagerModal">
-        <div class="modal-container" style="max-width: 500px; border: 1px solid #00ffff;">
-            <div class="modal-header" style="background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(0,255,255,0.05) 100%); border-bottom: 1px solid rgba(0,255,255,0.3);">
-                <div class="modal-title" style="color: #00ffff;">
-                    <i class="fas fa-users"></i> Manage Opponents
-                </div>
-                <button class="modal-close" onclick="closeOpponentManager()" style="color: #00ffff;"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="opponent-add-row">
-                    <input type="text" id="newOpponentName" class="opponent-input" placeholder="Enter team name..." onkeypress="if(event.key==='Enter')addOpponent()">
-                    <button class="opponent-add-btn" onclick="addOpponent()">
-                        <i class="fas fa-plus"></i> Add
-                    </button>
-                </div>
-                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;" id="opponentCountHeader">
-                    Current Opponents (0)
-                </div>
-                <div class="opponent-list" id="opponentsListContainer">
-                    <div style="text-align: center; padding: 20px; color: var(--text-muted); font-style: italic;">No opponents configured</div>
-                </div>
-                <div style="margin-top: 16px; padding: 12px; background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 8px; font-size: 12px; color: #ffc107;">
-                    <i class="fas fa-info-circle"></i> Note: Removing an opponent with existing fixtures will mark them as '[Removed]'.
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="roleManagerModal">
-        <div class="modal-container" style="max-width: 500px; border: 1px solid #9b59b6;">
-            <div class="modal-header" style="background: linear-gradient(135deg, rgba(155,89,182,0.1) 0%, rgba(155,89,182,0.05) 100%); border-bottom: 1px solid rgba(155,89,182,0.3);">
-                <div class="modal-title" style="color: #9b59b6;">
-                    <i class="fas fa-users-cog"></i> Manage User Roles
-                </div>
-                <button class="modal-close" onclick="closeRoleManager()" style="color: #9b59b6;"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="opponent-list" id="userRolesList"></div>
-                <div style="margin-top: 16px; padding: 12px; background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 8px; font-size: 12px; color: #ffc107;">
-                    <i class="fas fa-info-circle"></i> Only Captain and System Creator can access this panel.
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SYSTEM CREATOR MODAL -->
-    <div class="modal-overlay" id="systemCreatorModal">
-        <div class="modal-container" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header" style="background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(147,0,255,0.1) 100%); border-bottom: 1px solid rgba(0,255,255,0.2); position: sticky; top: 0; z-index: 10;">
-                <div class="modal-title" style="color: #00ffff;">
-                    <i class="fas fa-terminal"></i> SYSTEM_CREATOR_PANEL
-                    <span style="font-size: 11px; color: #ff00ff; margin-left: 10px; border: 1px solid #ff00ff; padding: 2px 8px; border-radius: 4px;">ROOT ACCESS</span>
-                </div>
-                <button class="modal-close" onclick="closeSystemCreatorModal()" style="color: #00ffff;"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" style="padding: 24px;">
-                
-                <!-- MAINTENANCE MODE SECTION -->
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #ff4757; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,71,87,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-radiation"></i> Server Lockdown Control
-                    </div>
-                    <div style="background: rgba(255,71,87,0.05); border: 1px solid rgba(255,71,87,0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                        <div class="maintenance-toggle" id="maintenanceToggle" onclick="toggleMaintenanceMode()">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <i class="fas fa-power-off" style="font-size: 20px; color: #ff4757;"></i>
-                                <div>
-                                    <div style="font-weight: 800; margin-bottom: 2px;">Maintenance Mode</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Lock all users except System Creator</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch"></div>
-                        </div>
-                        <div id="maintenanceStatus" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,71,87,0.1); border-radius: 8px; border-left: 3px solid #ff4757;">
-                            <div style="font-size: 12px; color: #ff4757; font-weight: 700;">
-                                <i class="fas fa-exclamation-triangle"></i> Currently Locked: All users except System Creator are blocked
-                            </div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
-                                Secret Access Key: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> (hidden from regular users)
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #00ffff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(0,255,255,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-database"></i> Data Management
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                        <button class="admin-btn" onclick="exportDatabase()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);">
-                            <i class="fas fa-file-export"></i> Export JSON
-                        </button>
-                        <button class="admin-btn" onclick="importDatabase()" style="border-color: #00ff00; color: #00ff00; background: rgba(0,255,0,0.05);">
-                            <i class="fas fa-file-import"></i> Import JSON
-                        </button>
-                        <button class="admin-btn" onclick="exportCSV()" style="border-color: #ffa500; color: #ffa500; background: rgba(255,165,0,0.05);">
-                            <i class="fas fa-file-csv"></i> Export CSV
-                        </button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-users-cog"></i> User Administration
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                        <button class="admin-btn" onclick="resetUserPassword()" style="border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.05);">
-                            <i class="fas fa-key"></i> Reset Password
-                        </button>
-                        <button class="admin-btn" onclick="toggleAdminRights()" style="border-color: #ff00ff; color: #ff00ff; background: rgba(255,0,255,0.05);">
-                            <i class="fas fa-user-shield"></i> Toggle Admin
-                        </button>
-                        <button class="admin-btn" onclick="addNewUser()" style="border-color: #2ed573; color: #2ed573; background: rgba(46,213,115,0.05);">
-                            <i class="fas fa-user-plus"></i> Add New User
-                        </button>
-                        <button class="admin-btn" onclick="removeUser()" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.05);">
-                            <i class="fas fa-user-minus"></i> Remove User
-                        </button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #00ced1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(0,206,209,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-tools"></i> System Tools
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                        <button class="admin-btn" onclick="seedTestData()" style="border-color: #ffa500; color: #ffa500; background: rgba(255,165,0,0.05);">
-                            <i class="fas fa-flask"></i> Seed Test Data
-                        </button>
-                        <button class="admin-btn" onclick="recalculateStats()" style="border-color: #00ced1; color: #00ced1; background: rgba(0,206,209,0.05);">
-                            <i class="fas fa-calculator"></i> Recalc Stats
-                        </button>
-                        <button class="admin-btn" onclick="verifyIntegrity()" style="border-color: #9370db; color: #9370db; background: rgba(147,112,219,0.05);">
-                            <i class="fas fa-check-double"></i> Verify Data
-                        </button>
-                        <button class="admin-btn" onclick="archiveSeason()" style="border-color: #ff6b6b; color: #ff6b6b; background: rgba(255,107,107,0.05);">
-                            <i class="fas fa-archive"></i> Archive Season
-                        </button>
-                        <button class="admin-btn" onclick="clearFixturesOnly()" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.05);">
-                            <i class="fas fa-trash"></i> Clear Fixtures
-                        </button>
-                        <button class="admin-btn" onclick="clearStatsOnly()" style="border-color: #ff6348; color: #ff6348; background: rgba(255,99,72,0.05);">
-                            <i class="fas fa-eraser"></i> Zero Stats
-                        </button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #2ed573; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(46,213,115,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-cogs"></i> Configuration
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                        <button class="admin-btn" onclick="updateTeamConfig()" style="border-color: #2ed573; color: #2ed573; background: rgba(46,213,115,0.05);">
-                            <i class="fas fa-edit"></i> Edit Team Info
-                        </button>
-                        <button class="admin-btn" onclick="openOpponentManager()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);">
-                            <i class="fas fa-users"></i> Manage Opponents
-                        </button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #ff4757; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,71,87,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-radiation"></i> Danger Zone
-                    </div>
-                    <button class="admin-btn" onclick="nukeDatabase()" style="border-color: #ff0000; color: #ff0000; background: rgba(255,0,0,0.1); width: 100%; border-width: 2px;">
-                        <i class="fas fa-bomb"></i> NUKE ENTIRE DATABASE
-                    </button>
-                </div>
-                <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; color: #00ffff; font-size: 12px; height: 200px; overflow-y: auto;" id="dbConsole">
-                    <div style="color: #00ff00;">> System Creator v2.0 initialized...</div>
-                    <div style="color: #00ff00;">> Root access granted...</div>
-                    <div style="color: #00ffff;">> Maintenance mode: <span id="consoleMaintenanceStatus">OFFLINE</span></div>
-                    <div style="color: #00ffff;">> Awaiting command...</div>
-                </div>
-                <div style="display: flex; gap: 12px; margin-top: 12px;">
-                    <button onclick="viewAuditLog()" style="flex: 1; padding: 8px; background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.3); color: #00ffff; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                        <i class="fas fa-history"></i> View Audit Log
-                    </button>
-                    <button onclick="clearConsole()" style="flex: 1; padding: 8px; background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); color: #ff4757; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                        <i class="fas fa-trash"></i> Clear Console
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- END SYSTEM CREATOR MODAL -->
-
-    <div id="secretOverlay">
-        <div style="color: #00ffff; font-size: 48px; margin-bottom: 20px;"><i class="fas fa-fingerprint"></i></div>
-        <div style="color: #fff; font-size: 24px;">SYSTEM CREATOR ACCESS</div>
-        <div style="width: 300px; height: 4px; background: #333; margin-top: 30px; border-radius: 2px; overflow: hidden;">
-            <div style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ffff, #ff00ff); animation: hackProgress 2s ease forwards;"></div>
-        </div>
-    </div>
-
-    <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Success</span></div>
-
-    <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="logo" id="loginLogo"></div>
         <div class="login-card">
-            <div class="login-header"><h1>Rack Café Utd</h1><p>Huddersfield Tuesday Night Pool League</p></div>
-            <div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i><span id="errorText">Invalid credentials</span></div>
+            <div class="login-header">
+                <h1>Rack Café Utd</h1>
+                <p style="color: var(--text-secondary);">Huddersfield Tuesday Night Pool League</p>
+            </div>
+            <div class="login-error" id="loginError">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials</span>
+            </div>
             <form onsubmit="event.preventDefault(); doLogin();">
-                <div class="form-group"><label class="form-label">Username</label><div class="input-wrapper"><i class="fas fa-user"></i><input type="text" class="form-input" id="usernameInput" required></div></div>
-                <div class="form-group"><label class="form-label">Password</label><div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" class="form-input" id="passwordInput" required></div></div>
-                <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> LOGIN</button>
-                <button type="button" class="login-btn" style="margin-top: 10px; background: rgba(255,255,255,0.1);" onclick="closeLoginScreen()">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="form-input" id="usernameInput" required autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="passwordInput" required autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-arrow-right-to-bracket"></i> LOGIN
+                </button>
+                <button type="button" class="login-btn" style="margin-top: 10px; background: rgba(255,255,255,0.1);" onclick="cancelLogin()">
                     <i class="fas fa-times"></i> Cancel
                 </button>
             </form>
             <div style="text-align: center; margin-top: 16px; font-size: 11px; color: var(--text-muted);">
-                <i class="fas fa-wifi"></i> <span id="connectionStatus">Checking connection...</span>
+                <i class="fas fa-shield-alt" style="color: var(--success);"></i> System Secure
             </div>
         </div>
     </div>
 
-    <!-- Main Dashboard -->
     <div class="dashboard active" id="dashboard">
         <header class="header">
             <div class="header-left">
@@ -950,37 +241,27 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="sync-badge" id="syncBadge" onclick="manualSync()"><i class="fas fa-check-circle"></i><span id="syncStatus">Synced</span></div>
-                
-                <!-- Login Button -->
-                <button id="headerLoginBtn" class="header-login-btn" onclick="showLoginScreen()">
+                <div class="sync-badge" id="syncBadge" onclick="manualSync()">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="syncStatus">Ready</span>
+                </div>
+                <button id="headerLoginBtn" class="header-login-btn" onclick="showLogin()">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
-
-                <!-- Profile Container -->
                 <div class="profile-container" id="profileContainer">
-                    <div class="avatar" id="userAvatar" onclick="toggleDropdown(event)">--</div>
+                    <div class="avatar" id="userAvatar" style="display: none;">--</div>
                     <div class="dropdown-menu" id="profileDropdown">
-                        <div class="user-info">
-                            <div class="user-name" id="dropdownUserName">
-                                <span id="userNameText">User</span>
-                                <span id="userBadge"></span>
-                            </div>
-                            <div class="user-role" id="dropdownUserRole">
-                                <i class="fas fa-user"></i> <span id="roleText">Player</span>
-                            </div>
+                        <div class="user-info" style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);">
+                            <div class="user-name" id="userNameDisplay" style="font-weight: 800; margin-bottom: 4px;">User</div>
+                            <div class="user-role" id="userRoleDisplay" style="font-size: 12px; color: var(--text-secondary);">Player</div>
                         </div>
-                        <div class="dropdown-item" onclick="switchTab('profileTab', document.querySelectorAll('.nav-item')[4]); toggleDropdown();"><i class="fas fa-user"></i><span>My Profile</span></div>
-                        <div id="adminMenuItems" style="display: none;">
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item admin-only" onclick="openAdminPanel(); toggleDropdown();"><i class="fas fa-shield-alt"></i><span>Captain's Panel</span></div>
-                        </div>
-                        <div id="systemCreatorMenuItem" style="display: none;">
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item system-creator" onclick="openSystemCreatorModal(); toggleDropdown();"><i class="fas fa-terminal"></i><span>System Creator</span></div>
+                        <div class="dropdown-item" onclick="openSystemCreatorModal(); toggleDropdown();" id="systemCreatorMenuItem" style="display: none; color: #00ffff;">
+                            <i class="fas fa-terminal"></i> System Creator
                         </div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></div>
+                        <div class="dropdown-item logout" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Log Out
+                        </div>
                     </div>
                 </div>
             </div>
@@ -988,204 +269,74 @@
 
         <main class="main-content">
             <div class="tab-content active" id="homeTab">
-                <div class="page-title"><h1>Dashboard</h1><p id="welcomeText">Welcome to Rack Café Utd</p></div>
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p id="welcomeText">Welcome to Rack Café Utd</p>
+                </div>
+                <div class="next-match-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px; font-weight: 700;">
+                            <i class="fas fa-calendar-check"></i> Next Match
+                        </div>
+                        <span style="background: rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800;">Home</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 20px; font-weight: 800;">Rack Café Utd</div>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 900; opacity: 0.5; margin: 0 30px;">VS</div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 20px; font-weight: 800;">TBD</div>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- Guest Banner -->
-                <div id="guestBanner" class="guest-banner">
-                    <div class="guest-banner-text">
-                        <i class="fas fa-info-circle" style="color: var(--primary-pink); margin-right: 6px;"></i>
-                        <strong>View Only Mode</strong> — Login to access Fixtures, Table, Team & Training.
-                    </div>
-                </div>
-
-                <div id="nextMatchCard" class="next-match-card">
-                    <div class="match-header">
-                        <div class="match-label"><i class="fas fa-calendar-check"></i> Next Match</div>
-                        <span class="home-badge" id="nextMatchVenue">Home</span>
-                    </div>
-                    <div class="match-teams">
-                        <div class="team"><div class="team-name">Rack Café Utd</div></div>
-                        <div class="vs">VS</div>
-                        <div class="team"><div class="team-name" id="nextMatchOpponent">TBD</div></div>
-                    </div>
-                    <div class="match-details" id="nextMatchDetails">
-                        <div style="text-align: center;">
-                            <i class="fas fa-calendar" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i>
-                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Date</div>
-                            <div style="font-weight: 700; margin-top: 4px;" id="nextMatchDate">TBC</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <i class="fas fa-clock" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i>
-                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Kickoff</div>
-                            <div style="font-weight: 700; margin-top: 4px; color: #ffd700;" id="nextMatchTime">--:--</div>
-                        </div>
-                    </div>
-                    <div id="countdownContainer" style="text-align: center; margin-top: 16px; display: none;">
-                        <div class="countdown-timer" id="countdownTimer">Starting soon...</div>
-                    </div>
-                    <div class="last-updated" id="lastUpdated">Last updated: Just now</div>
-                </div>
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-value" id="statPosition">--</div><div class="stat-label">Position</div></div>
-                    <div class="stat-card"><div class="stat-value" id="statPlayed">0</div><div class="stat-label">Played</div></div>
-                    <div class="stat-card"><div class="stat-value" id="statWon">0</div><div class="stat-label">Won</div></div>
-                    <div class="stat-card"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label">Win Rate</div></div>
-                </div>
-                <div class="recent-form">
-                    <div class="section-header">
-                        <div class="section-title"><i class="fas fa-chart-line"></i> Recent Form <span id="newResultBadge" class="new-item-badge" style="display: none;">NEW</span></div>
-                        <div class="live-indicator"><div class="live-dot"></div><span>Live</span></div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPos">1st</div>
+                        <div class="stat-label">Position</div>
                     </div>
-                    <div id="recentFormList" class="form-list"><div class="form-item" style="justify-content: center; color: var(--text-muted);">No matches yet</div></div>
-                    <div class="last-updated" id="formLastUpdated" style="margin-top: 12px; text-align: right;"></div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPlayed">0</div>
+                        <div class="stat-label">Played</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statWon">0</div>
+                        <div class="stat-label">Won</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPoints">0</div>
+                        <div class="stat-label">Points</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="tab-content" id="fixturesTab">
-                <div class="page-title"><h1>Fixtures</h1><p id="fixtureSeasonText">2025/26 Season</p></div>
-                <div class="filter-tabs">
-                    <button class="filter-btn active" onclick="filterFixtures('all', this)">All</button>
-                    <button class="filter-btn" onclick="filterFixtures('upcoming', this)">Upcoming</button>
-                    <button class="filter-btn" onclick="filterFixtures('played', this)">Results</button>
-                </div>
-                <div id="fixturesList"></div>
-                <div class="last-updated" id="fixturesLastUpdated" style="text-align: center; margin-top: 16px;"></div>
-            </div>
-
-            <div class="tab-content" id="tableTab">
-                <div class="page-title"><h1>League Table</h1><p>Tuesday Night Pool League (Points = Frames Won)</p></div>
-                <div class="table-header">
-                    <div>Pos</div>
-                    <div>Team</div>
-                    <div style="text-align: center;">P</div>
-                    <div style="text-align: center;">W</div>
-                    <div style="text-align: center;">L</div>
-                    <div style="text-align: right;">Pts</div>
-                </div>
-                <div id="leagueTableBody"></div>
-                <div class="last-updated" id="tableLastUpdated" style="text-align: center; margin-top: 16px;"></div>
-            </div>
-
-            <div class="tab-content" id="teamTab">
-                <div class="page-title"><h1>Team</h1><p>Squad Statistics & Training Attendance</p></div>
-                <div id="playersGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
-                <div class="last-updated" id="teamLastUpdated" style="text-align: center; margin-top: 16px;"></div>
-            </div>
-
-            <div class="tab-content" id="trainingTab">
-                <div class="page-title"><h1>Training & Practice</h1><p>Squad Development Sessions</p></div>
-                <div id="adminTrainingPanel" style="display: none;">
-                    <div class="admin-panel">
-                        <div class="section-title" style="color: var(--gold-primary); margin-bottom: 8px;">
-                            <i class="fas fa-dumbbell"></i> Training Management
-                        </div>
-                        <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">Schedule practice sessions and track attendance</p>
-                        <button class="admin-btn" onclick="openAddTrainingModal()">
-                            <i class="fas fa-plus-circle"></i> Schedule Practice Session
+                <div class="admin-panel" id="adminPanel" style="display: none;">
+                    <div style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--gold-primary);">
+                        <i class="fas fa-shield-alt"></i> Captain's Panel
+                    </div>
+                    <div class="admin-grid">
+                        <button class="admin-btn" onclick="toggleMaintenanceMode()">
+                            <i class="fas fa-power-off"></i> Toggle Maintenance
+                        </button>
+                        <button class="admin-btn" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export Data
                         </button>
                     </div>
                 </div>
-                
-                <div class="stats-grid" style="margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalTrainingSessions">0</div>
-                        <div class="stat-label">Total Sessions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="avgAttendanceRate">0%</div>
-                        <div class="stat-label">Avg Attendance</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="topAttendee">--</div>
-                        <div class="stat-label">Top Attendee</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="sessionsThisMonth">0</div>
-                        <div class="stat-label">This Month</div>
-                    </div>
-                </div>
-                
-                <div class="filter-tabs">
-                    <button class="filter-btn active" onclick="filterTraining('upcoming', this)">Upcoming</button>
-                    <button class="filter-btn" onclick="filterTraining('past', this)">History</button>
-                    <button class="filter-btn" onclick="filterTraining('all', this)">All</button>
-                </div>
-                <div id="trainingList"></div>
-                <div class="last-updated" id="trainingLastUpdated" style="text-align: center; margin-top: 16px;"></div>
-            </div>
 
-            <div class="tab-content" id="profileTab">
-                <div class="page-title"><h1>Profile</h1><p>Account Settings & Stats</p></div>
-                
-                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; color: var(--gold-primary);">
-                        <i class="fas fa-key"></i>
-                        <span style="font-weight: 800;">Change Password</span>
+                <div class="admin-panel" style="border-color: #00ffff; background: rgba(0,255,255,0.05);">
+                    <div style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #00ffff;">
+                        <i class="fas fa-terminal"></i> System Creator
                     </div>
-                    
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label">Current Password</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" class="form-input" id="profileCurrentPassword" placeholder="Current password" style="padding-left: 48px;">
-                        </div>
+                    <div id="maintenanceStatusDisplay" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                        Checking status...
                     </div>
-                    
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label">New Password</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-key"></i>
-                            <input type="password" class="form-input" id="profileNewPassword" placeholder="New password" style="padding-left: 48px;">
-                        </div>
-                    </div>
-                    
-                    <button class="admin-btn" onclick="changePasswordFromProfile()" style="width: 100%; border-color: var(--gold-primary); color: var(--gold-primary);">
-                        <i class="fas fa-save"></i> Update Password
-                    </button>
-                </div>
-
-                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 16px;">
-                    <div id="profileAvatar" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800;">--</div>
-                    <div id="profileDisplayName" style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">
-                        User <span id="profileBadge"></span>
-                    </div>
-                    <div id="profileRoleText" style="color: var(--text-secondary); font-size: 14px;">Player</div>
-                </div>
-                
-                <div class="recent-form">
-                    <div class="section-title" style="margin-bottom: 16px;"><i class="fas fa-chart-pie"></i> Your Training Stats</div>
-                    <div id="personalTrainingStats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">
-                        <div>
-                            <div class="stat-value" id="personalSessionsAttended" style="font-size: 28px;">0</div>
-                            <div class="stat-label">Sessions Attended</div>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="personalAttendanceRate" style="font-size: 28px;">0%</div>
-                            <div class="stat-label">Attendance Rate</div>
-                        </div>
-                        <div>
-                            <div class="stat-value" id="personalStreak" style="font-size: 28px;">0</div>
-                            <div class="stat-label">Current Streak</div>
-                        </div>
-                    </div>
-                    <div class="attendance-bar" style="margin-top: 20px;">
-                        <div class="attendance-fill" id="personalAttendanceBar" style="width: 0%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="adminTab">
-                <div class="page-title"><h1>Captain's Panel</h1><p>Team Administration</p></div>
-                <div class="admin-panel">
-                    <div class="section-title" style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fas fa-shield-alt"></i> Quick Actions</div>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">Manage fixtures, results, and team administration</p>
                     <div class="admin-grid">
-                        <button class="admin-btn" onclick="openAddResultModal()"><i class="fas fa-plus-circle"></i> Add Result</button>
-                        <button class="admin-btn" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule</button>
-                        <button class="admin-btn" onclick="openUpdateStatsModal()"><i class="fas fa-chart-bar"></i> Edit Stats</button>
-                        <button class="admin-btn" onclick="openAnnouncementsModal()"><i class="fas fa-bullhorn"></i> Announce</button>
-                        <button class="admin-btn" id="manageRolesBtn" onclick="openRoleManager()" style="display: none; border-color: #9b59b6; color: #9b59b6; background: rgba(155,89,182,0.05);">
-                            <i class="fas fa-users-cog"></i> Manage Roles
+                        <button class="admin-btn" onclick="toggleMaintenanceMode()" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.1);">
+                            <i class="fas fa-radiation"></i> <span id="maintBtnText">Enable Lockdown</span>
+                        </button>
+                        <button class="admin-btn" onclick="clearMaintenanceMode()" style="border-color: #00ff00; color: #00ff00;">
+                            <i class="fas fa-unlock"></i> Emergency Unlock
                         </button>
                     </div>
                 </div>
@@ -1194,206 +345,112 @@
 
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchTab('homeTab', this)"><i class="fas fa-home"></i><span>Home</span></button>
-            <button class="nav-item" id="navFixtures" onclick="switchTab('fixturesTab', this)"><i class="fas fa-calendar-days"></i><span>Fixtures</span></button>
-            <button class="nav-item" id="navTable" onclick="switchTab('tableTab', this)"><i class="fas fa-table"></i><span>Table</span></button>
-            <button class="nav-item" id="navTeam" onclick="switchTab('teamTab', this)"><i class="fas fa-users"></i><span>Team</span></button>
-            <button class="nav-item" id="navTraining" onclick="switchTab('trainingTab', this)"><i class="fas fa-dumbbell"></i><span>Training</span></button>
-            <button class="nav-item" id="navProfile" onclick="switchTab('profileTab', this)"><i class="fas fa-user"></i><span>Profile</span></button>
         </nav>
     </div>
 
+    <!-- System Creator Modal -->
+    <div class="modal-overlay" id="systemCreatorModal">
+        <div class="modal-container">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(0,255,255,0.3);">
+                <div class="modal-title" style="color: #00ffff;"><i class="fas fa-terminal"></i> SYSTEM CREATOR PANEL</div>
+                <button class="modal-close" onclick="closeSystemCreatorModal()"><i class="fas fa-times" style="color: #fff;"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="maintenance-toggle" id="maintenanceToggle" onclick="toggleMaintenanceMode()">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-power-off" style="font-size: 20px; color: #ff4757;"></i>
+                        <div>
+                            <div style="font-weight: 800;">Maintenance Mode</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">Lock all users except System Creator</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+                <div id="maintenanceActiveText" style="display: none; padding: 12px; background: rgba(255,71,87,0.1); border-radius: 8px; border-left: 3px solid #ff4757; margin-bottom: 16px; font-size: 12px; color: #ff4757;">
+                    <i class="fas fa-exclamation-triangle"></i> Maintenance is currently ACTIVE
+                </div>
+                <button class="submit-btn" onclick="forceSaveMaintenance()">
+                    <i class="fas fa-save"></i> Force Save State
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success</span>
+    </div>
+
     <script>
-        // Firebase Configuration (Replace with your own if needed)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAYQy0hTbsTkAg8_vqnvRVsXDxg_yg2DVY",
-            authDomain: "rack-cafe-united-app.firebaseapp.com",
-            projectId: "rack-cafe-united-app",
-            storageBucket: "rack-cafe-united-app.firebasestorage.app",
-            messagingSenderId: "754292454573",
-            appId: "1:754292454573:web:188ec818666c77a3ef8224"
-        };
-
-        // Initialize Firebase safely
-        let db;
-        let isFirebaseEnabled = false;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            isFirebaseEnabled = true;
-            
-            db.enablePersistence({synchronizeTabs: true})
-                .then(() => console.log("Offline persistence enabled"))
-                .catch(err => console.log("Persistence error:", err));
-        } catch (e) {
-            console.warn("Firebase not initialized. Running in offline mode only.");
-            isFirebaseEnabled = false;
-        }
-
-        const STORAGE_KEY = 'rackCafeData_v2';
-        const LAST_SYNC_KEY = 'rackCafeLastSync';
-        const DEVICE_ID = 'device_' + Math.random().toString(36).substr(2, 9);
-        const SESSION_KEY = 'rackCafeSession';
-        
-        const teamCredentials = {
-            'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD', firstLogin: true },
-            'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true, firstLogin: true },
-            'CShearon': { password: 'Rack2026', name: 'Chris Shearon', role: 'Co-Captain', isAdmin: true, initials: 'CS', firstLogin: true },
-            'TDannatt': { password: 'Rack2026', name: 'Terry Dannatt', role: 'Player', isAdmin: false, initials: 'TD', firstLogin: true },
-            'KBurns': { password: 'Rack2026', name: 'Keely Burns', role: 'Player', isAdmin: false, initials: 'KB', firstLogin: true },
-            'CSyrat': { password: 'Rack2026', name: 'Chloë Syrat', role: 'Player', isAdmin: false, initials: 'CSy', firstLogin: true }
-        };
-
-        let teamData = [
-            { id: 1, name: 'Brandon Dannatt', initials: 'BD', role: 'Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 2, name: 'Tom Hayes-Smith', initials: 'THS', role: 'System Creator + Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 4, name: 'Terry Dannatt', initials: 'TD', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 5, name: 'Keely Burns', initials: 'KB', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 6, name: 'Chloë Syrat', initials: 'CSy', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 }
-        ];
-
-        let opponentsList = [
-            'Ashfield Massive',
-            'Carlton Club', 
-            'Longwood BC Wednesday',
-            'Monkey Club',
-            'BYE'
-        ];
-
-        let leagueData = [
-            { id: 1, name: 'Rack Café Utd', played: 0, won: 0, lost: 0, points: 0, isUs: true }
-        ];
-
-        let fixturesData = [];
-        let announcements = [];
-        let trainingSessions = [];
+        // CRITICAL: Define storage key
+        const STORAGE_KEY = 'rackCafe_Maintenance_v1';
         let currentUser = null;
-        let currentFilter = 'all';
-        let currentTrainingFilter = 'upcoming';
-        let autoSyncInterval = null;
-        let countdownInterval = null;
-        let lastDataHash = '';
-        let currentEditingSessionId = null;
-        let isOnline = navigator.onLine;
-        let unsubscribeFirestore = null;
-        let pendingChanges = false;
-
-        // Maintenance Mode State
-        let maintenanceMode = {
-            enabled: false,
-            message: "The server is currently undergoing scheduled maintenance.",
-            timestamp: null,
-            setBy: null
+        let maintenanceMode = { enabled: false, timestamp: null };
+        
+        // Admin credentials
+        const credentials = {
+            'admin': { password: 'admin123', name: 'System Admin', isSystemCreator: true },
+            'captain': { password: 'captain', name: 'Captain', isSystemCreator: false }
         };
 
-        let externalFixtures = [];
-
-        // CRITICAL: Setup secret key listener immediately
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && (e.key === 'm' || e.key === 'M')) {
-                e.preventDefault();
+        // CRITICAL: Check maintenance immediately before anything else
+        (function initMaintenanceCheck() {
+            console.log('🔍 Checking maintenance mode...');
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                console.log('Raw localStorage:', saved);
                 
-                const indicator = document.getElementById('secretKeyIndicator');
-                if (indicator) {
-                    indicator.classList.add('show');
-                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.maintenanceMode) {
+                        maintenanceMode = data.maintenanceMode;
+                        console.log('✅ Loaded maintenance state:', maintenanceMode);
+                    }
                 }
                 
-                // Allow bypass if maintenance is active OR if system creator is logged in
-                if ((maintenanceMode && maintenanceMode.enabled) || (currentUser && currentUser.isSystemCreator)) {
-                    attemptMaintenanceLogin();
-                } else {
-                    showToast('Maintenance mode is not active', 'error');
-                }
+                // Apply immediately
+                applyMaintenanceState();
+            } catch (e) {
+                console.error('❌ Maintenance check failed:', e);
             }
-        });
+        })();
 
-        function syncRoles() {
-            Object.values(teamCredentials).forEach(cred => {
-                const player = teamData.find(p => p.name === cred.name);
-                if (player && player.role !== cred.role) {
-                    player.role = cred.role;
-                }
-            });
-        }
-
-        function updateNetworkStatus(online) {
-            isOnline = online && isFirebaseEnabled;
-            const statusEl = document.getElementById('connectionStatus');
-            const syncBadge = document.getElementById('syncBadge');
-            
-            if (statusEl) {
-                statusEl.textContent = online ? 'Connected to cloud' : 'Offline mode';
-                statusEl.style.color = online ? 'var(--success)' : '#ffc107';
-            }
-            
-            if (syncBadge) {
-                if (!online) {
-                    syncBadge.classList.add('offline');
-                    syncBadge.innerHTML = '<i class="fas fa-wifi-slash"></i><span>Offline</span>';
-                } else {
-                    syncBadge.classList.remove('offline');
-                    syncBadge.innerHTML = '<i class="fas fa-check-circle"></i><span>Synced</span>';
-                }
-            }
-        }
-
-        window.addEventListener('online', () => updateNetworkStatus(true));
-        window.addEventListener('offline', () => updateNetworkStatus(false));
-
-        function showToast(msg, type='success') {
-            const t = document.getElementById('toast');
-            if (!t) return;
-            
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            const color = type === 'success' ? '#2ed573' : '#ff4757';
-            
-            t.className = `toast show`;
-            t.innerHTML = `<i class="fas ${icon}" style="color: ${color};"></i><span>${msg}</span>`;
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        // CRITICAL: Check maintenance status immediately on load
-        function checkMaintenanceModeStatus() {
+        function applyMaintenanceState() {
             const overlay = document.getElementById('maintenanceOverlay');
-            const statusEl = document.getElementById('consoleMaintenanceStatus');
+            const statusText = document.getElementById('maintenanceStatusDisplay');
+            const maintText = document.getElementById('maintenanceActiveText');
+            const toggle = document.getElementById('maintenanceToggle');
             
-            // Update console status
-            if (statusEl) {
-                statusEl.textContent = (maintenanceMode && maintenanceMode.enabled) ? 'ENABLED' : 'OFFLINE';
-                statusEl.style.color = (maintenanceMode && maintenanceMode.enabled) ? '#ff4757' : '#00ff00';
-            }
-            
-            // If maintenance is enabled and current user is NOT system creator, show overlay
-            if (maintenanceMode && maintenanceMode.enabled) {
+            if (maintenanceMode.enabled) {
+                console.log('🔒 MAINTENANCE IS ENABLED - Showing overlay');
+                
+                // Show overlay if no system creator logged in
                 if (!currentUser || !currentUser.isSystemCreator) {
                     if (overlay) overlay.classList.add('active');
-                    
-                    // Update message if custom one exists
-                    const msgEl = document.getElementById('maintenanceMessage');
-                    if (msgEl && maintenanceMode.message) {
-                        msgEl.innerHTML = maintenanceMode.message;
-                    }
-                    return true; // Blocked
-                } else {
-                    // System creator logged in but maintenance is on
-                    if (overlay) overlay.classList.remove('active');
-                    showToast('⚠️ Maintenance Mode Active - Only you can access the system', 'error');
-                    return false;
                 }
+                
+                if (statusText) statusText.innerHTML = '<span style="color: #ff4757;"><i class="fas fa-lock"></i> MAINTENANCE MODE ACTIVE</span>';
+                if (maintText) maintText.style.display = 'block';
+                if (toggle) toggle.classList.add('active');
+                
+                // Update button text
+                const btnText = document.getElementById('maintBtnText');
+                if (btnText) btnText.textContent = 'Disable Lockdown';
             } else {
+                console.log('🔓 Maintenance is disabled');
                 if (overlay) overlay.classList.remove('active');
-                return false;
+                if (statusText) statusText.innerHTML = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> System Online</span>';
+                if (maintText) maintText.style.display = 'none';
+                if (toggle) toggle.classList.remove('active');
+                
+                const btnText = document.getElementById('maintBtnText');
+                if (btnText) btnText.textContent = 'Enable Lockdown';
             }
         }
 
-        async function toggleMaintenanceMode() {
-            const toggle = document.getElementById('maintenanceToggle');
-            const status = document.getElementById('maintenanceStatus');
-            
+        function toggleMaintenanceMode() {
             if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('Only System Creator can toggle maintenance mode', 'error');
+                showToast('System Creator access required', 'error');
                 return;
             }
             
@@ -1402,1210 +459,238 @@
             maintenanceMode.timestamp = new Date().toISOString();
             maintenanceMode.setBy = currentUser.name;
             
-            // Update UI
+            console.log('🔄 Toggling maintenance to:', maintenanceMode.enabled);
+            
+            // Save immediately
+            saveMaintenanceState();
+            
+            // Apply UI changes
+            applyMaintenanceState();
+            
+            showToast(maintenanceMode.enabled ? '🔒 Maintenance Mode ENABLED' : '🔓 Maintenance Mode DISABLED', 
+                     maintenanceMode.enabled ? 'error' : 'success');
+            
+            // If enabling, show overlay immediately for testing
             if (maintenanceMode.enabled) {
-                if (toggle) toggle.classList.add('active');
-                if (status) status.style.display = 'block';
-                logToConsole('MAINTENANCE MODE ENABLED - Server locked down', 'error');
-                showToast('🔒 Maintenance Mode ENABLED - All users locked out', 'error');
-            } else {
-                if (toggle) toggle.classList.remove('active');
-                if (status) status.style.display = 'none';
-                logToConsole('MAINTENANCE MODE DISABLED - Server open', 'success');
-                showToast('🔓 Maintenance Mode DISABLED - System open to all users', 'success');
+                setTimeout(() => {
+                    const overlay = document.getElementById('maintenanceOverlay');
+                    if (overlay) overlay.classList.add('active');
+                }, 500);
+            }
+        }
+
+        function saveMaintenanceState() {
+            try {
+                const data = {
+                    maintenanceMode: maintenanceMode,
+                    lastUpdate: new Date().toISOString()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                console.log('💾 Saved to localStorage:', data);
+            } catch (e) {
+                console.error('❌ Failed to save:', e);
+                showToast('Failed to save state', 'error');
+            }
+        }
+
+        function forceSaveMaintenance() {
+            saveMaintenanceState();
+            showToast('State force-saved', 'success');
+        }
+
+        function clearMaintenanceMode() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator required', 'error');
+                return;
             }
             
-            // Save immediately to localStorage
-            await persistData();
+            maintenanceMode = { enabled: false, timestamp: null, setBy: null };
+            saveMaintenanceState();
+            applyMaintenanceState();
             
-            // Update overlay visibility for current session
-            checkMaintenanceModeStatus();
+            const overlay = document.getElementById('maintenanceOverlay');
+            const loginScreen = document.getElementById('loginScreen');
+            
+            if (overlay) overlay.classList.remove('active');
+            if (loginScreen) loginScreen.classList.remove('show');
+            
+            showToast('🚨 Emergency unlock executed', 'success');
         }
 
         function attemptMaintenanceLogin() {
-            // Hide maintenance overlay temporarily to allow login
             const overlay = document.getElementById('maintenanceOverlay');
-            if (overlay) overlay.classList.remove('active');
-            
-            // Show login screen
             const loginScreen = document.getElementById('loginScreen');
+            
+            if (overlay) overlay.classList.remove('active');
             if (loginScreen) loginScreen.classList.add('show');
             
-            // Reset error messages
-            const loginError = document.getElementById('loginError');
-            const errorText = document.getElementById('errorText');
-            if (loginError) loginError.classList.remove('show');
-            if (errorText) {
-                errorText.textContent = 'Invalid credentials';
-                errorText.style.color = '';
-            }
-            
-            // Focus username field
-            setTimeout(() => {
-                const usernameInput = document.getElementById('usernameInput');
-                if (usernameInput) usernameInput.focus();
-            }, 100);
-            
-            showToast('🔓 Maintenance Override: System Creator Login', 'error');
-            
-            // Add visual indicator to login screen
+            // Visual feedback
             const loginCard = document.querySelector('.login-card');
             if (loginCard) {
                 loginCard.style.border = '2px solid #00ffff';
                 loginCard.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
-                
-                setTimeout(() => {
-                    loginCard.style.border = '';
-                    loginCard.style.boxShadow = '';
-                }, 3000);
-            }
-        }
-
-        function persistData() {
-            try {
-                const data = {
-                    teamData,
-                    leagueData,
-                    fixturesData,
-                    externalFixtures,
-                    announcements,
-                    opponentsList,
-                    trainingSessions,
-                    maintenanceMode, // CRITICAL: Save maintenance mode state
-                    timestamp: new Date().toISOString(),
-                    version: '2.1'
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-                lastDataHash = JSON.stringify(data).length.toString(36);
-                pendingChanges = true;
-                
-                localStorage.setItem('rackCafeCredentials', JSON.stringify(teamCredentials));
-                
-                // Sync to Firebase if available
-                if (isOnline && isFirebaseEnabled && db) {
-                    syncToFirestore();
-                }
-            } catch (e) {
-                console.error('Failed to persist data:', e);
-            }
-        }
-
-        function loadPersistedData() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.teamData) teamData = data.teamData.map(p => ({...p, trainingAttended: p.trainingAttended || 0}));
-                    if (data.leagueData) leagueData = data.leagueData;
-                    if (data.fixturesData) fixturesData = data.fixturesData;
-                    if (data.externalFixtures) externalFixtures = data.externalFixtures || [];
-                    if (data.announcements) announcements = data.announcements;
-                    if (data.opponentsList) opponentsList = data.opponentsList;
-                    if (data.trainingSessions) trainingSessions = data.trainingSessions.map(s => ({...s, attendance: s.attendance || []}));
-                    
-                    // CRITICAL: Load maintenance mode state
-                    if (data.maintenanceMode) {
-                        maintenanceMode = data.maintenanceMode;
-                    } else {
-                        maintenanceMode = { enabled: false, message: "", timestamp: null, setBy: null };
-                    }
-                }
-                
-                const savedCreds = localStorage.getItem('rackCafeCredentials');
-                if (savedCreds) {
-                    const creds = JSON.parse(savedCreds);
-                    Object.keys(creds).forEach(key => {
-                        if (teamCredentials[key]) {
-                            teamCredentials[key].firstLogin = creds[key].firstLogin;
-                            teamCredentials[key].password = creds[key].password;
-                            teamCredentials[key].role = creds[key].role;
-                            teamCredentials[key].isAdmin = creds[key].isAdmin;
-                        }
-                    });
-                }
-                
-                syncRoles();
-                return true;
-            } catch (e) {
-                console.error('Failed to load data:', e);
-                return false;
-            }
-        }
-
-        async function syncToFirestore() {
-            if (!isOnline || !isFirebaseEnabled || !db) return;
-            
-            const syncBadge = document.getElementById('syncBadge');
-            if (syncBadge) {
-                syncBadge.classList.add('syncing');
-                syncBadge.innerHTML = '<i class="fas fa-sync fa-spin"></i><span>Syncing...</span>';
             }
             
-            try {
-                const data = {
-                    teamData,
-                    leagueData,
-                    fixturesData,
-                    externalFixtures,
-                    announcements,
-                    opponentsList,
-                    trainingSessions,
-                    maintenanceMode,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastDevice: DEVICE_ID,
-                    version: '2.1'
-                };
-                
-                await db.collection('rackCafe').doc('main').set(data);
-                pendingChanges = false;
-                
-                if (syncBadge) {
-                    syncBadge.classList.remove('syncing');
-                    syncBadge.innerHTML = '<i class="fas fa-check-circle"></i><span>Synced</span>';
-                }
-            } catch (error) {
-                console.error("Sync error:", error);
-                if (syncBadge) {
-                    syncBadge.classList.remove('syncing');
-                    syncBadge.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Sync Failed</span>';
-                }
+            showToast('🔓 Maintenance override: Login as System Creator', 'error');
+        }
+
+        function cancelLogin() {
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) loginScreen.classList.remove('show');
+            
+            // Re-check maintenance
+            if (maintenanceMode.enabled) {
+                const overlay = document.getElementById('maintenanceOverlay');
+                if (overlay) overlay.classList.add('active');
             }
         }
 
-        function getRoleBadgeHTML(role, isSystemCreator = false) {
-            if (isSystemCreator || role.includes('System Creator')) {
-                return `<span class="role-badge badge-system-creator"><i class="fas fa-crown"></i> SYS_CREATOR</span>`;
-            } else if (role === 'Captain') {
-                return `<span class="role-badge badge-captain"><i class="fas fa-star"></i> CAPTAIN</span>`;
-            } else if (role === 'Co-Captain' || role.includes('Co-Captain')) {
-                return `<span class="role-badge badge-co-captain"><i class="fas fa-star-half-alt"></i> CO-CAPTAIN</span>`;
-            } else if (role === 'Reserve') {
-                return `<span class="role-badge badge-reserve"><i class="fas fa-user-clock"></i> RESERVE</span>`;
-            }
-            return '';
-        }
-
-        function showLoginScreen() {
+        function showLogin() {
             const loginScreen = document.getElementById('loginScreen');
             if (loginScreen) loginScreen.classList.add('show');
         }
 
-        function closeLoginScreen() {
-            const loginScreen = document.getElementById('loginScreen');
-            const usernameInput = document.getElementById('usernameInput');
-            const passwordInput = document.getElementById('passwordInput');
-            
-            if (loginScreen) loginScreen.classList.remove('show');
-            if (usernameInput) usernameInput.value = '';
-            if (passwordInput) passwordInput.value = '';
-            
-            // Re-check maintenance mode if closed without logging in
-            checkMaintenanceModeStatus();
-        }
-
-        function checkExistingSession() {
-            const savedSession = localStorage.getItem(SESSION_KEY);
-            if (savedSession) {
-                try {
-                    const session = JSON.parse(savedSession);
-                    const userData = teamCredentials[session.username];
-                    
-                    if (userData && userData.password === session.password) {
-                        currentUser = { 
-                            username: session.username, 
-                            ...userData 
-                        };
-                        
-                        // Check maintenance mode before completing login
-                        if (maintenanceMode.enabled && !currentUser.isSystemCreator) {
-                            // Maintenance is on and this isn't the system creator
-                            localStorage.removeItem(SESSION_KEY);
-                            currentUser = null;
-                            showLoggedOutState();
-                            showToast('System under maintenance. Only System Creator may access.', 'error');
-                            return false;
-                        }
-                        
-                        completeLogin(false);
-                        return true;
-                    }
-                } catch (e) {
-                    console.error('Session restore failed', e);
-                }
-            }
-            
-            showLoggedOutState();
-            return false;
-        }
-
-        function showLoggedOutState() {
-            const headerLoginBtn = document.getElementById('headerLoginBtn');
-            const profileContainer = document.getElementById('profileContainer');
-            const guestBanner = document.getElementById('guestBanner');
-            const welcomeText = document.getElementById('welcomeText');
-            
-            if (headerLoginBtn) headerLoginBtn.classList.remove('hidden');
-            if (profileContainer) profileContainer.classList.remove('show');
-            if (guestBanner) guestBanner.style.display = 'flex';
-            if (welcomeText) welcomeText.textContent = 'Welcome to Rack Café Utd';
-            
-            updateNavForGuest();
-            
-            // Load data from localStorage first
-            if (!loadPersistedData()) {
-                initializeLeagueData();
-            }
-            
-            // CRITICAL: Check maintenance mode immediately after loading data
-            checkMaintenanceModeStatus();
-            
-            updateOpponentDropdowns();
-            updateAllDisplays();
-            initAutoSync();
-        }
-
-        function updateNavForGuest() {
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach((item, index) => {
-                if (index === 0) return; // Home is allowed
-                item.classList.add('guest-disabled');
-            });
-        }
-
-        function updateNavForLoggedIn() {
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => {
-                item.classList.remove('guest-disabled');
-            });
-        }
-
-        function completeLogin(checkFirstLogin = true) {
-            const headerLoginBtn = document.getElementById('headerLoginBtn');
-            const profileContainer = document.getElementById('profileContainer');
-            const guestBanner = document.getElementById('guestBanner');
-            
-            if (headerLoginBtn) headerLoginBtn.classList.add('hidden');
-            if (profileContainer) profileContainer.classList.add('show');
-            if (guestBanner) guestBanner.style.display = 'none';
-            
-            updateNavForLoggedIn();
-            
-            // Update UI elements with user data
-            const userAvatar = document.getElementById('userAvatar');
-            const userNameText = document.getElementById('userNameText');
-            const userBadge = document.getElementById('userBadge');
-            const dropdownUserRole = document.getElementById('dropdownUserRole');
-            const welcomeText = document.getElementById('welcomeText');
-            
-            if (userAvatar) userAvatar.textContent = currentUser.initials;
-            if (userNameText) userNameText.textContent = currentUser.name;
-            if (userBadge) userBadge.innerHTML = getRoleBadgeHTML(currentUser.role, currentUser.isSystemCreator);
-            
-            if (dropdownUserRole) {
-                let roleIcon = 'fa-user';
-                if (currentUser.isSystemCreator) roleIcon = 'fa-crown';
-                else if (currentUser.role === 'Captain') roleIcon = 'fa-star';
-                else if (currentUser.role.includes('Co-Captain')) roleIcon = 'fa-star-half-alt';
-                
-                dropdownUserRole.innerHTML = `<i class="fas ${roleIcon}"></i> <span id="roleText">${currentUser.role}</span>`;
-                
-                if (currentUser.isSystemCreator) dropdownUserRole.style.color = '#00ffff';
-                else if (currentUser.role === 'Captain') dropdownUserRole.style.color = '#ffd700';
-                else if (currentUser.role.includes('Co-Captain')) dropdownUserRole.style.color = '#f39c12';
-            }
-            
-            if (welcomeText) welcomeText.textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
-            
-            // Profile Tab Updates
-            const profileAvatar = document.getElementById('profileAvatar');
-            const profileDisplayName = document.getElementById('profileDisplayName');
-            const profileRoleText = document.getElementById('profileRoleText');
-            
-            if (profileAvatar) profileAvatar.textContent = currentUser.initials;
-            if (profileDisplayName) {
-                profileDisplayName.innerHTML = `${currentUser.name} <span id="profileBadge">${getRoleBadgeHTML(currentUser.role, currentUser.isSystemCreator)}</span>`;
-            }
-            if (profileRoleText) {
-                profileRoleText.textContent = currentUser.role;
-                if (currentUser.isSystemCreator) profileRoleText.style.color = '#00ffff';
-            }
-            
-            // Show admin menu for admins and System Creators
-            const adminMenuItems = document.getElementById('adminMenuItems');
-            const systemCreatorMenuItem = document.getElementById('systemCreatorMenuItem');
-            
-            if (adminMenuItems && (currentUser.isAdmin || currentUser.isSystemCreator)) {
-                adminMenuItems.style.display = 'block';
-            }
-            if (systemCreatorMenuItem && currentUser.isSystemCreator) {
-                systemCreatorMenuItem.style.display = 'block';
-            }
-            
-            if (!loadPersistedData()) {
-                initializeLeagueData();
-            }
-            
-            syncRoles();
-            
-            // CRITICAL: Check maintenance mode after login (in case it changed while offline)
-            checkMaintenanceModeStatus();
-            
-            updateOpponentDropdowns();
-            updateAdminPanelVisibility();
-            initAutoSync();
-            updateAllDisplays();
-            
-            if (isOnline && isFirebaseEnabled) {
-                syncToFirestore();
-            }
-        }
-
         function doLogin() {
-            const usernameInput = document.getElementById('usernameInput');
-            const passwordInput = document.getElementById('passwordInput');
-            const loginError = document.getElementById('loginError');
-            const errorText = document.getElementById('errorText');
+            const username = document.getElementById('usernameInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('loginError');
             
-            const username = usernameInput ? usernameInput.value.trim() : '';
-            const password = passwordInput ? passwordInput.value : '';
-            const userData = teamCredentials[username];
+            const user = credentials[username];
             
-            if (!userData || userData.password !== password) {
-                if (loginError) loginError.classList.add('show');
-                return;
-            }
-            
-            currentUser = { username, ...userData };
-            
-            // MAINTENANCE CHECK: Only System Creator can login during maintenance
-            if (maintenanceMode && maintenanceMode.enabled && !currentUser.isSystemCreator) {
-                if (loginError) loginError.classList.add('show');
-                if (errorText) {
-                    errorText.textContent = 'System under maintenance - Only System Creator may access';
-                    errorText.style.color = '#ff4757';
+            if (user && user.password === password) {
+                // Check maintenance
+                if (maintenanceMode.enabled && !user.isSystemCreator) {
+                    if (errorDiv) {
+                        errorDiv.innerHTML = '<i class="fas fa-ban"></i> System under maintenance - Only System Creator may access';
+                        errorDiv.classList.add('show');
+                        errorDiv.style.color = '#ff4757';
+                    }
+                    return;
                 }
-                currentUser = null;
-                return;
-            }
-            
-            localStorage.setItem(SESSION_KEY, JSON.stringify({
-                username: username,
-                password: password,
-                timestamp: new Date().toISOString()
-            }));
-            
-            closeLoginScreen();
-            
-            if (userData.firstLogin && checkFirstLogin) {
-                showFirstLoginModal(password);
+                
+                currentUser = { username, ...user };
+                
+                // Hide login
+                document.getElementById('loginScreen').classList.remove('show');
+                document.getElementById('loginError').classList.remove('show');
+                
+                // Show profile
+                document.getElementById('headerLoginBtn').classList.add('hidden');
+                document.getElementById('profileContainer').classList.add('show');
+                document.getElementById('userAvatar').textContent = user.name.split(' ').map(n => n[0]).join('');
+                document.getElementById('userAvatar').style.display = 'flex';
+                document.getElementById('userNameDisplay').innerHTML = user.name + (user.isSystemCreator ? ' <span class="role-badge badge-system-creator">SYS_CREATOR</span>' : '');
+                document.getElementById('userRoleDisplay').textContent = user.isSystemCreator ? 'System Creator' : 'Captain';
+                
+                if (user.isSystemCreator) {
+                    document.getElementById('systemCreatorMenuItem').style.display = 'flex';
+                    document.getElementById('adminPanel').style.display = 'block';
+                }
+                
+                // Re-apply maintenance (removes overlay for system creator)
+                applyMaintenanceState();
+                
+                showToast('Welcome ' + user.name);
             } else {
-                completeLogin(true);
-            }
-        }
-
-        function showFirstLoginModal(currentPassword) {
-            const modal = document.getElementById('firstLoginModal');
-            const currentPassInput = document.getElementById('currentPassword');
-            
-            if (modal) modal.classList.add('show');
-            if (currentPassInput) currentPassInput.value = currentPassword;
-            
-            const newPass = document.getElementById('newPasswordFirst');
-            const confirmPass = document.getElementById('confirmPasswordFirst');
-            
-            if (newPass) newPass.value = '';
-            if (confirmPass) confirmPass.value = '';
-            validatePasswordStrength();
-        }
-
-        function validatePasswordStrength() {
-            const newPass = document.getElementById('newPasswordFirst');
-            const confirmPass = document.getElementById('confirmPasswordFirst');
-            
-            if (!newPass || !confirmPass) return false;
-            
-            const password = newPass.value;
-            const confirm = confirmPass.value;
-            
-            const hasLength = password.length >= 8;
-            const hasUpper = /[A-Z]/.test(password);
-            const hasLower = /[a-z]/.test(password);
-            const hasNumber = /[0-9]/.test(password);
-            const matches = password === confirm && password !== '';
-            
-            const reqLength = document.getElementById('req-length');
-            const reqUpper = document.getElementById('req-upper');
-            const reqLower = document.getElementById('req-lower');
-            const reqNumber = document.getElementById('req-number');
-            const reqMatch = document.getElementById('req-match');
-            
-            if (reqLength) reqLength.className = hasLength ? 'valid' : 'invalid';
-            if (reqUpper) reqUpper.className = hasUpper ? 'valid' : 'invalid';
-            if (reqLower) reqLower.className = hasLower ? 'valid' : 'invalid';
-            if (reqNumber) reqNumber.className = hasNumber ? 'valid' : 'invalid';
-            if (reqMatch) reqMatch.className = matches ? 'valid' : 'invalid';
-            
-            return hasLength && hasUpper && hasLower && hasNumber && matches;
-        }
-
-        function submitFirstLoginPassword() {
-            if (!validatePasswordStrength()) {
-                showToast('Please meet all password requirements', 'error');
-                return;
-            }
-            
-            const newPassInput = document.getElementById('newPasswordFirst');
-            const username = currentUser ? currentUser.username : null;
-            
-            if (!username || !newPassInput) return;
-            
-            const newPass = newPassInput.value;
-            
-            teamCredentials[username].password = newPass;
-            teamCredentials[username].firstLogin = false;
-            
-            localStorage.setItem(SESSION_KEY, JSON.stringify({
-                username: username,
-                password: newPass,
-                timestamp: new Date().toISOString()
-            }));
-            
-            if (currentUser) {
-                currentUser.password = newPass;
-                currentUser.firstLogin = false;
-            }
-            
-            localStorage.setItem('rackCafeCredentials', JSON.stringify(teamCredentials));
-            
-            const modal = document.getElementById('firstLoginModal');
-            if (modal) modal.classList.remove('show');
-            
-            showToast('Password updated successfully!', 'success');
-            completeLogin(false);
-        }
-
-        function initializeLeagueData() {
-            leagueData = leagueData.filter(t => t.isUs);
-            if (leagueData.length === 0) {
-                leagueData = [{ id: 1, name: 'Rack Café Utd', played: 0, won: 0, lost: 0, points: 0, isUs: true }];
-            }
-            
-            opponentsList.forEach((opp, index) => {
-                if (opp !== 'BYE' && !leagueData.find(t => t.name === opp)) {
-                    leagueData.push({
-                        id: index + 2,
-                        name: opp,
-                        played: 0,
-                        won: 0,
-                        lost: 0,
-                        points: 0,
-                        isUs: false
-                    });
+                if (errorDiv) {
+                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid credentials';
+                    errorDiv.classList.add('show');
                 }
-            });
-        }
-
-        function updateOpponentDropdowns() {
-            const resultSelect = document.getElementById('resultOpponent');
-            const scheduleSelect = document.getElementById('scheduleOpponent');
-            
-            if (resultSelect) {
-                resultSelect.innerHTML = '<option value="">Select opponent...</option>';
-                opponentsList.forEach(opp => {
-                    const option = document.createElement('option');
-                    option.value = opp;
-                    option.textContent = opp;
-                    resultSelect.appendChild(option);
-                });
             }
-            
-            if (scheduleSelect) {
-                scheduleSelect.innerHTML = '<option value="">Select opponent...</option>';
-                opponentsList.forEach(opp => {
-                    const option = document.createElement('option');
-                    option.value = opp;
-                    option.textContent = opp;
-                    scheduleSelect.appendChild(option);
-                });
-            }
-        }
-
-        function switchTab(tabId, navElement) {
-            if (!currentUser && tabId !== 'homeTab') {
-                showLoginScreen();
-                showToast('Please login to access this feature', 'error');
-                return;
-            }
-            
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            const tab = document.getElementById(tabId);
-            if (tab) tab.classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if (navElement) navElement.classList.add('active');
-            
-            // Tab-specific logic
-            if (tabId === 'trainingTab') {
-                const adminPanel = document.getElementById('adminTrainingPanel');
-                if (adminPanel) {
-                    adminPanel.style.display = (currentUser && (currentUser.isAdmin || currentUser.isSystemCreator)) ? 'block' : 'none';
-                }
-                updateTrainingStats();
-                renderTraining();
-            } else if (tabId === 'profileTab' && currentUser) {
-                updatePersonalTrainingStats();
-            } else if (tabId === 'teamTab') {
-                renderPlayersWithTraining();
-            }
-        }
-
-        function openAdminPanel() {
-            if (!currentUser || (!currentUser.isAdmin && !currentUser.isSystemCreator)) {
-                showToast('Admin access required', 'error');
-                return;
-            }
-            switchTab('adminTab', null);
         }
 
         function logout() {
-            if(!confirm('Logout?')) return;
-            
-            if (autoSyncInterval) clearInterval(autoSyncInterval);
-            if (countdownInterval) clearInterval(countdownInterval);
-            
-            localStorage.removeItem(SESSION_KEY);
             currentUser = null;
+            document.getElementById('headerLoginBtn').classList.remove('hidden');
+            document.getElementById('profileContainer').classList.remove('show');
+            document.getElementById('userAvatar').style.display = 'none';
+            document.getElementById('systemCreatorMenuItem').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
             
-            const adminMenuItems = document.getElementById('adminMenuItems');
-            const systemCreatorMenuItem = document.getElementById('systemCreatorMenuItem');
-            
-            if (adminMenuItems) adminMenuItems.style.display = 'none';
-            if (systemCreatorMenuItem) systemCreatorMenuItem.style.display = 'none';
-            
-            showLoggedOutState();
-            switchTab('homeTab', document.querySelectorAll('.nav-item')[0]);
+            // Re-check maintenance
+            applyMaintenanceState();
         }
 
-        function toggleDropdown(e) {
-            if (e) e.stopPropagation();
-            const dropdown = document.getElementById('profileDropdown');
-            const avatar = document.getElementById('userAvatar');
-            if (dropdown) dropdown.classList.toggle('show');
-            if (avatar) avatar.classList.toggle('active');
-        }
-
-        document.addEventListener('click', function(e) {
-            const profileContainer = document.querySelector('.profile-container');
-            const dropdown = document.getElementById('profileDropdown');
-            const avatar = document.getElementById('userAvatar');
-            
-            if (profileContainer && !profileContainer.contains(e.target)) {
-                if (dropdown) dropdown.classList.remove('show');
-                if (avatar) avatar.classList.remove('active');
-            }
-        });
-
-        // System Creator Modal Functions
         function openSystemCreatorModal() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator access required', 'error');
-                return;
-            }
-            
-            const modal = document.getElementById('systemCreatorModal');
-            if (modal) modal.classList.add('show');
-            
-            // Update toggle state
+            document.getElementById('systemCreatorModal').classList.add('show');
+            // Update toggle visual
             const toggle = document.getElementById('maintenanceToggle');
-            const status = document.getElementById('maintenanceStatus');
-            
-            if (maintenanceMode && maintenanceMode.enabled) {
-                if (toggle) toggle.classList.add('active');
-                if (status) status.style.display = 'block';
-            } else {
-                if (toggle) toggle.classList.remove('active');
-                if (status) status.style.display = 'none';
-            }
+            if (maintenanceMode.enabled && toggle) toggle.classList.add('active');
         }
 
         function closeSystemCreatorModal() {
-            const modal = document.getElementById('systemCreatorModal');
-            if (modal) modal.classList.remove('show');
+            document.getElementById('systemCreatorModal').classList.remove('show');
         }
 
-        function logToConsole(msg, type = 'info') {
-            const c = document.getElementById('dbConsole');
-            if (!c) return;
-            
-            const timestamp = new Date().toLocaleTimeString();
-            let color = '#00ffff';
-            if (type === 'error') color = '#ff4757';
-            if (type === 'success') color = '#2ed573';
-            
-            c.innerHTML += `<div style="margin-top: 4px; color: ${color};">[${timestamp}] ${msg}</div>`;
-            c.scrollTop = c.scrollHeight;
+        function toggleDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('show');
         }
 
-        function clearConsole() {
-            const c = document.getElementById('dbConsole');
-            if (c) c.innerHTML = '<div style="color: #00ff00;">> Console cleared...</div>';
-        }
-
-        // Admin functions
-        function openAddResultModal() { 
-            if (!currentUser || (!currentUser.isAdmin && !currentUser.isSystemCreator)) {
-                showToast('Admin access required', 'error');
-                return;
-            }
-            const modal = document.getElementById('addResultModal');
-            const dateInput = document.getElementById('resultDate');
-            if (modal) modal.classList.add('show'); 
-            if (dateInput) dateInput.valueAsDate = new Date(); 
-        }
-
-        function closeAddResultModal() { 
-            const modal = document.getElementById('addResultModal');
-            if (modal) modal.classList.remove('show'); 
-        }
-
-        function openScheduleModal() { 
-            if (!currentUser || (!currentUser.isAdmin && !currentUser.isSystemCreator)) {
-                showToast('Admin access required', 'error');
-                return;
-            }
-            const modal = document.getElementById('scheduleModal');
-            const dateInput = document.getElementById('scheduleDate');
-            const timeInput = document.getElementById('scheduleTime');
-            
-            if (modal) modal.classList.add('show'); 
-            if (dateInput) dateInput.valueAsDate = new Date();
-            if (timeInput) timeInput.value = '20:00';
-        }
-
-        function closeScheduleModal() { 
-            const modal = document.getElementById('scheduleModal');
-            if (modal) modal.classList.remove('show'); 
-        }
-
-        function openUpdateStatsModal() { 
-            if (!currentUser || (!currentUser.isAdmin && !currentUser.isSystemCreator)) {
-                showToast('Admin access required', 'error');
-                return;
-            }
-            const modal = document.getElementById('updateStatsModal');
-            const grid = document.getElementById('statsEditorGrid');
-            if (modal) modal.classList.add('show'); 
-            if (grid) {
-                grid.innerHTML = teamData.map(p => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-color);">
-                        <span>${p.name} ${getRoleBadgeHTML(p.role, p.role.includes('System'))}</span>
-                        <input type="number" value="${p.won}" onchange="updatePlayerStat(${p.id}, 'won', this.value)" style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: white; padding: 8px; border-radius: 6px;">
-                    </div>
-                `).join('');
-            }
-        }
-
-        function closeUpdateStatsModal() { 
-            const modal = document.getElementById('updateStatsModal');
-            if (modal) modal.classList.remove('show'); 
-        }
-
-        function openAnnouncementsModal() { 
-            if (!currentUser || (!currentUser.isAdmin && !currentUser.isSystemCreator)) {
-                showToast('Admin access required', 'error');
-                return;
-            }
-            const modal = document.getElementById('announcementsModal');
-            if (modal) modal.classList.add('show'); 
-        }
-
-        function closeAnnouncementsModal() { 
-            const modal = document.getElementById('announcementsModal');
-            if (modal) modal.classList.remove('show'); 
-        }
-
-        // Stub functions for other admin features
-        function submitMatchResult() {
-            // Implementation from original code
-            const opponent = document.getElementById('resultOpponent').value;
-            const venue = document.getElementById('resultVenue').value;
-            
-            if (!opponent) return showToast('Select opponent', 'error');
-            
-            const ourScore = parseInt(document.getElementById('ourScore').value);
-            const theirScore = parseInt(document.getElementById('theirScore').value);
-            const date = document.getElementById('resultDate').value;
-            
-            fixturesData.push({ 
-                id: Date.now(),
-                opponent, 
-                ourScore, 
-                theirScore, 
-                result: ourScore > theirScore ? 'W' : 'L', 
-                date: date,
-                venue: venue,
-                played: true,
-                timestamp: new Date().toISOString()
-            });
-            
-            leagueData[0].played++;
-            leagueData[0].points += ourScore;
-            if (ourScore > theirScore) leagueData[0].won++;
-            else leagueData[0].lost++;
-            
-            const opp = leagueData.find(t => t.name === opponent);
-            if (opp) {
-                opp.played++;
-                opp.points += theirScore;
-                if (theirScore > ourScore) opp.won++;
-                else opp.lost++;
-            }
-            
-            closeAddResultModal();
-            persistData();
-            updateAllDisplays();
-            showToast('Result saved', 'success');
-        }
-
-        function submitSchedule() {
-            const opponent = document.getElementById('scheduleOpponent').value;
-            const date = document.getElementById('scheduleDate').value;
-            const time = document.getElementById('scheduleTime').value || '20:00';
-            
-            if (!opponent || !date) return showToast('Fill all fields', 'error');
-            
-            fixturesData.push({ 
-                id: Date.now(),
-                opponent, 
-                date, 
-                time,
-                venue: document.getElementById('scheduleVenue').value,
-                played: false,
-                timestamp: new Date().toISOString()
-            });
-            
-            closeScheduleModal();
-            persistData();
-            updateAllDisplays();
-            showToast('Match scheduled', 'success');
-        }
-
-        function updatePlayerStat(id, stat, val) {
-            const player = teamData.find(p => p.id === id);
-            if (player) { 
-                player[stat] = parseInt(val) || 0; 
-                player.played = player.won + player.lost;
-                player.winRate = player.played > 0 ? Math.round((player.won/player.played)*100) : 0; 
-            }
-            persistData();
-        }
-
-        function submitAnnouncement() {
-            const title = document.getElementById('announcementTitle').value;
-            const content = document.getElementById('announcementContent').value;
-            
-            if (!title || !content) return showToast('Fill all fields', 'error');
-            
-            announcements.unshift({ 
-                id: Date.now(),
-                title, 
-                content, 
-                date: new Date(),
-                author: currentUser.name
-            });
-            closeAnnouncementsModal();
-            persistData();
-            showToast('Announcement posted', 'success');
-        }
-
-        // Training Functions
-        function openAddTrainingModal() {
-            if (!currentUser || (!currentUser.isAdmin && !currentUser.isSystemCreator)) return;
-            const modal = document.getElementById('addTrainingModal');
-            if (modal) {
-                modal.classList.add('show');
-                document.getElementById('trainingDate').valueAsDate = new Date();
-                document.getElementById('trainingTime').value = '19:00';
-            }
-        }
-
-        function closeAddTrainingModal() {
-            const modal = document.getElementById('addTrainingModal');
-            if (modal) modal.classList.remove('show');
-        }
-
-        function submitTrainingSession() {
-            const date = document.getElementById('trainingDate').value;
-            const time = document.getElementById('trainingTime').value;
-            const type = document.getElementById('trainingType').value;
-            const location = document.getElementById('trainingLocation').value.trim();
-            
-            if (!date || !location) return showToast('Fill all fields', 'error');
-            
-            trainingSessions.push({
-                id: Date.now(),
-                date,
-                time: time || '19:00',
-                type,
-                location,
-                createdBy: currentUser.name,
-                timestamp: new Date().toISOString(),
-                attendance: []
-            });
-            
-            closeAddTrainingModal();
-            persistData();
-            renderTraining();
-            showToast('Session scheduled', 'success');
-        }
-
-        function renderTraining() {
-            const container = document.getElementById('trainingList');
-            if (!container) return;
-            
-            const now = new Date();
-            
-            let sessions = trainingSessions.filter(s => {
-                const sessionDate = new Date(s.date + 'T' + s.time);
-                if (currentTrainingFilter === 'upcoming') return sessionDate >= now;
-                if (currentTrainingFilter === 'past') return sessionDate < now;
-                return true;
-            }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
-            
-            if (sessions.length === 0) {
-                container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);">No sessions found</div>`;
-            } else {
-                container.innerHTML = sessions.map((s, idx) => {
-                    const sessionDate = new Date(s.date + 'T' + s.time);
-                    const isPast = sessionDate < now;
-                    const attendanceCount = (s.attendance || []).length;
-                    
-                    return `
-                    <div class="fixture-card" style="animation-delay: ${idx * 0.05}s;">
-                        <div style="display: flex; align-items: center; flex: 1;">
-                            <div class="fixture-date">
-                                <div class="date-day">${new Date(s.date).getDate()}</div>
-                                <div style="font-size: 11px; color: var(--text-muted);">${new Date(s.date).toLocaleString('default', {month: 'short'})}</div>
-                            </div>
-                            <div style="margin-left: 16px;">
-                                <div style="font-weight: 800; font-size: 16px;">${s.type}</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">${s.time} • ${s.location}</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                            <span style="font-size: 12px; color: var(--text-secondary);">${attendanceCount} attended</span>
-                            ${!isPast ? `<button onclick="openAttendanceModal(${s.id})" style="background: var(--primary-pink); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Mark Attendance</button>` : ''}
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-        }
-
-        function openAttendanceModal(sessionId) {
-            currentEditingSessionId = sessionId;
-            const modal = document.getElementById('attendanceModal');
-            if (modal) modal.classList.add('show');
-        }
-
-        function closeAttendanceModal() {
-            const modal = document.getElementById('attendanceModal');
-            if (modal) modal.classList.remove('show');
-            currentEditingSessionId = null;
-        }
-
-        function toggleSelectAllAttendance() {
-            // Implementation omitted for brevity - use original logic
-        }
-
-        function saveAttendance() {
-            // Implementation omitted for brevity - use original logic
-            closeAttendanceModal();
-            persistData();
-        }
-
-        function filterTraining(type, btn) {
-            currentTrainingFilter = type;
-            document.querySelectorAll('#trainingTab .filter-btn').forEach(b => b.classList.remove('active'));
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
             if (btn) btn.classList.add('active');
-            renderTraining();
         }
 
-        function updateTrainingStats() {
-            const now = new Date();
-            const pastSessions = trainingSessions.filter(s => new Date(s.date + 'T' + (s.time || '23:59')) < now);
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+            const text = document.getElementById('toastMessage');
             
-            const totalEl = document.getElementById('totalTrainingSessions');
-            const avgEl = document.getElementById('avgAttendanceRate');
+            text.textContent = msg;
+            icon.className = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            icon.style.color = type === 'error' ? '#ff4757' : '#2ed573';
             
-            if (totalEl) totalEl.textContent = trainingSessions.length;
-            if (avgEl) avgEl.textContent = pastSessions.length > 0 ? '75%' : '0%';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function updatePersonalTrainingStats() {
-            // Implementation omitted for brevity
-        }
-
-        function renderPlayersWithTraining() {
-            const grid = document.getElementById('playersGrid');
-            if (!grid) return;
-            
-            grid.innerHTML = teamData.map(p => `
-                <div class="player-card">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                        <div class="player-avatar" style="background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); margin: 0;">
-                            ${p.initials}
-                        </div>
-                        <div>
-                            <div style="font-weight: 800;">${p.name}</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">${p.role}</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; justify-content: space-around; text-align: center;">
-                        <div><div style="font-size: 20px; font-weight: 800;">${p.played}</div><div style="font-size: 10px; color: var(--text-muted);">Played</div></div>
-                        <div><div style="font-size: 20px; font-weight: 800; color: #2ed573;">${p.won}</div><div style="font-size: 10px; color: var(--text-muted);">Won</div></div>
-                        <div><div style="font-size: 20px; font-weight: 800;">${p.trainingAttended || 0}</div><div style="font-size: 10px; color: var(--text-muted);">Sessions</div></div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Role Manager
-        function openRoleManager() {
-            const canAccess = currentUser && (currentUser.username === 'BDannatt' || currentUser.isSystemCreator);
-            if (!canAccess) {
-                showToast('Only Captain and System Creator can manage roles', 'error');
-                return;
-            }
-            const modal = document.getElementById('roleManagerModal');
-            if (modal) modal.classList.add('show');
-        }
-
-        function closeRoleManager() {
-            const modal = document.getElementById('roleManagerModal');
-            if (modal) modal.classList.remove('show');
-        }
-
-        // Opponent Manager
-        function openOpponentManager() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator access required', 'error');
-                return;
-            }
-            const modal = document.getElementById('opponentManagerModal');
-            if (modal) modal.classList.add('show');
-        }
-
-        function closeOpponentManager() {
-            const modal = document.getElementById('opponentManagerModal');
-            if (modal) modal.classList.remove('show');
-        }
-
-        function addOpponent() {
-            const input = document.getElementById('newOpponentName');
-            const name = input ? input.value.trim() : '';
-            
-            if (!name) return showToast('Enter opponent name', 'error');
-            if (opponentsList.includes(name)) return showToast('Opponent already exists', 'error');
-            
-            opponentsList.push(name);
-            leagueData.push({
-                id: leagueData.length + 1,
-                name: name,
-                played: 0, won: 0, lost: 0, points: 0, isUs: false
-            });
-            
-            if (input) input.value = '';
-            persistData();
-            updateOpponentDropdowns();
-            showToast('Opponent added', 'success');
-        }
-
-        function removeOpponent(name) {
-            if (!confirm(`Remove ${name}?`)) return;
-            opponentsList = opponentsList.filter(opp => opp !== name);
-            leagueData = leagueData.filter(t => t.name !== name);
-            persistData();
-            updateOpponentDropdowns();
-            showToast('Opponent removed', 'success');
-        }
-
-        // Data Management
-        function exportDatabase() {
+        function exportData() {
             const data = {
-                teamData, leagueData, fixturesData, externalFixtures,
-                announcements, opponentsList, trainingSessions, maintenanceMode,
-                exportedAt: new Date().toISOString(),
-                version: '2.1'
+                maintenanceMode: maintenanceMode,
+                exported: new Date().toISOString()
             };
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `rack_cafe_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            showToast('Database exported', 'success');
+            console.log('Export:', data);
+            showToast('Data exported to console');
         }
 
-        function importDatabase() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = event => {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        if (data.teamData) teamData = data.teamData;
-                        if (data.leagueData) leagueData = data.leagueData;
-                        if (data.fixturesData) fixturesData = data.fixturesData;
-                        if (data.maintenanceMode) maintenanceMode = data.maintenanceMode;
-                        
-                        persistData();
-                        updateAllDisplays();
-                        showToast('Database imported', 'success');
-                    } catch(err) {
-                        showToast('Import failed', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
+        function manualSync() {
+            applyMaintenanceState();
+            showToast('Status refreshed');
         }
 
-        function nukeDatabase() {
-            if (prompt('Type NUKE to confirm:') !== 'NUKE') return;
-            
-            fixturesData = [];
-            trainingSessions = [];
-            teamData.forEach(p => { p.played = p.won = p.lost = p.winRate = 0; });
-            leagueData.forEach(t => { if (!t.isUs) { t.played = t.won = t.lost = t.points = 0; } });
-            leagueData[0].played = leagueData[0].won = leagueData[0].lost = leagueData[0].points = 0;
-            
-            maintenanceMode = { enabled: false, message: "", timestamp: null, setBy: null };
-            
-            persistData();
-            updateAllDisplays();
-            showToast('Database nuked', 'success');
-        }
-
-        // View functions
-        function updateAllDisplays() {
-            const us = leagueData[0];
-            
-            document.getElementById('statPlayed').textContent = us.played;
-            document.getElementById('statWon').textContent = us.won;
-            document.getElementById('statWinRate').textContent = us.played > 0 ? Math.round((us.won/us.played)*100) + '%' : '0%';
-            
-            const sorted = [...leagueData].sort((a,b) => b.points - a.points || b.won - a.won);
-            const pos = sorted.findIndex(t => t.isUs) + 1;
-            document.getElementById('statPosition').textContent = pos || 1;
-            
-            // Next match
-            const upcoming = fixturesData.filter(f => !f.played).sort((a,b) => new Date(a.date) - new Date(b.date))[0];
-            if (upcoming) {
-                document.getElementById('nextMatchOpponent').textContent = upcoming.opponent;
-                document.getElementById('nextMatchDate').textContent = new Date(upcoming.date).toLocaleDateString();
-                document.getElementById('nextMatchTime').textContent = upcoming.time || '20:00';
-                document.getElementById('nextMatchVenue').textContent = upcoming.venue === 'home' ? 'Home' : 'Away';
+        // Secret key listener
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'm' || e.key === 'M')) {
+                e.preventDefault();
+                console.log('🔑 Secret key pressed');
+                
+                if (maintenanceMode.enabled || (currentUser && currentUser.isSystemCreator)) {
+                    attemptMaintenanceLogin();
+                } else {
+                    showToast('Maintenance mode not active', 'error');
+                }
             }
-            
-            // League Table
-            const tableBody = document.getElementById('leagueTableBody');
-            if (tableBody) {
-                tableBody.innerHTML = sorted.map((t, i) => `
-                    <div class="table-row" style="${t.isUs ? 'border-left: 2px solid var(--primary-pink);' : ''}">
-                        <div>${i+1}</div>
-                        <div>${t.name}</div>
-                        <div style="text-align: center;">${t.played}</div>
-                        <div style="text-align: center;">${t.won}</div>
-                        <div style="text-align: center;">${t.lost}</div>
-                        <div style="text-align: right; font-weight: 800;">${t.points}</div>
-                    </div>
-                `).join('');
-            }
-            
-            // Recent Form
-            const recent = fixturesData.filter(f => f.played).sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-            const formList = document.getElementById('recentFormList');
-            if (formList) {
-                formList.innerHTML = recent.length ? recent.map(m => `
-                    <div class="form-item">
-                        <div><div style="font-weight: 700;">vs ${m.opponent}</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">${new Date(m.date).toLocaleDateString()}</div></div>
-                        <span class="${m.result === 'W' ? 'result-w' : 'result-l'}">${m.result}</span>
-                    </div>
-                `).join('') : '<div class="form-item" style="justify-content: center; color: var(--text-muted);">No matches yet</div>';
-            }
-            
-            renderFixtures();
-        }
-
-        function renderFixtures() {
-            const list = document.getElementById('fixturesList');
-            if (!list) return;
-            
-            let matches = fixturesData.filter(f => {
-                if (currentFilter === 'played') return f.played;
-                if (currentFilter === 'upcoming') return !f.played;
-                return true;
-            }).sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            list.innerHTML = matches.length ? matches.map(m => `
-                <div class="fixture-card">
-                    <div class="fixture-date">
-                        <div class="date-day">${new Date(m.date).getDate()}</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">${new Date(m.date).toLocaleString('default', {month: 'short'})}</div>
-                    </div>
-                    <div style="margin-left: 16px; flex: 1;">
-                        <div style="font-weight: 800;">vs ${m.opponent}</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">${m.venue === 'home' ? 'Home' : 'Away'}${m.time ? ' • ' + m.time : ''}</div>
-                    </div>
-                    ${m.played ? `<div style="font-weight: 800; font-size: 20px; color: ${m.result === 'W' ? '#2ed573' : '#e94560'};">${m.ourScore}-${m.theirScore}</div>` : 
-                    '<div style="color: var(--accent-orange); font-size: 12px;">Upcoming</div>'}
-                </div>
-            `).join('') : '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No matches</div>';
-        }
-
-        function filterFixtures(type, btn) {
-            currentFilter = type;
-            document.querySelectorAll('#fixturesTab .filter-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            renderFixtures();
-        }
-
-        function updateAdminPanelVisibility() {
-            const isSuperUser = currentUser && (currentUser.isSystemCreator || currentUser.username === 'BDannatt');
-            const manageRolesBtn = document.getElementById('manageRolesBtn');
-            if (manageRolesBtn) manageRolesBtn.style.display = isSuperUser ? 'flex' : 'none';
-        }
-
-        function initAutoSync() {
-            if (autoSyncInterval) clearInterval(autoSyncInterval);
-            autoSyncInterval = setInterval(() => {
-                persistData();
-            }, 5000);
-        }
-
-        // CRITICAL: Initialize on load
-        window.addEventListener('DOMContentLoaded', function() {
-            updateNetworkStatus(navigator.onLine);
-            loadPersistedData(); // This loads maintenanceMode from localStorage
-            
-            // CRITICAL: Check maintenance mode BEFORE anything else
-            const isBlocked = checkMaintenanceModeStatus();
-            
-            if (!isBlocked) {
-                // Only check session if not in maintenance mode
-                checkExistingSession();
-            } else {
-                // In maintenance mode - ensure logged out state is shown
-                showLoggedOutState();
-            }
-            
-            updateOpponentDropdowns();
         });
+
+        // Check maintenance on visibility change (when user returns to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('👁️ Tab visible, re-checking maintenance...');
+                // Reload from storage to catch changes from other tabs
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.maintenanceMode) {
+                        maintenanceMode = data.maintenanceMode;
+                        applyMaintenanceState();
+                    }
+                }
+            }
+        });
+
+        console.log('🚀 App initialized');
     </script>
 </body>
 </html>
