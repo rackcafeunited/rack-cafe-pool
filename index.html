@@ -19,7 +19,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%);
-            z-index: 2147483647; /* Max z-index */
+            z-index: 2147483647;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -223,7 +223,7 @@
                         <div class="vs">VS</div>
                         <div class="team" style="text-align: center; flex: 1;"><div class="team-name" id="nextMatchOpponent">TBD</div></div>
                     </div>
-                    <div class="match-details">
+                    <div class="match-details" style="display: flex; justify-content: space-around; margin-top: 20px;">
                         <div style="text-align: center;"><i class="fas fa-calendar" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i><div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Date</div><div style="font-weight: 700; margin-top: 4px;" id="nextMatchDate">TBC</div></div>
                         <div style="text-align: center;"><i class="fas fa-clock" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i><div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Kickoff</div><div style="font-weight: 700; margin-top: 4px; color: #ffd700;" id="nextMatchTime">--:--</div></div>
                     </div>
@@ -246,6 +246,7 @@
                     </div>
                 </div>
 
+                <!-- SYSTEM CREATOR PANEL -->
                 <div id="systemCreatorPanel" style="display: none; margin-top: 24px;">
                     <div class="admin-panel" style="border-color: #00ffff; background: rgba(0,255,255,0.05);">
                         <div class="section-title" style="color: #00ffff; margin-bottom: 16px;"><i class="fas fa-terminal"></i> System Creator Controls</div>
@@ -273,6 +274,21 @@
                 </div>
                 <div id="fixturesList"></div>
             </div>
+
+            <div class="tab-content" id="tableTab">
+                <div class="page-title"><h1>League Table</h1><p>Current Standings</p></div>
+                <div id="leagueTable"></div>
+            </div>
+
+            <div class="tab-content" id="teamTab">
+                <div class="page-title"><h1>Squad</h1><p>Team Roster</p></div>
+                <div id="teamList"></div>
+            </div>
+
+            <div class="tab-content" id="profileTab">
+                <div class="page-title"><h1>My Profile</h1><p>Player Statistics</p></div>
+                <div id="profileContent"></div>
+            </div>
         </main>
 
         <nav class="bottom-nav">
@@ -283,7 +299,7 @@
         </nav>
     </div>
 
-    <!-- Modals -->
+    <!-- SYSTEM CREATOR MODAL -->
     <div class="modal-overlay" id="systemCreatorModal">
         <div class="modal-container" style="max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3);">
             <div class="modal-header" style="background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(147,0,255,0.1) 100%); border-bottom: 1px solid rgba(0,255,255,0.2);">
@@ -355,13 +371,13 @@
 
     <script>
         // ===================================================================
-        // ALL ORIGINAL DATA RESTORED
+        // CONFIGURATION & DATA
         // ===================================================================
         
         const STORAGE_KEY = 'rackCafeData_v2';
         const SESSION_KEY = 'rackCafeSession';
         
-        // Original credentials preserved exactly
+        // Credentials
         const teamCredentials = {
             'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD', firstLogin: true },
             'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true, firstLogin: true },
@@ -386,7 +402,7 @@
         let currentUser = null;
         let currentFilter = 'all';
         
-        // Maintenance state - stored within main data object
+        // Maintenance State
         let maintenanceMode = {
             enabled: false,
             message: "The server is currently undergoing scheduled maintenance.",
@@ -395,22 +411,19 @@
         };
 
         // ===================================================================
-        // CRITICAL: IMMEDIATE MAINTENANCE CHECK ON LOAD
+        // INITIALIZATION
         // ===================================================================
         
         (function immediateMaintenanceCheck() {
-            console.log('🔒 Checking maintenance status...');
+            console.log('Checking maintenance status...');
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     const data = JSON.parse(saved);
                     if (data.maintenanceMode) {
                         maintenanceMode = data.maintenanceMode;
-                        console.log('📋 Loaded maintenance state:', maintenanceMode.enabled ? 'ENABLED' : 'disabled');
-                        
-                        // If maintenance is enabled, block immediately
+                        console.log('Maintenance state:', maintenanceMode.enabled ? 'ENABLED' : 'disabled');
                         if (maintenanceMode.enabled) {
-                            console.log('🚫 MAINTENANCE ACTIVE - Blocking UI');
                             document.getElementById('maintenanceOverlay').classList.add('active');
                         }
                     }
@@ -445,17 +458,20 @@
             const consoleMaint = document.getElementById('consoleMaint');
             
             if (maintenanceMode.enabled) {
-                // Only show overlay if not system creator
                 if (!currentUser || !currentUser.isSystemCreator) {
                     if (overlay) overlay.classList.add('active');
                 } else {
                     if (overlay) overlay.classList.remove('active');
                 }
                 
-                if (statusText) statusText.textContent = 'MAINTENANCE';
-                if (statusText) statusText.style.color = '#ff4757';
-                if (lockText) lockText.textContent = 'ENABLED';
-                if (lockText) lockText.style.color = '#ff4757';
+                if (statusText) {
+                    statusText.textContent = 'MAINTENANCE';
+                    statusText.style.color = '#ff4757';
+                }
+                if (lockText) {
+                    lockText.textContent = 'ENABLED';
+                    lockText.style.color = '#ff4757';
+                }
                 if (btnText) {
                     btnText.innerHTML = '<i class="fas fa-unlock"></i> Disable Lockdown';
                     btnText.style.borderColor = '#00ff00';
@@ -507,10 +523,9 @@
             showToast(maintenanceMode.enabled ? '🔒 Maintenance Mode ENABLED' : '🔓 Maintenance Mode DISABLED', 
                      maintenanceMode.enabled ? 'error' : 'success');
             
-            // If enabling, show overlay immediately for testing (will disappear since we're admin)
             if (maintenanceMode.enabled) {
                 setTimeout(() => {
-                    applyMaintenanceUI(); // Re-apply to remove overlay for current admin user
+                    applyMaintenanceUI();
                 }, 500);
             }
         }
@@ -527,7 +542,6 @@
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 localStorage.setItem('rackCafeCredentials', JSON.stringify(teamCredentials));
-                console.log('💾 Data saved, maintenance:', maintenanceMode.enabled);
             } catch (e) {
                 console.error('Save failed:', e);
             }
@@ -564,7 +578,6 @@
             document.getElementById('maintenanceOverlay').classList.remove('active');
             document.getElementById('loginScreen').classList.add('show');
             
-            // Visual feedback
             const loginCard = document.querySelector('.login-card');
             if (loginCard) {
                 loginCard.style.border = '2px solid #00ffff';
@@ -576,7 +589,6 @@
 
         function cancelLogin() {
             document.getElementById('loginScreen').classList.remove('show');
-            // Re-check if we should show maintenance overlay again
             if (maintenanceMode.enabled && (!currentUser || !currentUser.isSystemCreator)) {
                 document.getElementById('maintenanceOverlay').classList.add('active');
             }
@@ -594,7 +606,6 @@
             const userData = teamCredentials[username];
             
             if (userData && userData.password === password) {
-                // Check maintenance mode
                 if (maintenanceMode.enabled && !userData.isSystemCreator) {
                     errorDiv.innerHTML = '<i class="fas fa-ban"></i> System under maintenance - Only System Creator may access';
                     errorDiv.classList.add('show');
@@ -603,18 +614,15 @@
                 
                 currentUser = { username, ...userData };
                 
-                // Save session
                 localStorage.setItem(SESSION_KEY, JSON.stringify({
                     username: username,
                     password: password,
                     timestamp: new Date().toISOString()
                 }));
                 
-                // Hide login, show dashboard
                 document.getElementById('loginScreen').classList.remove('show');
                 errorDiv.classList.remove('show');
                 
-                // Update UI
                 document.getElementById('headerLoginBtn').classList.add('hidden');
                 document.getElementById('profileContainer').classList.add('show');
                 document.getElementById('userAvatar').textContent = userData.initials;
@@ -634,7 +642,6 @@
                     document.getElementById('adminPanel').style.display = 'block';
                 }
                 
-                // Apply maintenance UI (removes overlay for admin)
                 applyMaintenanceUI();
                 updateDisplays();
                 
@@ -656,8 +663,8 @@
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('systemCreatorPanel').style.display = 'none';
             
-            // Re-check maintenance mode for logged out state
             applyMaintenanceUI();
+            showToast('Logged out');
         }
 
         function checkSession() {
@@ -667,7 +674,6 @@
                     const session = JSON.parse(saved);
                     const userData = teamCredentials[session.username];
                     if (userData && userData.password === session.password) {
-                        // Check maintenance
                         if (maintenanceMode.enabled && !userData.isSystemCreator) {
                             localStorage.removeItem(SESSION_KEY);
                             showLoggedOutState();
@@ -713,7 +719,7 @@
         function showLoggedOutState() {
             document.getElementById('headerLoginBtn').classList.remove('hidden');
             document.getElementById('profileContainer').classList.remove('show');
-            applyMaintenanceUI(); // This will show overlay if maintenance is on
+            applyMaintenanceUI();
         }
 
         // UI Functions
@@ -730,7 +736,7 @@
         });
 
         function switchTab(tabId, navElement) {
-            if (!currentUser && tabId !== 'homeTab') {
+            if (!currentUser && tabId !== 'homeTab' && tabId !== 'fixturesTab') {
                 showLogin();
                 showToast('Please login to access this feature', 'error');
                 return;
@@ -740,6 +746,10 @@
             document.getElementById(tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if (navElement) navElement.classList.add('active');
+            
+            if (tabId === 'tableTab') renderLeagueTable();
+            if (tabId === 'teamTab') renderTeam();
+            if (tabId === 'profileTab') renderProfile();
         }
 
         function showToast(msg, type = 'success') {
@@ -757,7 +767,7 @@
                 return;
             }
             document.getElementById('systemCreatorModal').classList.add('show');
-            applyMaintenanceUI(); // Sync toggle state
+            applyMaintenanceUI();
         }
 
         function closeSystemCreatorModal() {
@@ -909,6 +919,86 @@
             `).join('');
         }
 
+        function renderLeagueTable() {
+            const container = document.getElementById('leagueTable');
+            const sorted = [...leagueData].sort((a,b) => b.points - a.points || b.won - a.won);
+            
+            container.innerHTML = `
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden;">
+                    <div style="display: grid; grid-template-columns: 40px 1fr 60px 60px 60px; padding: 16px; background: rgba(255,255,255,0.03); font-weight: 700; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">
+                        <div>Pos</div><div>Team</div><div style="text-align: center;">P</div><div style="text-align: center;">W</div><div style="text-align: center;">Pts</div>
+                    </div>
+                    ${sorted.map((team, idx) => `
+                        <div style="display: grid; grid-template-columns: 40px 1fr 60px 60px 60px; padding: 16px; border-top: 1px solid var(--border-color); ${team.isUs ? 'background: rgba(233,69,96,0.1);' : ''}">
+                            <div style="font-weight: 800; color: ${idx < 3 ? '#ffd700' : 'var(--text-secondary)'};">${idx + 1}</div>
+                            <div style="font-weight: ${team.isUs ? '800' : '600'};">${team.name} ${team.isUs ? '<span style="color: var(--primary-pink);">*</span>' : ''}</div>
+                            <div style="text-align: center;">${team.played}</div>
+                            <div style="text-align: center;">${team.won}</div>
+                            <div style="text-align: center; font-weight: 800;">${team.points}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-muted);">* Rack Café Utd</div>
+            `;
+        }
+
+        function renderTeam() {
+            const container = document.getElementById('teamList');
+            container.innerHTML = teamData.map(player => `
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-pink), var(--accent-orange)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;">
+                            ${player.initials}
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center;">
+                                ${player.name}
+                                ${getRoleBadgeHTML(player.role, player.role.includes('System Creator'))}
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                ${player.played} played · ${player.won} won · ${player.winRate}% win rate
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 800; color: var(--primary-pink);">${player.winRate}%</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">WIN RATE</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProfile() {
+            if (!currentUser) return;
+            const player = teamData.find(p => p.name === currentUser.name) || teamData[0];
+            const container = document.getElementById('profileContent');
+            container.innerHTML = `
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; text-align: center;">
+                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800;">
+                        ${player.initials}
+                    </div>
+                    <h2 style="margin-bottom: 8px;">${player.name}</h2>
+                    <div style="color: var(--text-secondary); margin-bottom: 24px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                        ${player.role} ${getRoleBadgeHTML(player.role, currentUser.isSystemCreator)}
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px;">
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                            <div style="font-size: 28px; font-weight: 800; color: var(--primary-pink);">${player.played}</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Matches</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                            <div style="font-size: 28px; font-weight: 800; color: var(--success);">${player.won}</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Won</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                            <div style="font-size: 28px; font-weight: 800; color: var(--accent-orange);">${player.winRate}%</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Win Rate</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function exportDatabase() {
             const data = {
                 teamData,
@@ -933,7 +1023,6 @@
         }
 
         function updateDisplays() {
-            // Update stats
             const us = leagueData[0];
             document.getElementById('statPlayed').textContent = us.played;
             document.getElementById('statWon').textContent = us.won;
@@ -943,7 +1032,6 @@
             const pos = sorted.findIndex(t => t.isUs) + 1;
             document.getElementById('statPosition').textContent = pos ? pos + (pos === 1 ? 'st' : pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th') : '--';
             
-            // Next match
             const upcoming = fixturesData.filter(f => !f.played).sort((a,b) => new Date(a.date) - new Date(b.date))[0];
             if (upcoming) {
                 document.getElementById('nextMatchOpponent').textContent = upcoming.opponent;
@@ -970,7 +1058,7 @@
         });
 
         function manualSync() {
-            loadData(); // Reload to sync across tabs
+            loadData();
             applyMaintenanceUI();
             updateDisplays();
             showToast('Data refreshed');
@@ -978,12 +1066,11 @@
 
         // Initialize
         window.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Rack Café Utd initializing...');
+            console.log('Rack Café Utd initializing...');
             loadData();
-            checkSession(); // This calls applyMaintenanceUI()
+            checkSession();
             updateDisplays();
             
-            // Visibility check for multi-tab sync
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
                     loadData();
