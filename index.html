@@ -190,18 +190,6 @@
         .connection-status { position: fixed; top: 80px; right: 20px; background: rgba(255, 71, 87, 0.9); color: white; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; display: none; align-items: center; gap: 8px; z-index: 1001; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); animation: slideUp 0.3s ease; }
         .connection-status.show { display: flex; }
         .connection-status.online { background: rgba(46, 213, 115, 0.9); }
-        
-        /* Reset button specific styling */
-        .admin-btn.danger {
-            background: rgba(255, 71, 87, 0.15);
-            border-color: rgba(255, 71, 87, 0.4);
-            color: #ff4757;
-        }
-        .admin-btn.danger:hover {
-            background: rgba(255, 71, 87, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
-        }
     </style>
 </head>
 <body>
@@ -374,7 +362,6 @@
         </nav>
     </div>
 
-    <!-- Modals remain the same as previous version -->
     <div class="modal-overlay" id="adminPanelModal">
         <div class="modal-container">
             <div class="modal-header" style="background: linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(243,156,18,0.1) 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
@@ -416,12 +403,6 @@
                         </button>
                         <button class="admin-btn" onclick="closeModal('adminPanelModal'); openSystemCreatorModal()" style="background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); color: #00ffff;">
                             <i class="fas fa-terminal" style="font-size: 24px;"></i> System Console
-                        </button>
-                    </div>
-                    <!-- RESET ALL STATS BUTTON - SYSTEM CREATOR ONLY -->
-                    <div style="margin-top: 16px;">
-                        <button class="admin-btn danger" onclick="closeModal('adminPanelModal'); resetAllStats()" style="width: 100%; border: 1px solid rgba(255, 71, 87, 0.5);">
-                            <i class="fas fa-trash-alt" style="font-size: 24px;"></i> Reset All Stats / Data Wipe
                         </button>
                     </div>
                 </div>
@@ -563,7 +544,10 @@
     <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Success</span></div>
 
     <script>
-        // Firebase Configuration
+        // ===================================================================
+        // FIREBASE CONFIGURATION
+        // ===================================================================
+        
         const firebaseConfig = {
             apiKey: "AIzaSyAYQy0hTbsTkAg8_vqnvRVsXDxg_yg2DVY",
             authDomain: "rack-cafe-united-app.firebaseapp.com",
@@ -587,7 +571,10 @@
                 }
             });
 
-        // Configuration & Data
+        // ===================================================================
+        // CONFIGURATION & DATA
+        // ===================================================================
+        
         const STORAGE_KEY = 'rackCafeData_v3';
         const SESSION_KEY = 'rackCafeSession';
         const DOC_ID = 'main';
@@ -614,7 +601,10 @@
         let isOnline = true;
         let unsubscribe = null;
 
-        // Firebase Sync Functions
+        // ===================================================================
+        // FIREBASE SYNC FUNCTIONS
+        // ===================================================================
+
         function initFirebaseSync() {
             unsubscribe = db.collection('rackCafe').doc(DOC_ID)
                 .onSnapshot((doc) => {
@@ -734,8 +724,6 @@
                     if (data.teamCredentials) {
                         Object.assign(teamCredentials, data.teamCredentials);
                     }
-                } else {
-                    syncTeamDataWithCredentials();
                 }
             } catch (e) {
                 console.error('LocalStorage load failed:', e);
@@ -791,7 +779,10 @@
             });
         }
 
-        // Initialization
+        // ===================================================================
+        // INITIALIZATION
+        // ===================================================================
+        
         function init() {
             loadData();
             initFirebaseSync();
@@ -822,7 +813,10 @@
             });
         }
 
-        // Authentication
+        // ===================================================================
+        // AUTHENTICATION
+        // ===================================================================
+
         function showLogin() {
             document.getElementById('loginScreen').classList.add('show');
         }
@@ -952,7 +946,10 @@
             switchTab(tabId, navElement);
         }
 
-        // UI Functions
+        // ===================================================================
+        // UI FUNCTIONS
+        // ===================================================================
+
         function toggleDropdown(e) {
             if (e) e.stopPropagation();
             document.getElementById('profileDropdown').classList.toggle('show');
@@ -1023,10 +1020,6 @@
                 document.getElementById('nextMatchDate').textContent = new Date(upcoming.date).toLocaleDateString();
                 document.getElementById('nextMatchTime').textContent = upcoming.time || '20:00';
                 document.getElementById('nextMatchVenue').textContent = upcoming.venue === 'home' ? 'Home' : 'Away';
-            } else {
-                document.getElementById('nextMatchOpponent').textContent = 'TBD';
-                document.getElementById('nextMatchDate').textContent = 'TBC';
-                document.getElementById('nextMatchTime').textContent = '--:--';
             }
             
             renderFixtures();
@@ -1489,77 +1482,6 @@
                      maintenanceMode ? 'error' : 'success');
         }
 
-        // SYSTEM CREATOR ONLY: RESET ALL STATS
-        function resetAllStats() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator access required', 'error');
-                return;
-            }
-            
-            // Double confirmation with warning text
-            if (!confirm('⚠️ SYSTEM ALERT: This will irreversibly delete ALL match results, fixture history, player statistics, training records, announcements, and league data.\n\nThis action cannot be undone.\n\nAre you sure you wish to proceed?')) return;
-            
-            if (!confirm('🔴 FINAL WARNING: All game history, win rates, match records, and player statistics will be permanently erased and reset to zero.\n\nConfirm complete data wipe?')) return;
-            
-            logToConsole('⚠️ INITIATING SYSTEM WIPE...');
-            
-            // Reset league data - keep only our team with zeroed stats
-            const ourTeamIndex = leagueData.findIndex(t => t.isUs);
-            if (ourTeamIndex !== -1) {
-                leagueData = [{
-                    id: 1,
-                    name: 'Rack Café Utd',
-                    played: 0,
-                    won: 0,
-                    lost: 0,
-                    points: 0,
-                    isUs: true
-                }];
-            } else {
-                leagueData = [{ id: 1, name: 'Rack Café Utd', played: 0, won: 0, lost: 0, points: 0, isUs: true }];
-            }
-            
-            // Reset all player stats while preserving user accounts and roles
-            teamData.forEach(player => {
-                player.played = 0;
-                player.won = 0;
-                player.lost = 0;
-                player.winRate = 0;
-                player.gameHistory = [];
-            });
-            
-            // Clear all fixtures (both played and upcoming)
-            fixturesData = [];
-            
-            // Clear all scorecards
-            scorecards = [];
-            
-            // Clear announcements
-            announcements = [];
-            
-            // Clear training sessions
-            trainingSessions = [];
-            
-            // Save to Firebase and local storage
-            saveData();
-            
-            // Update all displays
-            updateDisplays();
-            
-            // Force refresh of visible tabs if open
-            if (document.getElementById('fixturesTab').classList.contains('active')) renderFixtures();
-            if (document.getElementById('tableTab').classList.contains('active')) renderLeagueTable();
-            if (document.getElementById('teamTab').classList.contains('active')) renderTeam();
-            if (document.getElementById('scorecardTab').classList.contains('active')) renderScorecards();
-            if (document.getElementById('trainingTab').classList.contains('active')) renderTraining();
-            
-            logToConsole('🧹 COMPLETE SYSTEM WIPE EXECUTED');
-            logToConsole(`All statistics reset to zero by ${currentUser.name}`);
-            logToConsole(`Timestamp: ${new Date().toISOString()}`);
-            
-            showToast('🗑️ All statistics have been reset to zero', 'error');
-        }
-
         function logToConsole(msg) {
             const console = document.getElementById('systemConsole');
             if (console) {
@@ -1721,7 +1643,7 @@
                                 ${scorecard.frames.map((frame, idx) => `
                                     <div class="frame-box ${frame.result === 'W' ? 'won' : frame.result === 'L' ? 'lost' : ''}" onclick="viewFrameDetail(${match.id}, ${idx})">
                                         <div class="frame-number">${idx + 1}</div>
-                                        <div class="frame-result">${frame.result || '-'}</div>
+                                        <div class="frame-result">${frame.result}</div>
                                         <div class="frame-player">${frame.player ? teamData.find(p => p.name === frame.player)?.initials || '?' : '-'}</div>
                                     </div>
                                 `).join('')}
@@ -1746,7 +1668,7 @@
                 </div>
                 <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
                     <div style="font-size: 48px; font-weight: 800; color: ${frame.result === 'W' ? '#2ed573' : frame.result === 'L' ? '#ff4757' : '#ffd700'}; margin-bottom: 8px;">
-                        ${frame.result || '-'}
+                        ${frame.result}
                     </div>
                     <div style="font-size: 14px; color: var(--text-secondary);">Result</div>
                 </div>
@@ -2017,7 +1939,6 @@
             showToast('Data refreshed');
         }
 
-        // Startup
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
