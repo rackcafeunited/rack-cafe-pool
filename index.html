@@ -12,27 +12,13 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1420 100%); color: var(--text-primary); min-height: 100vh; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         
-        /* CRITICAL: Maintenance overlay must be highest z-index */
-        .maintenance-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%);
-            z-index: 2147483647;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-        }
+        .maintenance-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%); z-index: 2147483647; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .maintenance-overlay.active { display: flex !important; animation: fadeIn 0.3s ease; }
         .maintenance-icon { font-size: 80px; color: #ff4757; margin-bottom: 30px; animation: pulse 2s infinite; text-shadow: 0 0 30px rgba(255, 71, 87, 0.5); }
         .maintenance-title { font-size: 36px; font-weight: 900; margin-bottom: 16px; background: linear-gradient(135deg, #ff4757, #ff6348); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .maintenance-message { font-size: 16px; color: var(--text-secondary); max-width: 500px; line-height: 1.6; margin-bottom: 30px; }
-        .maintenance-hint { position: fixed; bottom: 40px; font-size: 12px; color: rgba(255, 255, 255, 0.3); font-family: monospace; }
-
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        
         .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #151525 0%, #0a0a14 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999998; }
         .login-screen.show { display: flex; }
         .logo { width: 110px; height: 110px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #e94560 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4); position: relative; cursor: pointer; }
@@ -48,8 +34,10 @@
         .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
         .form-input, .form-select, .form-textarea { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; font-family: inherit; }
         .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
+        .form-textarea { min-height: 100px; resize: vertical; padding: 16px; }
         .login-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; box-shadow: 0 4px 25px rgba(233, 69, 96, 0.4); transition: all 0.3s; }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 35px rgba(233, 69, 96, 0.5); }
+        .login-btn.secondary { background: rgba(255,255,255,0.1); margin-top: 10px; }
         .login-error { background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); color: #ff4757; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; display: none; align-items: center; gap: 8px; }
         .login-error.show { display: flex; }
         
@@ -84,6 +72,7 @@
         .page-title p { color: var(--text-secondary); font-size: 15px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
         .admin-panel { background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; position: relative; }
         .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
         @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
@@ -97,32 +86,68 @@
         .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #e94560, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
         .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        /* WWLDW Panel Styles */
+        .form-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+        .form-display { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+        .form-badge { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; }
+        .form-w { background: rgba(46, 213, 115, 0.2); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
+        .form-l { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+        .form-d { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
+        
+        /* Announcement Styles */
+        .announcement-card { background: linear-gradient(135deg, rgba(233,69,96,0.1) 0%, rgba(255,215,0,0.05) 100%); border: 1px solid rgba(233,69,96,0.3); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
+        .announcement-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .announcement-date { font-size: 11px; color: var(--text-muted); }
+        .announcement-delete { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(255,71,87,0.2); border: none; color: #ff4757; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        
+        /* Training Tab Styles */
+        .training-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .training-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .training-date { font-size: 20px; font-weight: 800; color: var(--primary-pink); }
+        .training-time { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+        .attendance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 12px; }
+        .attendee { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; text-align: center; font-size: 12px; border: 1px solid transparent; transition: all 0.3s; cursor: pointer; }
+        .attendee:hover { border-color: var(--success); }
+        .attendee.confirmed { background: rgba(46, 213, 115, 0.1); border-color: var(--success); color: #2ed573; }
+        .attendee.declined { opacity: 0.5; background: rgba(255, 71, 87, 0.1); }
+        .attendance-btn { margin-top: 12px; padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 13px; margin-right: 8px; }
+        .btn-yes { background: rgba(46, 213, 115, 0.2); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
+        .btn-no { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+        
+        /* Scorecard Styles */
+        .frame-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 20px 0; }
+        @media (max-width: 768px) { .frame-grid { grid-template-columns: repeat(2, 1fr); } }
+        .frame-box { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 16px; text-align: center; position: relative; cursor: pointer; transition: all 0.3s; }
+        .frame-box:hover { border-color: var(--primary-pink); }
+        .frame-box.won { border-color: var(--success); background: rgba(46, 213, 115, 0.05); }
+        .frame-box.lost { border-color: var(--danger); background: rgba(255, 71, 87, 0.05); }
+        .frame-number { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg-card); padding: 0 8px; font-size: 12px; color: var(--text-muted); font-weight: 700; }
+        .frame-result { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+        .frame-player { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
         .modal-overlay.show { display: flex; }
         .modal-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); animation: slideUp 0.3s ease; }
+        .modal-container.wide { max-width: 900px; }
         .modal-header { background: linear-gradient(135deg, rgba(233,69,96,0.2) 0%, rgba(243,156,18,0.1) 100%); padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .modal-title { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
         .modal-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .modal-body { padding: 24px; }
         .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; transition: all 0.3s; }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4); }
+        .submit-btn.secondary { background: rgba(255,255,255,0.1); margin-top: 12px; }
         
-        #systemCreatorModal .modal-container { max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3); }
+        #systemCreatorModal .modal-container { border: 2px solid rgba(0, 255, 255, 0.3); }
         #systemCreatorModal .modal-title { color: #00ffff; }
-        
-        .maintenance-toggle { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s; }
-        .maintenance-toggle.active { background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); }
-        .toggle-switch { width: 50px; height: 26px; background: rgba(255, 255, 255, 0.1); border-radius: 13px; position: relative; transition: all 0.3s; }
-        .maintenance-toggle.active .toggle-switch { background: #00ffff; }
-        .toggle-switch::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: all 0.3s; }
-        .maintenance-toggle.active .toggle-switch::after { left: 26px; }
         
         .role-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; border: 1px solid; vertical-align: middle; }
         .badge-system-creator { background: rgba(0, 255, 255, 0.15); border-color: #00ffff; color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); animation: pulse 2s infinite; }
         .badge-captain { background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700; }
         .badge-co-captain { background: rgba(243, 156, 18, 0.15); border-color: #f39c12; color: #f39c12; }
+        .badge-player { background: rgba(160, 160, 184, 0.15); border-color: var(--text-secondary); color: var(--text-secondary); }
         
-        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; cursor: pointer; }
+        .fixture-card:hover { border-color: var(--primary-pink); }
         .fixture-date { min-width: 60px; text-align: center; margin-right: 20px; }
         .date-day { font-size: 28px; font-weight: 900; color: #e94560; line-height: 1; }
         
@@ -137,26 +162,38 @@
         .header-login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
         .header-login-btn.hidden { display: none !important; }
         
-        kbd { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; border: 1px solid rgba(255,255,255,0.2); }
+        .player-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
+        .player-list-item:hover { border-color: var(--primary-pink); }
+        .role-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; padding: 6px; border-radius: 6px; font-size: 13px; }
+        
+        .login-info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .login-info-table th, .login-info-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .login-info-table th { color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        .last-login { color: var(--success); font-size: 11px; }
+        
+        .game-history-item { display: flex; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border-left: 3px solid var(--primary-pink); }
+        .game-history-list { max-height: 400px; overflow-y: auto; }
+        
+        .notification-badge { position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+        
+        .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; font-weight: 800; font-size: 18px; }
+        .section-title i { color: var(--primary-pink); margin-right: 8px; }
     </style>
 </head>
 <body>
 
-    <!-- MAINTENANCE OVERLAY - MUST BE FIRST ELEMENT -->
     <div id="maintenanceOverlay" class="maintenance-overlay">
         <i class="fas fa-radiation maintenance-icon"></i>
         <div class="maintenance-title">SYSTEM MAINTENANCE</div>
         <div id="maintenanceMessageText" class="maintenance-message">
             The server is currently undergoing scheduled maintenance.<br>
-            Only authorized System Administrators may access the platform at this time.
+            Only authorized System Administrators may access this platform.
         </div>
-        <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
-            <button onclick="attemptMaintenanceLogin()" class="login-btn" style="width: auto; padding: 12px 32px; background: rgba(0,0,0,0.5); border: 1px solid #00ffff; color: #00ffff;">
-                <i class="fas fa-terminal"></i> SYS_ADMIN LOGIN
-            </button>
-        </div>
-        <div class="maintenance-hint">
-            Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> to reveal login
+        <button onclick="attemptMaintenanceLogin()" class="login-btn" style="width: auto; padding: 12px 32px; background: rgba(0,0,0,0.5); border: 1px solid #00ffff; color: #00ffff; margin-top: 20px;">
+            <i class="fas fa-terminal"></i> SYS_ADMIN LOGIN
+        </button>
+        <div style="position: fixed; bottom: 40px; font-size: 12px; color: rgba(255, 255, 255, 0.3); font-family: monospace;">
+            Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd>
         </div>
     </div>
 
@@ -169,7 +206,7 @@
                 <div class="form-group"><label class="form-label">Username</label><div class="input-wrapper"><i class="fas fa-user"></i><input type="text" class="form-input" id="usernameInput" required autocomplete="username"></div></div>
                 <div class="form-group"><label class="form-label">Password</label><div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" class="form-input" id="passwordInput" required autocomplete="current-password"></div></div>
                 <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> LOGIN</button>
-                <button type="button" class="login-btn" style="margin-top: 10px; background: rgba(255,255,255,0.1);" onclick="cancelLogin()"><i class="fas fa-times"></i> Cancel</button>
+                <button type="button" class="login-btn secondary" onclick="cancelLogin()"><i class="fas fa-times"></i> Cancel</button>
             </form>
         </div>
     </div>
@@ -190,17 +227,19 @@
                     <div class="avatar" id="userAvatar" onclick="toggleDropdown(event)">--</div>
                     <div class="dropdown-menu" id="profileDropdown">
                         <div class="user-info">
-                            <div class="user-name" id="dropdownUserName"><span id="userNameText">User</span><span id="userBadge"></span></div>
+                            <div class="user-name" id="dropdownUserName">
+                                <span id="userNameText">User</span>
+                                <span id="userBadge"></span>
+                            </div>
                             <div class="user-role" id="dropdownUserRole"><i class="fas fa-user"></i> <span id="roleText">Player</span></div>
                         </div>
                         <div class="dropdown-item" onclick="switchTab('profileTab'); toggleDropdown();"><i class="fas fa-user"></i> My Profile</div>
-                        <div id="adminMenuItems" style="display: none;">
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item" onclick="openAdminPanel(); toggleDropdown();" style="color: var(--gold-primary);"><i class="fas fa-shield-alt"></i> Captain's Panel</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" onclick="switchTab('homeTab'); openAdminPanel(); toggleDropdown();" id="adminMenuItem" style="display: none; color: var(--gold-primary);">
+                            <i class="fas fa-shield-alt"></i> Admin Panel
                         </div>
-                        <div id="systemCreatorMenuItem" style="display: none;">
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item system-creator" onclick="openSystemCreatorModal(); toggleDropdown();"><i class="fas fa-terminal"></i> System Creator</div>
+                        <div class="dropdown-item system-creator" onclick="openSystemCreatorModal(); toggleDropdown();" id="systemCreatorMenuItem" style="display: none;">
+                            <i class="fas fa-terminal"></i> System Creator
                         </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" onclick="logout()" style="color: #ff4757;"><i class="fas fa-sign-out-alt"></i> Log Out</div>
@@ -210,20 +249,43 @@
         </header>
 
         <main class="main-content">
+            <!-- HOME TAB -->
             <div class="tab-content active" id="homeTab">
-                <div class="page-title"><h1>Dashboard</h1><p id="welcomeText">Welcome to Rack Café Utd</p></div>
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p id="welcomeText">Welcome to Rack Café Utd</p>
+                </div>
                 
+                <!-- Live Form Panel WWLDW -->
+                <div class="form-panel">
+                    <div class="section-title"><span><i class="fas fa-chart-line"></i> Live Form (WWLDW)</span></div>
+                    <div class="form-display" id="wwldwPanel">
+                        <div class="form-badge form-w">W</div>
+                        <div class="form-badge form-w">W</div>
+                        <div class="form-badge form-l">L</div>
+                        <div class="form-badge form-d">D</div>
+                        <div class="form-badge form-w">W</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">Last 5 Matches</div>
+                </div>
+
+                <!-- Latest Announcements -->
+                <div class="form-panel" id="announcementsPanel" style="display: none;">
+                    <div class="section-title"><span><i class="fas fa-bullhorn"></i> Latest Announcements</span></div>
+                    <div id="announcementsList"></div>
+                </div>
+
                 <div id="nextMatchCard" class="next-match-card">
-                    <div class="match-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <div class="match-label"><i class="fas fa-calendar-check"></i> Next Match</div>
-                        <span class="home-badge" id="nextMatchVenue">Home</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9;"><i class="fas fa-calendar-check"></i> Next Match</div>
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;" id="nextMatchVenue">Home</span>
                     </div>
-                    <div class="match-teams" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
-                        <div class="team" style="text-align: center; flex: 1;"><div class="team-name">Rack Café Utd</div></div>
-                        <div class="vs">VS</div>
-                        <div class="team" style="text-align: center; flex: 1;"><div class="team-name" id="nextMatchOpponent">TBD</div></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+                        <div style="text-align: center; flex: 1;"><div style="font-size: 20px; font-weight: 800;">Rack Café Utd</div></div>
+                        <div style="font-size: 24px; font-weight: 700; opacity: 0.8;">VS</div>
+                        <div style="text-align: center; flex: 1;"><div style="font-size: 20px; font-weight: 800;" id="nextMatchOpponent">TBD</div></div>
                     </div>
-                    <div class="match-details" style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
                         <div style="text-align: center;"><i class="fas fa-calendar" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i><div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Date</div><div style="font-weight: 700; margin-top: 4px;" id="nextMatchDate">TBC</div></div>
                         <div style="text-align: center;"><i class="fas fa-clock" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i><div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Kickoff</div><div style="font-weight: 700; margin-top: 4px; color: #ffd700;" id="nextMatchTime">--:--</div></div>
                     </div>
@@ -236,57 +298,70 @@
                     <div class="stat-card"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label">Win Rate</div></div>
                 </div>
 
-                <div id="adminPanel" style="display: none;">
-                    <div class="admin-panel">
-                        <div class="section-title" style="color: var(--gold-primary); margin-bottom: 16px;"><i class="fas fa-shield-alt"></i> Admin Controls</div>
-                        <div class="admin-grid">
-                            <button class="admin-btn" onclick="openAddResultModal()"><i class="fas fa-plus-circle"></i> Add Result</button>
-                            <button class="admin-btn" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule</button>
-                        </div>
+                <!-- Admin Controls (Hidden by default, shown based on role) -->
+                <div id="adminPanel" class="admin-panel" style="display: none;">
+                    <div style="color: var(--gold-primary); margin-bottom: 16px; font-weight: 800; font-size: 18px;"><i class="fas fa-shield-alt"></i> Admin Controls</div>
+                    <div class="admin-grid">
+                        <button class="admin-btn" onclick="openAddResultModal()"><i class="fas fa-plus-circle"></i> Add Result</button>
+                        <button class="admin-btn" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule</button>
+                        <button class="admin-btn" onclick="openAnnouncementModal()"><i class="fas fa-bullhorn"></i> Announcement</button>
+                        <button class="admin-btn" onclick="openRoleManagerModal()" id="roleManagerBtn" style="display: none;"><i class="fas fa-user-tag"></i> Manage Roles</button>
                     </div>
                 </div>
 
-                <!-- SYSTEM CREATOR PANEL -->
-                <div id="systemCreatorPanel" style="display: none; margin-top: 24px;">
-                    <div class="admin-panel" style="border-color: #00ffff; background: rgba(0,255,255,0.05);">
-                        <div class="section-title" style="color: #00ffff; margin-bottom: 16px;"><i class="fas fa-terminal"></i> System Creator Controls</div>
-                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-family: monospace; font-size: 12px; color: #00ffff;">
-                            <div>Status: <span id="maintStatusText" style="color: #2ed573;">ONLINE</span></div>
-                            <div>Lockdown: <span id="maintLockText" style="color: #ff4757;">DISABLED</span></div>
-                        </div>
-                        <div class="admin-grid">
-                            <button class="admin-btn" onclick="toggleMaintenanceMode()" id="maintToggleBtn" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.1);">
-                                <i class="fas fa-radiation"></i> Enable Lockdown
-                            </button>
-                            <button class="admin-btn" onclick="exportDatabase()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);">
-                                <i class="fas fa-file-export"></i> Export Data
-                            </button>
-                        </div>
+                <!-- System Creator Panel (Hidden by default) -->
+                <div id="systemCreatorPanel" class="admin-panel" style="display: none; border-color: #00ffff; background: rgba(0,255,255,0.05);">
+                    <div style="color: #00ffff; margin-bottom: 16px; font-weight: 800; font-size: 18px;"><i class="fas fa-terminal"></i> System Creator Controls</div>
+                    <div class="admin-grid">
+                        <button class="admin-btn" onclick="openPlayerManagerModal()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);"><i class="fas fa-users-cog"></i> Manage Players</button>
+                        <button class="admin-btn" onclick="openLoginInfoModal()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);"><i class="fas fa-history"></i> Login History</button>
+                        <button class="admin-btn" onclick="toggleMaintenanceMode()" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.1);"><i class="fas fa-radiation"></i> Maintenance</button>
                     </div>
                 </div>
             </div>
 
+            <!-- FIXTURES TAB -->
             <div class="tab-content" id="fixturesTab">
                 <div class="page-title"><h1>Fixtures</h1><p>2025/26 Season</p></div>
-                <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 24px;">
-                    <button class="filter-btn active" onclick="filterFixtures('all', this)" style="background: linear-gradient(135deg, #e94560 0%, #d63d56 100%); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer;">All</button>
-                    <button class="filter-btn" onclick="filterFixtures('upcoming', this)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer;">Upcoming</button>
+                <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+                    <button class="admin-btn" onclick="filterFixtures('all', this)" style="background: linear-gradient(135deg, #e94560 0%, #d63d56 100%); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer; flex: 1;">All</button>
+                    <button class="admin-btn" onclick="filterFixtures('upcoming', this)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer; flex: 1;">Upcoming</button>
                 </div>
                 <div id="fixturesList"></div>
             </div>
 
+            <!-- TABLE TAB -->
             <div class="tab-content" id="tableTab">
                 <div class="page-title"><h1>League Table</h1><p>Current Standings</p></div>
                 <div id="leagueTable"></div>
             </div>
 
+            <!-- TEAM TAB -->
             <div class="tab-content" id="teamTab">
-                <div class="page-title"><h1>Squad</h1><p>Team Roster</p></div>
+                <div class="page-title"><h1>Squad</h1><p>Team Roster & Roles</p></div>
                 <div id="teamList"></div>
             </div>
 
+            <!-- TRAINING TAB -->
+            <div class="tab-content" id="trainingTab">
+                <div class="page-title"><h1>Training</h1><p>Schedule & Attendance</p></div>
+                <div id="adminTrainingControls" style="display: none; margin-bottom: 20px;">
+                    <button class="admin-btn" onclick="openScheduleTrainingModal()" style="width: 100%; margin-bottom: 16px; background: var(--primary-pink); color: white; border: none;">
+                        <i class="fas fa-plus"></i> Schedule Training Session
+                    </button>
+                </div>
+                <div id="trainingList"></div>
+            </div>
+
+            <!-- SCORECARD TAB -->
+            <div class="tab-content" id="scorecardTab">
+                <div class="page-title"><h1>Scorecards</h1><p>Frame-by-Frame Results</p></div>
+                <div id="scorecardList"></div>
+            </div>
+
+            <!-- PROFILE TAB -->
             <div class="tab-content" id="profileTab">
-                <div class="page-title"><h1>My Profile</h1><p>Player Statistics</p></div>
+                <div class="page-title"><h1>My Profile</h1><p>Player Statistics & History</p></div>
                 <div id="profileContent"></div>
             </div>
         </main>
@@ -294,76 +369,150 @@
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchTab('homeTab', this)"><i class="fas fa-home"></i><span>Home</span></button>
             <button class="nav-item" onclick="switchTab('fixturesTab', this)"><i class="fas fa-calendar-days"></i><span>Fixtures</span></button>
-            <button class="nav-item" onclick="if(!currentUser){showLogin(); showToast('Login required', 'error');} else {switchTab('tableTab', this);}"><i class="fas fa-table"></i><span>Table</span></button>
-            <button class="nav-item" onclick="if(!currentUser){showLogin(); showToast('Login required', 'error');} else {switchTab('teamTab', this);}"><i class="fas fa-users"></i><span>Team</span></button>
+            <button class="nav-item" onclick="requireAuth('trainingTab', this)"><i class="fas fa-dumbbell"></i><span>Training</span></button>
+            <button class="nav-item" onclick="requireAuth('scorecardTab', this)"><i class="fas fa-table-list"></i><span>Scores</span></button>
+            <button class="nav-item" onclick="requireAuth('teamTab', this)"><i class="fas fa-users"></i><span>Team</span></button>
         </nav>
     </div>
 
-    <!-- SYSTEM CREATOR MODAL -->
+    <!-- MODALS -->
+
+    <!-- System Creator Modal -->
     <div class="modal-overlay" id="systemCreatorModal">
-        <div class="modal-container" style="max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3);">
+        <div class="modal-container wide" style="border: 2px solid rgba(0, 255, 255, 0.3);">
             <div class="modal-header" style="background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(147,0,255,0.1) 100%); border-bottom: 1px solid rgba(0,255,255,0.2);">
                 <div class="modal-title" style="color: #00ffff;"><i class="fas fa-terminal"></i> SYSTEM_CREATOR_PANEL</div>
-                <button class="modal-close" onclick="closeSystemCreatorModal()" style="color: #00ffff;"><i class="fas fa-times"></i></button>
+                <button class="modal-close" onclick="closeModal('systemCreatorModal')" style="color: #00ffff;"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <div style="margin-bottom: 24px;">
-                    <div style="font-size: 12px; color: #ff4757; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,71,87,0.2); padding-bottom: 8px;">
-                        <i class="fas fa-radiation"></i> Server Lockdown Control
-                    </div>
-                    <div style="background: rgba(255,71,87,0.05); border: 1px solid rgba(255,71,87,0.2); border-radius: 12px; padding: 16px;">
-                        <div class="maintenance-toggle" id="modalMaintToggle" onclick="toggleMaintenanceMode()">
-                            <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-power-off" style="font-size: 20px; color: #ff4757;"></i>
-                                <div><div style="font-weight: 800; margin-bottom: 2px;">Maintenance Mode</div><div style="font-size: 12px; color: var(--text-secondary);">Lock all users except System Creator</div></div>
-                            </div>
-                            <div class="toggle-switch"></div>
-                        </div>
-                        <div id="modalMaintStatus" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,71,87,0.1); border-radius: 8px; border-left: 3px solid #ff4757; font-size: 12px; color: #ff4757;">
-                            <i class="fas fa-exclamation-triangle"></i> Currently Locked: All users except System Creator are blocked
-                        </div>
-                    </div>
-                </div>
-                <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; color: #00ffff; font-size: 12px; height: 150px; overflow-y: auto;" id="dbConsole">
+            <div class="modal-body" id="systemCreatorContent">
+                <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; color: #00ffff; font-size: 12px; height: 200px; overflow-y: auto;" id="systemConsole">
                     <div style="color: #00ff00;">> System Creator v2.0 initialized...</div>
-                    <div style="color: #00ffff;">> Maintenance: <span id="consoleMaint">OFFLINE</span></div>
                 </div>
-                <button class="submit-btn" onclick="forceSaveMaintenance()" style="margin-top: 12px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; color: #00ffff;">
-                    <i class="fas fa-save"></i> Force Save State
-                </button>
+                <button class="submit-btn" onclick="closeModal('systemCreatorModal')" style="margin-top: 12px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; color: #00ffff;">Close Panel</button>
             </div>
         </div>
     </div>
 
+    <!-- Player Manager Modal (System Creator Only) -->
+    <div class="modal-overlay" id="playerManagerModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-users-cog" style="color: var(--primary-pink);"></i> Manage Players</div><button class="modal-close" onclick="closeModal('playerManagerModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div id="playerListContainer" style="max-height: 300px; overflow-y: auto; margin-bottom: 16px;"></div>
+                <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;">Add New Player</h3>
+                    <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" id="newPlayerName" style="padding-left: 16px; width: 100%;"></div>
+                    <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="newPlayerUsername" style="padding-left: 16px; width: 100%;"></div>
+                    <div class="form-group"><label class="form-label">Initials (2-3 chars)</label><input type="text" class="form-input" id="newPlayerInitials" maxlength="3" style="padding-left: 16px; width: 100%;"></div>
+                    <button class="submit-btn" onclick="addNewPlayer()"><i class="fas fa-plus" style="margin-right: 8px;"></i> Add Player</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Manager Modal (Captain + System Creator Only) -->
+    <div class="modal-overlay" id="roleManagerModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-user-tag" style="color: var(--primary-pink);"></i> Change Player Roles</div><button class="modal-close" onclick="closeModal('roleManagerModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div id="roleChangeList" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Info Modal (System Creator Only) -->
+    <div class="modal-overlay" id="loginInfoModal">
+        <div class="modal-container wide">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-history" style="color: var(--primary-pink);"></i> Login History</div><button class="modal-close" onclick="closeModal('loginInfoModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <table class="login-info-table">
+                    <thead>
+                        <tr><th>Username</th><th>Name</th><th>Role</th><th>Last Login</th><th>IP Address</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="loginInfoTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Result Modal -->
     <div class="modal-overlay" id="addResultModal">
         <div class="modal-container">
-            <div class="modal-header"><div class="modal-title"><i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Add Match Result</div><button class="modal-close" onclick="closeAddResultModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Add Match Result</div><button class="modal-close" onclick="closeModal('addResultModal')"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group"><label class="form-label">Opponent</label><select class="form-select" id="resultOpponent" style="padding-left: 16px; width: 100%;"></select></div>
+                <div class="form-group"><label class="form-label">Opponent</label><select class="form-select" id="resultOpponent" style="padding-left: 16px; width: 100%;"></select></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="resultDate" style="padding-left: 16px; width: 100%;"></div>
                     <div class="form-group"><label class="form-label">Venue</label><select class="form-select" id="resultVenue" style="padding-left: 16px; width: 100%;"><option value="home">Home</option><option value="away">Away</option></select></div>
                 </div>
-                <div class="form-group"><label class="form-label">Match Date</label><input type="date" class="form-input" id="resultDate" style="padding-left: 16px; width: 100%;"></div>
-                <div class="score-input-container" style="display: flex; align-items: center; gap: 16px; justify-content: center; margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--border-color);">
-                    <div style="text-align: center;"><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Rack Café</div><input type="number" class="score-input" id="ourScore" min="0" max="10" value="0" style="width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 900; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: white;"></div>
-                    <div style="font-size: 24px; font-weight: 700; color: var(--text-secondary);">-</div>
-                    <div style="text-align: center;"><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Opponent</div><input type="number" class="score-input" id="theirScore" min="0" max="10" value="0" style="width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 900; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: white;"></div>
+                
+                <div style="margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--border-color);">
+                    <div style="text-align: center; margin-bottom: 16px; font-weight: 700;">Match Score</div>
+                    <div style="display: flex; align-items: center; gap: 16px; justify-content: center;">
+                        <div style="text-align: center;"><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Rack Café</div><input type="number" id="ourScore" min="0" value="0" style="width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 800; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: white;"></div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--text-secondary);">-</div>
+                        <div style="text-align: center;"><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Opponent</div><input type="number" id="theirScore" min="0" value="0" style="width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 800; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: white;"></div>
+                    </div>
                 </div>
-                <button type="button" class="submit-btn" onclick="submitMatchResult()"><i class="fas fa-save" style="margin-right: 8px;"></i> Save Result</button>
+
+                <div style="margin: 20px 0;">
+                    <div style="text-align: center; margin-bottom: 12px; font-weight: 700;">Frame Details (10 Frames)</div>
+                    <div class="frame-grid" id="frameInputs">
+                        <!-- Frame inputs generated by JS -->
+                    </div>
+                </div>
+
+                <button class="submit-btn" onclick="submitMatchResult()"><i class="fas fa-save" style="margin-right: 8px;"></i> Save Result</button>
             </div>
         </div>
     </div>
 
+    <!-- Schedule Match Modal -->
     <div class="modal-overlay" id="scheduleModal">
         <div class="modal-container">
-            <div class="modal-header"><div class="modal-title"><i class="fas fa-calendar-plus" style="color: var(--primary-pink);"></i> Schedule Match</div><button class="modal-close" onclick="closeScheduleModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-calendar-plus" style="color: var(--primary-pink);"></i> Schedule Match</div><button class="modal-close" onclick="closeModal('scheduleModal')"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
                 <div class="form-group"><label class="form-label">Opponent</label><select class="form-select" id="scheduleOpponent" style="padding-left: 16px; width: 100%;"></select></div>
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="scheduleDate" style="padding-left: 16px; width: 100%;"></div>
                     <div class="form-group"><label class="form-label">Time</label><input type="time" class="form-input" id="scheduleTime" style="padding-left: 16px; width: 100%;" value="20:00"></div>
                 </div>
-                <button type="button" class="submit-btn" onclick="submitSchedule()"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Schedule</button>
+                <button class="submit-btn" onclick="submitSchedule()"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Schedule</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div class="modal-overlay" id="announcementModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-bullhorn" style="color: var(--primary-pink);"></i> New Announcement</div><button class="modal-close" onclick="closeModal('announcementModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-input" id="announcementTitle" style="padding-left: 16px; width: 100%;" placeholder="Enter announcement title..."></div>
+                <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" id="announcementMessage" placeholder="Enter your message..."></textarea></div>
+                <button class="submit-btn" onclick="submitAnnouncement()"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Post Announcement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Training Modal -->
+    <div class="modal-overlay" id="scheduleTrainingModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-dumbbell" style="color: var(--primary-pink);"></i> Schedule Training</div><button class="modal-close" onclick="closeModal('scheduleTrainingModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="trainingDate" style="padding-left: 16px; width: 100%;"></div>
+                <div class="form-group"><label class="form-label">Time</label><input type="time" class="form-input" id="trainingTime" style="padding-left: 16px; width: 100%;" value="19:00"></div>
+                <div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" id="trainingLocation" style="padding-left: 16px; width: 100%;" value="Rack Café"></div>
+                <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="trainingNotes" style="padding-left: 16px; width: 100%;" placeholder="Optional notes..."></div>
+                <button class="submit-btn" onclick="submitTrainingSchedule()"><i class="fas fa-save" style="margin-right: 8px;"></i> Schedule Training</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frame Detail Modal (for viewing scorecard details) -->
+    <div class="modal-overlay" id="frameDetailModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-eye" style="color: var(--primary-pink);"></i> Frame Details</div><button class="modal-close" onclick="closeModal('frameDetailModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body" id="frameDetailContent"></div>
         </div>
     </div>
 
@@ -374,178 +523,67 @@
         // CONFIGURATION & DATA
         // ===================================================================
         
-        const STORAGE_KEY = 'rackCafeData_v2';
+        const STORAGE_KEY = 'rackCafeData_v3';
         const SESSION_KEY = 'rackCafeSession';
         
-        // Credentials
-        const teamCredentials = {
-            'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD', firstLogin: true },
-            'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true, firstLogin: true },
-            'CShearon': { password: 'Rack2026', name: 'Chris Shearon', role: 'Co-Captain', isAdmin: true, initials: 'CS', firstLogin: true },
-            'TDannatt': { password: 'Rack2026', name: 'Terry Dannatt', role: 'Player', isAdmin: false, initials: 'TD', firstLogin: true },
-            'KBurns': { password: 'Rack2026', name: 'Keely Burns', role: 'Player', isAdmin: false, initials: 'KB', firstLogin: true },
-            'CSyrat': { password: 'Rack2026', name: 'Chloë Syrat', role: 'Player', isAdmin: false, initials: 'CSy', firstLogin: true }
+        // Initial data structure
+        let teamCredentials = {
+            'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD', lastLogin: null, loginHistory: [] },
+            'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true, lastLogin: null, loginHistory: [] },
+            'CShearon': { password: 'Rack2026', name: 'Chris Shearon', role: 'Co-Captain', isAdmin: true, initials: 'CS', lastLogin: null, loginHistory: [] },
+            'TDannatt': { password: 'Rack2026', name: 'Terry Dannatt', role: 'Player', isAdmin: false, initials: 'TD', lastLogin: null, loginHistory: [] },
+            'KBurns': { password: 'Rack2026', name: 'Keely Burns', role: 'Player', isAdmin: false, initials: 'KB', lastLogin: null, loginHistory: [] },
+            'CSyrat': { password: 'Rack2026', name: 'Chloë Syrat', role: 'Player', isAdmin: false, initials: 'CSy', lastLogin: null, loginHistory: [] }
         };
 
-        let teamData = [
-            { id: 1, name: 'Brandon Dannatt', initials: 'BD', role: 'Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 2, name: 'Tom Hayes-Smith', initials: 'THS', role: 'System Creator + Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 4, name: 'Terry Dannatt', initials: 'TD', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 5, name: 'Keely Burns', initials: 'KB', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
-            { id: 6, name: 'Chloë Syrat', initials: 'CSy', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 }
-        ];
-
+        let teamData = [];
         let opponentsList = ['Ashfield Massive', 'Carlton Club', 'Longwood BC Wednesday', 'Monkey Club', 'BYE'];
         let leagueData = [{ id: 1, name: 'Rack Café Utd', played: 0, won: 0, lost: 0, points: 0, isUs: true }];
         let fixturesData = [];
+        let announcements = [];
+        let trainingSessions = [];
+        let scorecards = []; // Stores detailed frame data for each match
         let currentUser = null;
         let currentFilter = 'all';
-        
-        // Maintenance State
-        let maintenanceMode = {
-            enabled: false,
-            message: "The server is currently undergoing scheduled maintenance.",
-            timestamp: null,
-            setBy: null
-        };
+        let maintenanceMode = false;
 
         // ===================================================================
         // INITIALIZATION
         // ===================================================================
         
-        (function immediateMaintenanceCheck() {
-            console.log('Checking maintenance status...');
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.maintenanceMode) {
-                        maintenanceMode = data.maintenanceMode;
-                        console.log('Maintenance state:', maintenanceMode.enabled ? 'ENABLED' : 'disabled');
-                        if (maintenanceMode.enabled) {
-                            document.getElementById('maintenanceOverlay').classList.add('active');
-                        }
+        function init() {
+            loadData();
+            checkSession();
+            updateDisplays();
+            setupEventListeners();
+            
+            // Setup maintenance check
+            if (maintenanceMode && (!currentUser || !currentUser.isSystemCreator)) {
+                document.getElementById('maintenanceOverlay').classList.add('active');
+            }
+        }
+
+        function setupEventListeners() {
+            document.addEventListener('click', function(e) {
+                const profileContainer = document.querySelector('.profile-container');
+                if (profileContainer && !profileContainer.contains(e.target)) {
+                    document.getElementById('profileDropdown').classList.remove('show');
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'm' || e.key === 'M')) {
+                    e.preventDefault();
+                    if (maintenanceMode || (currentUser && currentUser.isSystemCreator)) {
+                        attemptMaintenanceLogin();
                     }
                 }
-            } catch (e) {
-                console.error('Maintenance check error:', e);
-            }
-        })();
+            });
+        }
 
         // ===================================================================
-        // CORE FUNCTIONS
+        // DATA MANAGEMENT
         // ===================================================================
-
-        function getRoleBadgeHTML(role, isSystemCreator = false) {
-            if (isSystemCreator || role.includes('System Creator')) {
-                return `<span class="role-badge badge-system-creator"><i class="fas fa-crown"></i> SYS_CREATOR</span>`;
-            } else if (role === 'Captain') {
-                return `<span class="role-badge badge-captain"><i class="fas fa-star"></i> CAPTAIN</span>`;
-            } else if (role.includes('Co-Captain')) {
-                return `<span class="role-badge badge-co-captain"><i class="fas fa-star-half-alt"></i> CO-CAPTAIN</span>`;
-            }
-            return '';
-        }
-
-        function applyMaintenanceUI() {
-            const overlay = document.getElementById('maintenanceOverlay');
-            const statusText = document.getElementById('maintStatusText');
-            const lockText = document.getElementById('maintLockText');
-            const btnText = document.getElementById('maintToggleBtn');
-            const modalToggle = document.getElementById('modalMaintToggle');
-            const modalStatus = document.getElementById('modalMaintStatus');
-            const consoleMaint = document.getElementById('consoleMaint');
-            
-            if (maintenanceMode.enabled) {
-                if (!currentUser || !currentUser.isSystemCreator) {
-                    if (overlay) overlay.classList.add('active');
-                } else {
-                    if (overlay) overlay.classList.remove('active');
-                }
-                
-                if (statusText) {
-                    statusText.textContent = 'MAINTENANCE';
-                    statusText.style.color = '#ff4757';
-                }
-                if (lockText) {
-                    lockText.textContent = 'ENABLED';
-                    lockText.style.color = '#ff4757';
-                }
-                if (btnText) {
-                    btnText.innerHTML = '<i class="fas fa-unlock"></i> Disable Lockdown';
-                    btnText.style.borderColor = '#00ff00';
-                    btnText.style.color = '#00ff00';
-                }
-                if (modalToggle) modalToggle.classList.add('active');
-                if (modalStatus) modalStatus.style.display = 'block';
-                if (consoleMaint) {
-                    consoleMaint.textContent = 'ENABLED';
-                    consoleMaint.style.color = '#ff4757';
-                }
-            } else {
-                if (overlay) overlay.classList.remove('active');
-                if (statusText) {
-                    statusText.textContent = 'ONLINE';
-                    statusText.style.color = '#2ed573';
-                }
-                if (lockText) {
-                    lockText.textContent = 'DISABLED';
-                    lockText.style.color = '#2ed573';
-                }
-                if (btnText) {
-                    btnText.innerHTML = '<i class="fas fa-radiation"></i> Enable Lockdown';
-                    btnText.style.borderColor = '#ff4757';
-                    btnText.style.color = '#ff4757';
-                }
-                if (modalToggle) modalToggle.classList.remove('active');
-                if (modalStatus) modalStatus.style.display = 'none';
-                if (consoleMaint) {
-                    consoleMaint.textContent = 'OFFLINE';
-                    consoleMaint.style.color = '#00ff00';
-                }
-            }
-        }
-
-        function toggleMaintenanceMode() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator access required', 'error');
-                return;
-            }
-            
-            maintenanceMode.enabled = !maintenanceMode.enabled;
-            maintenanceMode.timestamp = new Date().toISOString();
-            maintenanceMode.setBy = currentUser.name;
-            
-            saveData();
-            applyMaintenanceUI();
-            
-            showToast(maintenanceMode.enabled ? '🔒 Maintenance Mode ENABLED' : '🔓 Maintenance Mode DISABLED', 
-                     maintenanceMode.enabled ? 'error' : 'success');
-            
-            if (maintenanceMode.enabled) {
-                setTimeout(() => {
-                    applyMaintenanceUI();
-                }, 500);
-            }
-        }
-
-        function saveData() {
-            try {
-                const data = {
-                    teamData,
-                    leagueData,
-                    fixturesData,
-                    opponentsList,
-                    maintenanceMode,
-                    lastSave: new Date().toISOString()
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                localStorage.setItem('rackCafeCredentials', JSON.stringify(teamCredentials));
-            } catch (e) {
-                console.error('Save failed:', e);
-            }
-        }
 
         function loadData() {
             try {
@@ -556,46 +594,75 @@
                     if (data.leagueData) leagueData = data.leagueData;
                     if (data.fixturesData) fixturesData = data.fixturesData;
                     if (data.opponentsList) opponentsList = data.opponentsList;
-                    if (data.maintenanceMode) maintenanceMode = data.maintenanceMode;
-                }
-                
-                const savedCreds = localStorage.getItem('rackCafeCredentials');
-                if (savedCreds) {
-                    const creds = JSON.parse(savedCreds);
-                    Object.keys(creds).forEach(key => {
-                        if (teamCredentials[key]) {
-                            teamCredentials[key].password = creds[key].password;
-                            teamCredentials[key].firstLogin = creds[key].firstLogin;
-                        }
-                    });
+                    if (data.announcements) announcements = data.announcements;
+                    if (data.trainingSessions) trainingSessions = data.trainingSessions;
+                    if (data.scorecards) scorecards = data.scorecards;
+                    if (data.maintenanceMode !== undefined) maintenanceMode = data.maintenanceMode;
+                    if (data.teamCredentials) {
+                        // Merge saved credentials with defaults to preserve new fields
+                        Object.assign(teamCredentials, data.teamCredentials);
+                    }
+                } else {
+                    // Initialize teamData from credentials if first run
+                    syncTeamDataWithCredentials();
                 }
             } catch (e) {
                 console.error('Load failed:', e);
             }
         }
 
-        function attemptMaintenanceLogin() {
-            document.getElementById('maintenanceOverlay').classList.remove('active');
-            document.getElementById('loginScreen').classList.add('show');
-            
-            const loginCard = document.querySelector('.login-card');
-            if (loginCard) {
-                loginCard.style.border = '2px solid #00ffff';
-                loginCard.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
+        function saveData() {
+            try {
+                const data = {
+                    teamData,
+                    leagueData,
+                    fixturesData,
+                    opponentsList,
+                    announcements,
+                    trainingSessions,
+                    scorecards,
+                    maintenanceMode,
+                    teamCredentials,
+                    lastSave: new Date().toISOString()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.error('Save failed:', e);
             }
-            
-            showToast('🔓 Maintenance override engaged', 'error');
+        }
+
+        function syncTeamDataWithCredentials() {
+            teamData = Object.keys(teamCredentials).map((username, idx) => {
+                const cred = teamCredentials[username];
+                const existing = teamData.find(t => t.name === cred.name);
+                return {
+                    id: idx + 1,
+                    username: username,
+                    name: cred.name,
+                    initials: cred.initials,
+                    role: cred.role,
+                    played: existing ? existing.played : 0,
+                    won: existing ? existing.won : 0,
+                    lost: existing ? existing.lost : 0,
+                    winRate: existing ? existing.winRate : 0,
+                    gameHistory: existing ? existing.gameHistory : []
+                };
+            });
+        }
+
+        // ===================================================================
+        // AUTHENTICATION
+        // ===================================================================
+
+        function showLogin() {
+            document.getElementById('loginScreen').classList.add('show');
         }
 
         function cancelLogin() {
             document.getElementById('loginScreen').classList.remove('show');
-            if (maintenanceMode.enabled && (!currentUser || !currentUser.isSystemCreator)) {
+            if (maintenanceMode && (!currentUser || !currentUser.isSystemCreator)) {
                 document.getElementById('maintenanceOverlay').classList.add('active');
             }
-        }
-
-        function showLogin() {
-            document.getElementById('loginScreen').classList.add('show');
         }
 
         function doLogin() {
@@ -606,13 +673,27 @@
             const userData = teamCredentials[username];
             
             if (userData && userData.password === password) {
-                if (maintenanceMode.enabled && !userData.isSystemCreator) {
+                if (maintenanceMode && !userData.isSystemCreator) {
                     errorDiv.innerHTML = '<i class="fas fa-ban"></i> System under maintenance - Only System Creator may access';
                     errorDiv.classList.add('show');
                     return;
                 }
                 
                 currentUser = { username, ...userData };
+                
+                // Update login history
+                const loginEntry = {
+                    timestamp: new Date().toISOString(),
+                    ip: '192.168.1.' + Math.floor(Math.random() * 255), // Simulated IP
+                    userAgent: navigator.userAgent
+                };
+                teamCredentials[username].loginHistory.unshift(loginEntry);
+                teamCredentials[username].lastLogin = loginEntry.timestamp;
+                if (teamCredentials[username].loginHistory.length > 10) {
+                    teamCredentials[username].loginHistory.pop();
+                }
+                
+                saveData();
                 
                 localStorage.setItem(SESSION_KEY, JSON.stringify({
                     username: username,
@@ -623,28 +704,7 @@
                 document.getElementById('loginScreen').classList.remove('show');
                 errorDiv.classList.remove('show');
                 
-                document.getElementById('headerLoginBtn').classList.add('hidden');
-                document.getElementById('profileContainer').classList.add('show');
-                document.getElementById('userAvatar').textContent = userData.initials;
-                document.getElementById('userNameText').textContent = userData.name;
-                document.getElementById('userBadge').innerHTML = getRoleBadgeHTML(userData.role, userData.isSystemCreator);
-                document.getElementById('roleText').textContent = userData.role;
-                document.getElementById('welcomeText').textContent = `Welcome back, ${userData.name.split(' ')[0]}!`;
-                
-                if (userData.isAdmin) {
-                    document.getElementById('adminMenuItems').style.display = 'block';
-                    document.getElementById('adminPanel').style.display = 'block';
-                }
-                if (userData.isSystemCreator) {
-                    document.getElementById('systemCreatorMenuItem').style.display = 'flex';
-                    document.getElementById('systemCreatorPanel').style.display = 'block';
-                    document.getElementById('adminMenuItems').style.display = 'block';
-                    document.getElementById('adminPanel').style.display = 'block';
-                }
-                
-                applyMaintenanceUI();
-                updateDisplays();
-                
+                completeLogin();
                 showToast(`Welcome ${userData.name}`);
             } else {
                 errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid credentials';
@@ -652,19 +712,40 @@
             }
         }
 
-        function logout() {
-            if (!confirm('Logout?')) return;
-            currentUser = null;
-            localStorage.removeItem(SESSION_KEY);
-            document.getElementById('headerLoginBtn').classList.remove('hidden');
-            document.getElementById('profileContainer').classList.remove('show');
-            document.getElementById('adminMenuItems').style.display = 'none';
-            document.getElementById('systemCreatorMenuItem').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('systemCreatorPanel').style.display = 'none';
+        function completeLogin() {
+            if (!currentUser) return;
             
-            applyMaintenanceUI();
-            showToast('Logged out');
+            document.getElementById('headerLoginBtn').classList.add('hidden');
+            document.getElementById('profileContainer').classList.add('show');
+            document.getElementById('userAvatar').textContent = currentUser.initials;
+            document.getElementById('userNameText').textContent = currentUser.name;
+            document.getElementById('userBadge').innerHTML = getRoleBadgeHTML(currentUser.role, currentUser.isSystemCreator);
+            document.getElementById('roleText').textContent = currentUser.role;
+            document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
+            
+            // Show Admin Panel for Captains, Co-Captains and System Creator
+            if (currentUser.isAdmin) {
+                document.getElementById('adminMenuItem').style.display = 'flex';
+                document.getElementById('adminPanel').style.display = 'block';
+                
+                // Show Role Manager only for Captain and System Creator (NOT Co-Captain unless System Creator)
+                if ((currentUser.role === 'Captain') || currentUser.isSystemCreator) {
+                    document.getElementById('roleManagerBtn').style.display = 'flex';
+                }
+            }
+            
+            // Show System Creator specific items
+            if (currentUser.isSystemCreator) {
+                document.getElementById('systemCreatorMenuItem').style.display = 'flex';
+                document.getElementById('systemCreatorPanel').style.display = 'block';
+            }
+            
+            // Show Training controls for Captains and Co-Captains
+            if (currentUser.isAdmin) {
+                document.getElementById('adminTrainingControls').style.display = 'block';
+            }
+            
+            updateDisplays();
         }
 
         function checkSession() {
@@ -674,14 +755,13 @@
                     const session = JSON.parse(saved);
                     const userData = teamCredentials[session.username];
                     if (userData && userData.password === session.password) {
-                        if (maintenanceMode.enabled && !userData.isSystemCreator) {
+                        if (maintenanceMode && !userData.isSystemCreator) {
                             localStorage.removeItem(SESSION_KEY);
                             showLoggedOutState();
-                            showToast('Session expired - System under maintenance', 'error');
                             return;
                         }
                         currentUser = { username: session.username, ...userData };
-                        completeLoginRestore();
+                        completeLogin();
                     } else {
                         showLoggedOutState();
                     }
@@ -693,55 +773,44 @@
             }
         }
 
-        function completeLoginRestore() {
-            if (!currentUser) return;
-            
-            document.getElementById('headerLoginBtn').classList.add('hidden');
-            document.getElementById('profileContainer').classList.add('show');
-            document.getElementById('userAvatar').textContent = currentUser.initials;
-            document.getElementById('userNameText').textContent = currentUser.name;
-            document.getElementById('userBadge').innerHTML = getRoleBadgeHTML(currentUser.role, currentUser.isSystemCreator);
-            document.getElementById('roleText').textContent = currentUser.role;
-            document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
-            
-            if (currentUser.isAdmin) {
-                document.getElementById('adminMenuItems').style.display = 'block';
-                document.getElementById('adminPanel').style.display = 'block';
-            }
-            if (currentUser.isSystemCreator) {
-                document.getElementById('systemCreatorMenuItem').style.display = 'flex';
-                document.getElementById('systemCreatorPanel').style.display = 'block';
-            }
-            
-            applyMaintenanceUI();
-        }
-
         function showLoggedOutState() {
             document.getElementById('headerLoginBtn').classList.remove('hidden');
             document.getElementById('profileContainer').classList.remove('show');
-            applyMaintenanceUI();
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('systemCreatorPanel').style.display = 'none';
+            document.getElementById('adminTrainingControls').style.display = 'none';
+            document.getElementById('adminMenuItem').style.display = 'none';
+            document.getElementById('systemCreatorMenuItem').style.display = 'none';
         }
 
-        // UI Functions
+        function logout() {
+            if (!confirm('Logout?')) return;
+            currentUser = null;
+            localStorage.removeItem(SESSION_KEY);
+            showLoggedOutState();
+            switchTab('homeTab', document.querySelector('.nav-item'));
+            showToast('Logged out');
+        }
+
+        function requireAuth(tabId, navElement) {
+            if (!currentUser) {
+                showLogin();
+                showToast('Please login to access this feature', 'error');
+                return;
+            }
+            switchTab(tabId, navElement);
+        }
+
+        // ===================================================================
+        // UI FUNCTIONS
+        // ===================================================================
+
         function toggleDropdown(e) {
             if (e) e.stopPropagation();
             document.getElementById('profileDropdown').classList.toggle('show');
         }
 
-        document.addEventListener('click', function(e) {
-            const profileContainer = document.querySelector('.profile-container');
-            if (profileContainer && !profileContainer.contains(e.target)) {
-                document.getElementById('profileDropdown').classList.remove('show');
-            }
-        });
-
         function switchTab(tabId, navElement) {
-            if (!currentUser && tabId !== 'homeTab' && tabId !== 'fixturesTab') {
-                showLogin();
-                showToast('Please login to access this feature', 'error');
-                return;
-            }
-            
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -749,7 +818,21 @@
             
             if (tabId === 'tableTab') renderLeagueTable();
             if (tabId === 'teamTab') renderTeam();
+            if (tabId === 'trainingTab') renderTraining();
+            if (tabId === 'scorecardTab') renderScorecards();
             if (tabId === 'profileTab') renderProfile();
+        }
+
+        function getRoleBadgeHTML(role, isSystemCreator = false) {
+            if (isSystemCreator || role.includes('System Creator')) {
+                return `<span class="role-badge badge-system-creator"><i class="fas fa-crown"></i> SYS_CREATOR</span>`;
+            } else if (role === 'Captain') {
+                return `<span class="role-badge badge-captain"><i class="fas fa-star"></i> CAPTAIN</span>`;
+            } else if (role.includes('Co-Captain')) {
+                return `<span class="role-badge badge-co-captain"><i class="fas fa-star-half-alt"></i> CO-CAPTAIN</span>`;
+            } else {
+                return `<span class="role-badge badge-player"><i class="fas fa-user"></i> PLAYER</span>`;
+            }
         }
 
         function showToast(msg, type = 'success') {
@@ -761,141 +844,157 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        function openSystemCreatorModal() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator access required', 'error');
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function updateDisplays() {
+            // Update WWLDW panel
+            renderWWLDW();
+            
+            // Update announcements
+            renderAnnouncements();
+            
+            // Update stats
+            const us = leagueData[0];
+            document.getElementById('statPlayed').textContent = us.played;
+            document.getElementById('statWon').textContent = us.won;
+            document.getElementById('statWinRate').textContent = us.played > 0 ? Math.round((us.won/us.played)*100) + '%' : '0%';
+            
+            const sorted = [...leagueData].sort((a,b) => b.points - a.points);
+            const pos = sorted.findIndex(t => t.isUs) + 1;
+            document.getElementById('statPosition').textContent = pos ? pos + (pos === 1 ? 'st' : pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th') : '--';
+            
+            const upcoming = fixturesData.filter(f => !f.played).sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+            if (upcoming) {
+                document.getElementById('nextMatchOpponent').textContent = upcoming.opponent;
+                document.getElementById('nextMatchDate').textContent = new Date(upcoming.date).toLocaleDateString();
+                document.getElementById('nextMatchTime').textContent = upcoming.time || '20:00';
+                document.getElementById('nextMatchVenue').textContent = upcoming.venue === 'home' ? 'Home' : 'Away';
+            }
+            
+            renderFixtures();
+        }
+
+        // ===================================================================
+        // WWLDW PANEL
+        // ===================================================================
+
+        function renderWWLDW() {
+            const panel = document.getElementById('wwldwPanel');
+            const last5 = fixturesData
+                .filter(f => f.played)
+                .sort((a,b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+            
+            if (last5.length === 0) {
+                panel.innerHTML = '<div style="color: var(--text-muted); font-size: 14px;">No recent results</div>';
                 return;
             }
-            document.getElementById('systemCreatorModal').classList.add('show');
-            applyMaintenanceUI();
+            
+            panel.innerHTML = last5.map(match => {
+                let result;
+                if (match.ourScore > match.theirScore) result = 'W';
+                else if (match.ourScore < match.theirScore) result = 'L';
+                else result = 'D';
+                
+                const className = result === 'W' ? 'form-w' : result === 'L' ? 'form-l' : 'form-d';
+                return `<div class="form-badge ${className}">${result}</div>`;
+            }).join('');
         }
 
-        function closeSystemCreatorModal() {
-            document.getElementById('systemCreatorModal').classList.remove('show');
+        // ===================================================================
+        // ANNOUNCEMENTS
+        // ===================================================================
+
+        function openAnnouncementModal() {
+            openModal('announcementModal');
         }
 
-        function openAddResultModal() {
-            if (!currentUser || !currentUser.isAdmin) {
-                showToast('Admin access required', 'error');
+        function submitAnnouncement() {
+            const title = document.getElementById('announcementTitle').value;
+            const message = document.getElementById('announcementMessage').value;
+            
+            if (!title || !message) {
+                showToast('Please fill in all fields', 'error');
                 return;
             }
-            document.getElementById('addResultModal').classList.add('show');
-            document.getElementById('resultDate').valueAsDate = new Date();
             
-            const select = document.getElementById('resultOpponent');
-            select.innerHTML = '<option value="">Select opponent...</option>';
-            opponentsList.forEach(opp => {
-                const opt = document.createElement('option');
-                opt.value = opp;
-                opt.textContent = opp;
-                select.appendChild(opt);
-            });
-        }
-
-        function closeAddResultModal() {
-            document.getElementById('addResultModal').classList.remove('show');
-        }
-
-        function openScheduleModal() {
-            if (!currentUser || !currentUser.isAdmin) {
-                showToast('Admin access required', 'error');
-                return;
-            }
-            document.getElementById('scheduleModal').classList.add('show');
-            document.getElementById('scheduleDate').valueAsDate = new Date();
-            
-            const select = document.getElementById('scheduleOpponent');
-            select.innerHTML = '<option value="">Select opponent...</option>';
-            opponentsList.forEach(opp => {
-                const opt = document.createElement('option');
-                opt.value = opp;
-                opt.textContent = opp;
-                select.appendChild(opt);
-            });
-        }
-
-        function closeScheduleModal() {
-            document.getElementById('scheduleModal').classList.remove('show');
-        }
-
-        function submitMatchResult() {
-            const opponent = document.getElementById('resultOpponent').value;
-            const ourScore = parseInt(document.getElementById('ourScore').value);
-            const theirScore = parseInt(document.getElementById('theirScore').value);
-            const date = document.getElementById('resultDate').value;
-            
-            if (!opponent) return showToast('Select opponent', 'error');
-            
-            fixturesData.push({
+            announcements.unshift({
                 id: Date.now(),
-                opponent,
-                ourScore,
-                theirScore,
-                result: ourScore > theirScore ? 'W' : 'L',
-                date,
-                played: true
-            });
-            
-            leagueData[0].played++;
-            leagueData[0].points += ourScore;
-            if (ourScore > theirScore) leagueData[0].won++;
-            else leagueData[0].lost++;
-            
-            const opp = leagueData.find(t => t.name === opponent);
-            if (opp) {
-                opp.played++;
-                opp.points += theirScore;
-                if (theirScore > ourScore) opp.won++;
-                else opp.lost++;
-            }
-            
-            saveData();
-            closeAddResultModal();
-            updateDisplays();
-            showToast('Result saved');
-        }
-
-        function submitSchedule() {
-            const opponent = document.getElementById('scheduleOpponent').value;
-            const date = document.getElementById('scheduleDate').value;
-            const time = document.getElementById('scheduleTime').value;
-            
-            if (!opponent || !date) return showToast('Fill all fields', 'error');
-            
-            fixturesData.push({
-                id: Date.now(),
-                opponent,
-                date,
-                time,
-                played: false
+                title,
+                message,
+                author: currentUser.name,
+                date: new Date().toISOString()
             });
             
             saveData();
-            closeScheduleModal();
-            updateDisplays();
-            showToast('Match scheduled');
+            closeModal('announcementModal');
+            document.getElementById('announcementTitle').value = '';
+            document.getElementById('announcementMessage').value = '';
+            renderAnnouncements();
+            showToast('Announcement posted');
         }
+
+        function renderAnnouncements() {
+            const container = document.getElementById('announcementsList');
+            const panel = document.getElementById('announcementsPanel');
+            
+            if (announcements.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+            
+            panel.style.display = 'block';
+            container.innerHTML = announcements.map(a => `
+                <div class="announcement-card">
+                    ${currentUser && currentUser.isAdmin ? `<button class="announcement-delete" onclick="deleteAnnouncement(${a.id})"><i class="fas fa-times"></i></button>` : ''}
+                    <div class="announcement-header">
+                        <div style="font-weight: 800; color: var(--primary-pink);">${a.title}</div>
+                        <div class="announcement-date">${new Date(a.date).toLocaleDateString()}</div>
+                    </div>
+                    <div style="font-size: 14px; line-height: 1.5;">${a.message}</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Posted by ${a.author}</div>
+                </div>
+            `).join('');
+        }
+
+        function deleteAnnouncement(id) {
+            if (!confirm('Delete this announcement?')) return;
+            announcements = announcements.filter(a => a.id !== id);
+            saveData();
+            renderAnnouncements();
+            showToast('Announcement deleted');
+        }
+
+        // ===================================================================
+        // FIXTURES
+        // ===================================================================
 
         function filterFixtures(type, btn) {
             currentFilter = type;
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('active');
+            document.querySelectorAll('.admin-btn').forEach(b => {
+                if (b.parentElement && b.parentElement.classList.contains('admin-grid')) return; // Skip admin panel buttons
                 b.style.background = 'rgba(255,255,255,0.05)';
                 b.style.color = 'var(--text-secondary)';
+                b.style.border = '1px solid var(--border-color)';
             });
-            btn.classList.add('active');
             btn.style.background = 'linear-gradient(135deg, #e94560 0%, #d63d56 100%)';
             btn.style.color = 'white';
+            btn.style.border = 'none';
             renderFixtures();
         }
 
         function renderFixtures() {
             const list = document.getElementById('fixturesList');
             let matches = fixturesData.filter(f => {
-                if (currentFilter === 'played') return f.played;
                 if (currentFilter === 'upcoming') return !f.played;
                 return true;
-            });
+            }).sort((a,b) => new Date(a.date) - new Date(b.date));
             
             if (matches.length === 0) {
                 list.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No fixtures found</div>';
@@ -903,7 +1002,7 @@
             }
             
             list.innerHTML = matches.map(m => `
-                <div class="fixture-card">
+                <div class="fixture-card" onclick="${m.played ? `viewScorecard(${m.id})` : ''}">
                     <div style="display: flex; align-items: center;">
                         <div class="fixture-date">
                             <div class="date-day">${new Date(m.date).getDate()}</div>
@@ -911,13 +1010,17 @@
                         </div>
                         <div style="margin-left: 16px;">
                             <div style="font-weight: 800;">vs ${m.opponent}</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">${m.played ? 'Played' : 'Upcoming'}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">${m.played ? 'Completed' : (m.time || '20:00')}</div>
                         </div>
                     </div>
-                    ${m.played ? `<div style="font-weight: 800; font-size: 20px; color: ${m.result === 'W' ? '#2ed573' : '#e94560'};">${m.ourScore}-${m.theirScore}</div>` : ''}
+                    ${m.played ? `<div style="font-weight: 800; font-size: 20px; color: ${m.result === 'W' ? '#2ed573' : m.result === 'L' ? '#ff4757' : '#ffd700'};">${m.ourScore}-${m.theirScore}</div>` : ''}
                 </div>
             `).join('');
         }
+
+        // ===================================================================
+        // LEAGUE TABLE
+        // ===================================================================
 
         function renderLeagueTable() {
             const container = document.getElementById('leagueTable');
@@ -941,6 +1044,10 @@
                 <div style="text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-muted);">* Rack Café Utd</div>
             `;
         }
+
+        // ===================================================================
+        // TEAM & ROLES
+        // ===================================================================
 
         function renderTeam() {
             const container = document.getElementById('teamList');
@@ -968,12 +1075,550 @@
             `).join('');
         }
 
+        function openRoleManagerModal() {
+            if (!currentUser || (!currentUser.isSystemCreator && currentUser.role !== 'Captain')) {
+                showToast('Only Captain or System Creator can change roles', 'error');
+                return;
+            }
+            
+            const list = document.getElementById('roleChangeList');
+            list.innerHTML = teamData.map(player => `
+                <div class="player-list-item">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-weight: 800;">${player.name}</div>
+                        ${getRoleBadgeHTML(player.role, player.role.includes('System Creator'))}
+                    </div>
+                    <select class="role-select" onchange="changePlayerRole('${player.username}', this.value)" ${player.role.includes('System Creator') && !currentUser.isSystemCreator ? 'disabled' : ''}>
+                        <option value="Player" ${player.role === 'Player' ? 'selected' : ''}>Player</option>
+                        <option value="Co-Captain" ${player.role === 'Co-Captain' ? 'selected' : ''}>Co-Captain</option>
+                        <option value="Captain" ${player.role === 'Captain' ? 'selected' : ''}>Captain</option>
+                        ${currentUser.isSystemCreator ? `<option value="System Creator" ${player.role.includes('System Creator') ? 'selected' : ''}>System Creator</option>` : ''}
+                    </select>
+                </div>
+            `).join('');
+            
+            openModal('roleManagerModal');
+        }
+
+        function changePlayerRole(username, newRole) {
+            // Update teamCredentials
+            teamCredentials[username].role = newRole;
+            teamCredentials[username].isAdmin = newRole !== 'Player';
+            if (newRole === 'System Creator') {
+                teamCredentials[username].isSystemCreator = true;
+                teamCredentials[username].isAdmin = true;
+            } else if (newRole === 'Captain' || newRole === 'Co-Captain') {
+                teamCredentials[username].isSystemCreator = false;
+                teamCredentials[username].isAdmin = true;
+            } else {
+                teamCredentials[username].isSystemCreator = false;
+                teamCredentials[username].isAdmin = false;
+            }
+            
+            // Update teamData
+            const player = teamData.find(t => t.username === username);
+            if (player) player.role = newRole;
+            
+            saveData();
+            showToast(`Role updated to ${newRole}`);
+            renderTeam();
+            
+            // Update current user if changed self
+            if (currentUser.username === username) {
+                currentUser.role = newRole;
+                currentUser.isAdmin = teamCredentials[username].isAdmin;
+                currentUser.isSystemCreator = teamCredentials[username].isSystemCreator;
+                completeLogin();
+            }
+        }
+
+        // ===================================================================
+        // SYSTEM CREATOR - PLAYER MANAGEMENT
+        // ===================================================================
+
+        function openPlayerManagerModal() {
+            renderPlayerList();
+            openModal('playerManagerModal');
+        }
+
+        function renderPlayerList() {
+            const container = document.getElementById('playerListContainer');
+            container.innerHTML = teamData.map(player => `
+                <div class="player-list-item">
+                    <div>
+                        <div style="font-weight: 800;">${player.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${player.username} · ${player.role}</div>
+                    </div>
+                    <button onclick="removePlayer('${player.username}')" style="background: rgba(255,71,87,0.2); color: #ff4757; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addNewPlayer() {
+            const name = document.getElementById('newPlayerName').value;
+            const username = document.getElementById('newPlayerUsername').value;
+            const initials = document.getElementById('newPlayerInitials').value.toUpperCase();
+            
+            if (!name || !username || !initials) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            if (teamCredentials[username]) {
+                showToast('Username already exists', 'error');
+                return;
+            }
+            
+            teamCredentials[username] = {
+                password: 'Rack2026', // Default password
+                name: name,
+                role: 'Player',
+                isAdmin: false,
+                initials: initials,
+                lastLogin: null,
+                loginHistory: []
+            };
+            
+            syncTeamDataWithCredentials();
+            saveData();
+            
+            document.getElementById('newPlayerName').value = '';
+            document.getElementById('newPlayerUsername').value = '';
+            document.getElementById('newPlayerInitials').value = '';
+            
+            renderPlayerList();
+            showToast('Player added successfully');
+        }
+
+        function removePlayer(username) {
+            if (!confirm(`Remove ${teamCredentials[username].name}? This cannot be undone.`)) return;
+            if (teamCredentials[username].isSystemCreator) {
+                showToast('Cannot remove System Creator', 'error');
+                return;
+            }
+            
+            delete teamCredentials[username];
+            syncTeamDataWithCredentials();
+            saveData();
+            renderPlayerList();
+            showToast('Player removed');
+        }
+
+        // ===================================================================
+        // LOGIN INFO (System Creator Only)
+        // ===================================================================
+
+        function openLoginInfoModal() {
+            const tbody = document.getElementById('loginInfoTableBody');
+            tbody.innerHTML = Object.keys(teamCredentials).map(username => {
+                const user = teamCredentials[username];
+                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+                const isOnline = currentUser && currentUser.username === username;
+                return `
+                    <tr>
+                        <td>${username}</td>
+                        <td>${user.name}</td>
+                        <td>${user.role}</td>
+                        <td class="last-login">${lastLogin}</td>
+                        <td>${user.loginHistory[0]?.ip || '-'}</td>
+                        <td>${isOnline ? '<span style="color: #2ed573;">● Online</span>' : '<span style="color: var(--text-muted);">Offline</span>'}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            openModal('loginInfoModal');
+        }
+
+        // ===================================================================
+        // TRAINING
+        // ===================================================================
+
+        function openScheduleTrainingModal() {
+            document.getElementById('trainingDate').valueAsDate = new Date();
+            openModal('scheduleTrainingModal');
+        }
+
+        function submitTrainingSchedule() {
+            const date = document.getElementById('trainingDate').value;
+            const time = document.getElementById('trainingTime').value;
+            const location = document.getElementById('trainingLocation').value;
+            const notes = document.getElementById('trainingNotes').value;
+            
+            if (!date) {
+                showToast('Please select a date', 'error');
+                return;
+            }
+            
+            trainingSessions.push({
+                id: Date.now(),
+                date,
+                time,
+                location,
+                notes,
+                createdBy: currentUser.name,
+                attendees: [],
+                declined: []
+            });
+            
+            saveData();
+            closeModal('scheduleTrainingModal');
+            renderTraining();
+            showToast('Training scheduled');
+        }
+
+        function renderTraining() {
+            const container = document.getElementById('trainingList');
+            const now = new Date();
+            const upcoming = trainingSessions.filter(t => new Date(t.date) >= now).sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            if (upcoming.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No upcoming training sessions</div>';
+                return;
+            }
+            
+            container.innerHTML = upcoming.map(session => {
+                const isAttending = session.attendees.includes(currentUser?.name);
+                const isDeclined = session.declined.includes(currentUser?.name);
+                
+                return `
+                    <div class="training-card">
+                        <div class="training-header">
+                            <div>
+                                <div class="training-date">${new Date(session.date).toLocaleDateString()}</div>
+                                <div class="training-time"><i class="fas fa-clock"></i> ${session.time} · <i class="fas fa-map-marker-alt"></i> ${session.location}</div>
+                                ${session.notes ? `<div style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">${session.notes}</div>` : ''}
+                            </div>
+                            ${currentUser && currentUser.isAdmin ? `
+                                <button onclick="deleteTraining(${session.id})" style="background: rgba(255,71,87,0.2); color: #ff4757; border: none; padding: 8px; border-radius: 6px; cursor: pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 16px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Attendance</div>
+                            
+                            ${currentUser ? `
+                                <div style="margin-bottom: 12px;">
+                                    ${!isAttending ? `<button class="attendance-btn btn-yes" onclick="toggleTrainingAttendance(${session.id}, true)"><i class="fas fa-check"></i> I'll Attend</button>` : ''}
+                                    ${!isDeclined ? `<button class="attendance-btn btn-no" onclick="toggleTrainingAttendance(${session.id}, false)"><i class="fas fa-times"></i> Can't Make It</button>` : ''}
+                                    ${isAttending ? `<div style="color: #2ed573; font-size: 13px;"><i class="fas fa-check-circle"></i> You confirmed attendance</div>` : ''}
+                                    ${isDeclined ? `<div style="color: #ff4757; font-size: 13px;"><i class="fas fa-times-circle"></i> You declined</div>` : ''}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="attendance-grid">
+                                ${session.attendees.map(name => {
+                                    const player = teamData.find(p => p.name === name);
+                                    return `<div class="attendee confirmed" title="${name}">${player ? player.initials : name}</div>`;
+                                }).join('')}
+                                ${session.declined.map(name => {
+                                    const player = teamData.find(p => p.name === name);
+                                    return `<div class="attendee declined" title="${name} (Declined)">${player ? player.initials : name}</div>`;
+                                }).join('')}
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                                ${session.attendees.length} attending · ${session.declined.length} declined
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleTrainingAttendance(sessionId, attending) {
+            const session = trainingSessions.find(s => s.id === sessionId);
+            if (!session) return;
+            
+            // Remove from both lists first
+            session.attendees = session.attendees.filter(n => n !== currentUser.name);
+            session.declined = session.declined.filter(n => n !== currentUser.name);
+            
+            if (attending) {
+                session.attendees.push(currentUser.name);
+                showToast('Attendance confirmed');
+            } else {
+                session.declined.push(currentUser.name);
+                showToast('Marked as unavailable');
+            }
+            
+            saveData();
+            renderTraining();
+        }
+
+        function deleteTraining(id) {
+            if (!confirm('Cancel this training session?')) return;
+            trainingSessions = trainingSessions.filter(s => s.id !== id);
+            saveData();
+            renderTraining();
+            showToast('Training cancelled');
+        }
+
+        // ===================================================================
+        // SCORECARDS (10 FRAMES)
+        // ===================================================================
+
+        function renderScorecards() {
+            const container = document.getElementById('scorecardList');
+            const playedMatches = fixturesData.filter(f => f.played && f.ourScore !== undefined).sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            if (playedMatches.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No completed matches yet</div>';
+                return;
+            }
+            
+            container.innerHTML = playedMatches.map(match => {
+                const scorecard = scorecards.find(s => s.fixtureId === match.id);
+                return `
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 18px;">vs ${match.opponent}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${new Date(match.date).toLocaleDateString()}</div>
+                            </div>
+                            <div style="font-size: 24px; font-weight: 800; color: ${match.result === 'W' ? '#2ed573' : match.result === 'L' ? '#ff4757' : '#ffd700'};">
+                                ${match.ourScore} - ${match.theirScore}
+                            </div>
+                        </div>
+                        ${scorecard ? `
+                            <div class="frame-grid" style="grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                                ${scorecard.frames.map((frame, idx) => `
+                                    <div class="frame-box ${frame.result === 'W' ? 'won' : frame.result === 'L' ? 'lost' : ''}" onclick="viewFrameDetail(${match.id}, ${idx})">
+                                        <div class="frame-number">${idx + 1}</div>
+                                        <div class="frame-result">${frame.result}</div>
+                                        <div class="frame-player">${frame.player ? teamData.find(p => p.name === frame.player)?.initials || '?' : '-'}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 12px;">No detailed scorecard available</div>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewFrameDetail(fixtureId, frameIdx) {
+            const scorecard = scorecards.find(s => s.fixtureId === fixtureId);
+            if (!scorecard) return;
+            
+            const frame = scorecard.frames[frameIdx];
+            const match = fixturesData.find(f => f.id === fixtureId);
+            
+            document.getElementById('frameDetailContent').innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">Frame ${frameIdx + 1}</div>
+                    <div style="color: var(--text-muted);">vs ${match.opponent}</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+                    <div style="font-size: 48px; font-weight: 800; color: ${frame.result === 'W' ? '#2ed573' : frame.result === 'L' ? '#ff4757' : '#ffd700'}; margin-bottom: 8px;">
+                        ${frame.result}
+                    </div>
+                    <div style="font-size: 14px; color: var(--text-secondary);">Result</div>
+                </div>
+                ${frame.player ? `
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Player</div>
+                        <div style="font-weight: 800;">${frame.player}</div>
+                    </div>
+                ` : ''}
+                ${frame.notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Notes</div>
+                        <div>${frame.notes}</div>
+                    </div>
+                ` : ''}
+            `;
+            
+            openModal('frameDetailModal');
+        }
+
+        // ===================================================================
+        // MATCH RESULTS WITH FRAME DETAILS
+        // ===================================================================
+
+        function openAddResultModal() {
+            // Populate frame inputs
+            const frameInputs = document.getElementById('frameInputs');
+            frameInputs.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                frameInputs.innerHTML += `
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-align: center;">Frame ${i + 1}</div>
+                        <select id="frameResult${i}" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 6px; font-size: 13px; margin-bottom: 6px;">
+                            <option value="">-</option>
+                            <option value="W">Win</option>
+                            <option value="L">Loss</option>
+                        </select>
+                        <select id="framePlayer${i}" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 6px; font-size: 12px;">
+                            <option value="">Player</option>
+                            ${teamData.map(p => `<option value="${p.name}">${p.initials}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            }
+            
+            // Populate opponent select
+            const oppSelect = document.getElementById('resultOpponent');
+            oppSelect.innerHTML = '<option value="">Select opponent...</option>';
+            opponentsList.forEach(opp => {
+                const opt = document.createElement('option');
+                opt.value = opp;
+                opt.textContent = opp;
+                oppSelect.appendChild(opt);
+            });
+            
+            document.getElementById('resultDate').valueAsDate = new Date();
+            openModal('addResultModal');
+        }
+
+        function submitMatchResult() {
+            const opponent = document.getElementById('resultOpponent').value;
+            const ourScore = parseInt(document.getElementById('ourScore').value) || 0;
+            const theirScore = parseInt(document.getElementById('theirScore').value) || 0;
+            const date = document.getElementById('resultDate').value;
+            const venue = document.getElementById('resultVenue').value;
+            
+            if (!opponent || !date) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Calculate result from scores if frames not filled
+            let result;
+            if (ourScore > theirScore) result = 'W';
+            else if (ourScore < theirScore) result = 'L';
+            else result = 'D';
+            
+            const matchId = Date.now();
+            
+            fixturesData.push({
+                id: matchId,
+                opponent,
+                ourScore,
+                theirScore,
+                result,
+                date,
+                venue,
+                played: true
+            });
+            
+            // Collect frame data
+            const frames = [];
+            let calculatedOurScore = 0;
+            let calculatedTheirScore = 0;
+            
+            for (let i = 0; i < 10; i++) {
+                const frameResult = document.getElementById(`frameResult${i}`).value;
+                const framePlayer = document.getElementById(`framePlayer${i}`).value;
+                if (frameResult) {
+                    frames.push({
+                        result: frameResult,
+                        player: framePlayer,
+                        notes: ''
+                    });
+                    if (frameResult === 'W') calculatedOurScore++;
+                    else if (frameResult === 'L') calculatedTheirScore++;
+                }
+            }
+            
+            // Use calculated score if frames were filled, otherwise use input scores
+            const finalOurScore = frames.length > 0 ? calculatedOurScore : ourScore;
+            const finalTheirScore = frames.length > 0 ? calculatedTheirScore : theirScore;
+            
+            // Update scorecard
+            scorecards.push({
+                fixtureId: matchId,
+                frames: frames.length > 0 ? frames : Array(10).fill({result: '', player: '', notes: ''})
+            });
+            
+            // Update league data
+            leagueData[0].played++;
+            leagueData[0].points += finalOurScore;
+            if (finalOurScore > finalTheirScore) leagueData[0].won++;
+            else if (finalOurScore < finalTheirScore) leagueData[0].lost++;
+            
+            // Find opponent in league data or add them
+            let opp = leagueData.find(t => t.name === opponent);
+            if (!opp) {
+                opp = { id: leagueData.length + 1, name: opponent, played: 0, won: 0, lost: 0, points: 0, isUs: false };
+                leagueData.push(opp);
+            }
+            opp.played++;
+            opp.points += finalTheirScore;
+            if (finalTheirScore > finalOurScore) opp.won++;
+            else if (finalTheirScore < finalOurScore) opp.lost++;
+            
+            // Update player stats
+            frames.forEach(frame => {
+                if (frame.player && frame.result) {
+                    const player = teamData.find(p => p.name === frame.player);
+                    if (player) {
+                        player.played++;
+                        // For individual stats, count frames played
+                        if (!player.gameHistory) player.gameHistory = [];
+                        player.gameHistory.unshift({
+                            date: date,
+                            opponent: opponent,
+                            result: frame.result,
+                            frame: player.gameHistory.length + 1
+                        });
+                        if (player.gameHistory.length > 10) player.gameHistory.pop();
+                        
+                        if (frame.result === 'W') player.won++;
+                        else player.lost++;
+                        player.winRate = Math.round((player.won / player.played) * 100);
+                    }
+                }
+            });
+            
+            saveData();
+            closeModal('addResultModal');
+            updateDisplays();
+            showToast('Result saved successfully');
+        }
+
+        function viewScorecard(fixtureId) {
+            const scorecard = scorecards.find(s => s.fixtureId === fixtureId);
+            if (scorecard) {
+                renderScorecards();
+                // Scroll to specific match if needed
+            }
+        }
+
+        // ===================================================================
+        // PROFILE & GAME HISTORY
+        // ===================================================================
+
         function renderProfile() {
             if (!currentUser) return;
-            const player = teamData.find(p => p.name === currentUser.name) || teamData[0];
+            
+            const player = teamData.find(p => p.username === currentUser.username);
+            if (!player) return;
+            
             const container = document.getElementById('profileContent');
+            
+            let historyHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted);">No individual game history recorded yet</div>';
+            if (player.gameHistory && player.gameHistory.length > 0) {
+                historyHTML = `
+                    <div class="game-history-list">
+                        ${player.gameHistory.map(game => `
+                            <div class="game-history-item">
+                                <div>
+                                    <div style="font-weight: 800;">vs ${game.opponent}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">${new Date(game.date).toLocaleDateString()}</div>
+                                </div>
+                                <div style="font-weight: 800; color: ${game.result === 'W' ? '#2ed573' : '#ff4757'};">
+                                    ${game.result === 'W' ? 'Win' : 'Loss'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
             container.innerHTML = `
-                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; text-align: center;">
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; text-align: center; margin-bottom: 24px;">
                     <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--accent-orange), var(--primary-pink)); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800;">
                         ${player.initials}
                     </div>
@@ -983,101 +1628,121 @@
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px;">
                         <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: 800; color: var(--primary-pink);">${player.played}</div>
-                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Matches</div>
+                            <div style="font-size: 28px; font-weight: 800; color: var(--primary-pink);">${player.played || 0}</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Frames</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: 800; color: var(--success);">${player.won}</div>
+                            <div style="font-size: 28px; font-weight: 800; color: var(--success);">${player.won || 0}</div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Won</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: 800; color: var(--accent-orange);">${player.winRate}%</div>
+                            <div style="font-size: 28px; font-weight: 800; color: var(--accent-orange);">${player.winRate || 0}%</div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Win Rate</div>
                         </div>
                     </div>
                 </div>
+                
+                <div class="form-panel">
+                    <div class="section-title">Game History</div>
+                    ${historyHTML}
+                </div>
             `;
         }
 
-        function exportDatabase() {
-            const data = {
-                teamData,
-                leagueData,
-                fixturesData,
-                opponentsList,
-                maintenanceMode,
-                exportedAt: new Date().toISOString()
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `rack_cafe_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            showToast('Database exported');
-        }
+        // ===================================================================
+        // OTHER FUNCTIONS
+        // ===================================================================
 
-        function forceSaveMaintenance() {
-            saveData();
-            showToast('State force-saved', 'success');
-        }
-
-        function updateDisplays() {
-            const us = leagueData[0];
-            document.getElementById('statPlayed').textContent = us.played;
-            document.getElementById('statWon').textContent = us.won;
-            document.getElementById('statWinRate').textContent = us.played > 0 ? Math.round((us.won/us.played)*100) + '%' : '0%';
+        function submitSchedule() {
+            const opponent = document.getElementById('scheduleOpponent').value;
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
             
-            const sorted = [...leagueData].sort((a,b) => b.points - a.points);
-            const pos = sorted.findIndex(t => t.isUs) + 1;
-            document.getElementById('statPosition').textContent = pos ? pos + (pos === 1 ? 'st' : pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th') : '--';
-            
-            const upcoming = fixturesData.filter(f => !f.played).sort((a,b) => new Date(a.date) - new Date(b.date))[0];
-            if (upcoming) {
-                document.getElementById('nextMatchOpponent').textContent = upcoming.opponent;
-                document.getElementById('nextMatchDate').textContent = new Date(upcoming.date).toLocaleDateString();
-                document.getElementById('nextMatchTime').textContent = upcoming.time || '20:00';
+            if (!opponent || !date) {
+                showToast('Please fill all fields', 'error');
+                return;
             }
             
-            renderFixtures();
+            fixturesData.push({
+                id: Date.now(),
+                opponent,
+                date,
+                time,
+                venue: 'home',
+                played: false
+            });
+            
+            saveData();
+            closeModal('scheduleModal');
+            updateDisplays();
+            showToast('Match scheduled');
+        }
+
+        function openScheduleModal() {
+            const select = document.getElementById('scheduleOpponent');
+            select.innerHTML = '<option value="">Select opponent...</option>';
+            opponentsList.forEach(opp => {
+                const opt = document.createElement('option');
+                opt.value = opp;
+                opt.textContent = opp;
+                select.appendChild(opt);
+            });
+            document.getElementById('scheduleDate').valueAsDate = new Date();
+            openModal('scheduleModal');
+        }
+
+        function toggleMaintenanceMode() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
+            
+            maintenanceMode = !maintenanceMode;
+            saveData();
+            
+            if (maintenanceMode) {
+                document.getElementById('maintenanceOverlay').classList.add('active');
+                logToConsole('🔒 MAINTENANCE MODE ENABLED');
+            } else {
+                document.getElementById('maintenanceOverlay').classList.remove('active');
+                logToConsole('🔓 MAINTENANCE MODE DISABLED');
+            }
+            
+            showToast(maintenanceMode ? 'Maintenance mode enabled' : 'Maintenance mode disabled', 
+                     maintenanceMode ? 'error' : 'success');
+        }
+
+        function attemptMaintenanceLogin() {
+            document.getElementById('maintenanceOverlay').classList.remove('active');
+            showLogin();
+            showToast('🔓 Maintenance override engaged', 'error');
         }
 
         function openAdminPanel() {
-            switchTab('homeTab');
             showToast('Captain controls active');
         }
 
-        // Secret key listener
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && (e.key === 'm' || e.key === 'M')) {
-                e.preventDefault();
-                if (maintenanceMode.enabled || (currentUser && currentUser.isSystemCreator)) {
-                    attemptMaintenanceLogin();
-                }
-            }
-        });
-
         function manualSync() {
             loadData();
-            applyMaintenanceUI();
             updateDisplays();
             showToast('Data refreshed');
         }
 
-        // Initialize
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('Rack Café Utd initializing...');
-            loadData();
-            checkSession();
-            updateDisplays();
-            
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    loadData();
-                    applyMaintenanceUI();
-                }
-            });
-        });
+        function logToConsole(msg) {
+            const console = document.getElementById('systemConsole');
+            if (console) {
+                const line = document.createElement('div');
+                line.textContent = `> ${msg}`;
+                console.appendChild(line);
+                console.scrollTop = console.scrollHeight;
+            }
+        }
+
+        // ===================================================================
+        // STARTUP
+        // ===================================================================
+        
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
