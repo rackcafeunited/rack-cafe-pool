@@ -159,10 +159,35 @@
         .modal-header { background: linear-gradient(135deg, rgba(233,69,96,0.2) 0%, rgba(243,156,18,0.1) 100%); padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .modal-title { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
         .modal-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: rgba(255,255,255,0.2); }
         .modal-body { padding: 24px; }
         .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; transition: all 0.3s; }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4); }
         .submit-btn.secondary { background: rgba(255,255,255,0.1); margin-top: 12px; }
+        
+        /* Admin Panel Modal Specific Styles */
+        .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+        .admin-btn { 
+            background: rgba(212, 175, 55, 0.15); 
+            border: 1px solid rgba(212, 175, 55, 0.3); 
+            color: var(--gold-primary); 
+            padding: 16px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-family: inherit; 
+            font-weight: 700; 
+            font-size: 14px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .admin-btn:hover { 
+            background: rgba(212, 175, 55, 0.25); 
+            transform: translateY(-2px); 
+        }
         
         #systemCreatorModal .modal-container { border: 2px solid rgba(0, 255, 255, 0.3); }
         #systemCreatorModal .modal-title { color: #00ffff; }
@@ -260,13 +285,10 @@
                             </div>
                             <div class="user-role" id="dropdownUserRole"><i class="fas fa-user"></i> <span id="roleText">Player</span></div>
                         </div>
-                        <div class="dropdown-item" onclick="switchTab('profileTab'); toggleDropdown();"><i class="fas fa-user"></i> My Profile</div>
+                        <div class="dropdown-item" onclick="switchTab('profileTab'); closeDropdown();"><i class="fas fa-user"></i> My Profile</div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" onclick="switchTab('homeTab'); toggleDropdown();" id="adminMenuItem" style="display: none; color: var(--gold-primary);">
+                        <div class="dropdown-item" onclick="openAdminPanel(); closeDropdown();" id="adminMenuItem" style="display: none; color: var(--gold-primary);">
                             <i class="fas fa-shield-alt"></i> Admin Panel
-                        </div>
-                        <div class="dropdown-item system-creator" onclick="openSystemCreatorModal(); toggleDropdown();" id="systemCreatorMenuItem" style="display: none;">
-                            <i class="fas fa-terminal"></i> System Creator
                         </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item" onclick="logout()" style="color: #ff4757;"><i class="fas fa-sign-out-alt"></i> Log Out</div>
@@ -341,8 +363,8 @@
             <div class="tab-content" id="fixturesTab">
                 <div class="page-title"><h1>Fixtures</h1><p>2025/26 Season</p></div>
                 <div style="display: flex; gap: 10px; margin-bottom: 24px;">
-                    <button class="admin-btn" onclick="filterFixtures('all', this)" style="background: linear-gradient(135deg, #e94560 0%, #d63d56 100%); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer; flex: 1;">All</button>
-                    <button class="admin-btn" onclick="filterFixtures('upcoming', this)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer; flex: 1;">Upcoming</button>
+                    <button class="admin-btn" onclick="filterFixtures('all', this)" style="width: 100%; background: linear-gradient(135deg, #e94560 0%, #d63d56 100%); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer; flex: 1;">All</button>
+                    <button class="admin-btn" onclick="filterFixtures('upcoming', this)" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer; flex: 1;">Upcoming</button>
                 </div>
                 <div id="fixturesList"></div>
             </div>
@@ -394,6 +416,56 @@
 
     <!-- MODALS -->
 
+    <!-- Admin Panel Modal -->
+    <div class="modal-overlay" id="adminPanelModal">
+        <div class="modal-container">
+            <div class="modal-header" style="background: linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(243,156,18,0.1) 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
+                <div class="modal-title" style="color: var(--gold-primary);"><i class="fas fa-shield-alt"></i> Admin Panel</div>
+                <button class="modal-close" onclick="closeModal('adminPanelModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                    Captain & Co-Captain Controls
+                </div>
+                <div class="admin-grid">
+                    <button class="admin-btn" onclick="closeModal('adminPanelModal'); openAddResultModal()">
+                        <i class="fas fa-plus-circle" style="font-size: 24px;"></i> Add Result
+                    </button>
+                    <button class="admin-btn" onclick="closeModal('adminPanelModal'); openScheduleModal()">
+                        <i class="fas fa-calendar-plus" style="font-size: 24px;"></i> Schedule
+                    </button>
+                    <button class="admin-btn" onclick="closeModal('adminPanelModal'); openAnnouncementModal()">
+                        <i class="fas fa-bullhorn" style="font-size: 24px;"></i> Announcement
+                    </button>
+                    <button class="admin-btn" onclick="closeModal('adminPanelModal'); openRoleManagerModal()" id="adminRoleManagerBtn">
+                        <i class="fas fa-user-tag" style="font-size: 24px;"></i> Manage Roles
+                    </button>
+                </div>
+                
+                <!-- System Creator Section -->
+                <div id="adminPanelSystemCreatorSection" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+                    <div style="color: #00ffff; margin-bottom: 16px; font-size: 14px; font-weight: 700;">
+                        <i class="fas fa-terminal"></i> System Creator Tools
+                    </div>
+                    <div class="admin-grid">
+                        <button class="admin-btn" onclick="closeModal('adminPanelModal'); openPlayerManagerModal()" style="background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); color: #00ffff;">
+                            <i class="fas fa-users-cog" style="font-size: 24px;"></i> Manage Players
+                        </button>
+                        <button class="admin-btn" onclick="closeModal('adminPanelModal'); openLoginInfoModal()" style="background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); color: #00ffff;">
+                            <i class="fas fa-history" style="font-size: 24px;"></i> Login History
+                        </button>
+                        <button class="admin-btn" onclick="closeModal('adminPanelModal'); toggleMaintenanceMode()" style="background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.3); color: #ff4757;">
+                            <i class="fas fa-radiation" style="font-size: 24px;"></i> Maintenance
+                        </button>
+                        <button class="admin-btn" onclick="closeModal('adminPanelModal'); openSystemCreatorModal()" style="background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); color: #00ffff;">
+                            <i class="fas fa-terminal" style="font-size: 24px;"></i> System Console
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- System Creator Modal -->
     <div class="modal-overlay" id="systemCreatorModal">
         <div class="modal-container wide" style="border: 2px solid rgba(0, 255, 255, 0.3);">
@@ -404,13 +476,14 @@
             <div class="modal-body" id="systemCreatorContent">
                 <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; color: #00ffff; font-size: 12px; height: 200px; overflow-y: auto;" id="systemConsole">
                     <div style="color: #00ff00;">> System Creator v2.0 initialized...</div>
+                    <div style="color: #00ffff;">> Awaiting commands...</div>
                 </div>
                 <button class="submit-btn" onclick="closeModal('systemCreatorModal')" style="margin-top: 12px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; color: #00ffff;">Close Panel</button>
             </div>
         </div>
     </div>
 
-    <!-- Player Manager Modal (System Creator Only) -->
+    <!-- Player Manager Modal -->
     <div class="modal-overlay" id="playerManagerModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-users-cog" style="color: var(--primary-pink);"></i> Manage Players</div><button class="modal-close" onclick="closeModal('playerManagerModal')"><i class="fas fa-times"></i></button></div>
@@ -427,7 +500,7 @@
         </div>
     </div>
 
-    <!-- Role Manager Modal (Captain + System Creator Only) -->
+    <!-- Role Manager Modal -->
     <div class="modal-overlay" id="roleManagerModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-user-tag" style="color: var(--primary-pink);"></i> Change Player Roles</div><button class="modal-close" onclick="closeModal('roleManagerModal')"><i class="fas fa-times"></i></button></div>
@@ -437,7 +510,7 @@
         </div>
     </div>
 
-    <!-- Login Info Modal (System Creator Only) -->
+    <!-- Login Info Modal -->
     <div class="modal-overlay" id="loginInfoModal">
         <div class="modal-container wide">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-history" style="color: var(--primary-pink);"></i> Login History</div><button class="modal-close" onclick="closeModal('loginInfoModal')"><i class="fas fa-times"></i></button></div>
@@ -525,7 +598,7 @@
         </div>
     </div>
 
-    <!-- Frame Detail Modal (for viewing scorecard details) -->
+    <!-- Frame Detail Modal -->
     <div class="modal-overlay" id="frameDetailModal">
         <div class="modal-container">
             <div class="modal-header"><div class="modal-title"><i class="fas fa-eye" style="color: var(--primary-pink);"></i> Frame Details</div><button class="modal-close" onclick="closeModal('frameDetailModal')"><i class="fas fa-times"></i></button></div>
@@ -559,7 +632,7 @@
         let fixturesData = [];
         let announcements = [];
         let trainingSessions = [];
-        let scorecards = []; // Stores detailed frame data for each match
+        let scorecards = [];
         let currentUser = null;
         let currentFilter = 'all';
         let maintenanceMode = false;
@@ -574,7 +647,6 @@
             updateDisplays();
             setupEventListeners();
             
-            // Setup maintenance check
             if (maintenanceMode && (!currentUser || !currentUser.isSystemCreator)) {
                 document.getElementById('maintenanceOverlay').classList.add('active');
             }
@@ -616,11 +688,9 @@
                     if (data.scorecards) scorecards = data.scorecards;
                     if (data.maintenanceMode !== undefined) maintenanceMode = data.maintenanceMode;
                     if (data.teamCredentials) {
-                        // Merge saved credentials with defaults to preserve new fields
                         Object.assign(teamCredentials, data.teamCredentials);
                     }
                 } else {
-                    // Initialize teamData from credentials if first run
                     syncTeamDataWithCredentials();
                 }
             } catch (e) {
@@ -698,10 +768,9 @@
                 
                 currentUser = { username, ...userData };
                 
-                // Update login history
                 const loginEntry = {
                     timestamp: new Date().toISOString(),
-                    ip: '192.168.1.' + Math.floor(Math.random() * 255), // Simulated IP
+                    ip: '192.168.1.' + Math.floor(Math.random() * 255),
                     userAgent: navigator.userAgent
                 };
                 teamCredentials[username].loginHistory.unshift(loginEntry);
@@ -740,14 +809,9 @@
             document.getElementById('roleText').textContent = currentUser.role;
             document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
             
-            // Show menu items for Captains and System Creator (dropdown only)
+            // Show Admin Menu for Captains, Co-Captains and System Creator
             if (currentUser.isAdmin) {
                 document.getElementById('adminMenuItem').style.display = 'flex';
-            }
-            
-            // Show System Creator specific items
-            if (currentUser.isSystemCreator) {
-                document.getElementById('systemCreatorMenuItem').style.display = 'flex';
             }
             
             // Show Training controls for Captains and Co-Captains
@@ -788,7 +852,6 @@
             document.getElementById('profileContainer').classList.remove('show');
             document.getElementById('adminTrainingControls').style.display = 'none';
             document.getElementById('adminMenuItem').style.display = 'none';
-            document.getElementById('systemCreatorMenuItem').style.display = 'none';
         }
 
         function logout() {
@@ -816,6 +879,10 @@
         function toggleDropdown(e) {
             if (e) e.stopPropagation();
             document.getElementById('profileDropdown').classList.toggle('show');
+        }
+
+        function closeDropdown() {
+            document.getElementById('profileDropdown').classList.remove('show');
         }
 
         function switchTab(tabId, navElement) {
@@ -861,14 +928,10 @@
         }
 
         function updateDisplays() {
-            // Update WWLDW panel and Live Updates
             renderWWLDW();
             renderWWLDWLiveUpdates();
-            
-            // Update announcements
             renderAnnouncements();
             
-            // Update stats
             const us = leagueData[0];
             document.getElementById('statPlayed').textContent = us.played;
             document.getElementById('statWon').textContent = us.won;
@@ -920,7 +983,7 @@
             const container = document.getElementById('wwldwLiveList');
             const last5 = fixturesData
                 .filter(f => f.played)
-                .sort((a,b) => new Date(b.date) - new Date(a.date))
+                .sort((a,b) => new Date(b.date) - new Date(b.date))
                 .slice(0, 5);
             
             if (last5.length === 0) {
@@ -969,6 +1032,44 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // ===================================================================
+        // ADMIN PANEL FUNCTIONS
+        // ===================================================================
+
+        function openAdminPanel() {
+            if (!currentUser || !currentUser.isAdmin) {
+                showToast('Admin access required', 'error');
+                return;
+            }
+            
+            // Show/hide role manager button based on permissions (Captain or System Creator only)
+            const roleBtn = document.getElementById('adminRoleManagerBtn');
+            if (currentUser.role === 'Captain' || currentUser.isSystemCreator) {
+                roleBtn.style.display = 'flex';
+            } else {
+                roleBtn.style.display = 'none';
+            }
+            
+            // Show System Creator section only for System Creator
+            const sysCreatorSection = document.getElementById('adminPanelSystemCreatorSection');
+            if (currentUser.isSystemCreator) {
+                sysCreatorSection.style.display = 'block';
+            } else {
+                sysCreatorSection.style.display = 'none';
+            }
+            
+            openModal('adminPanelModal');
+        }
+
+        function openSystemCreatorModal() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
+            openModal('systemCreatorModal');
+            logToConsole('System Creator panel accessed by ' + currentUser.name);
         }
 
         // ===================================================================
@@ -1041,8 +1142,8 @@
 
         function filterFixtures(type, btn) {
             currentFilter = type;
-            document.querySelectorAll('.admin-btn').forEach(b => {
-                if (b.parentElement && b.parentElement.classList.contains('admin-grid')) return; // Skip admin panel buttons
+            const buttons = btn.parentElement.querySelectorAll('.admin-btn');
+            buttons.forEach(b => {
                 b.style.background = 'rgba(255,255,255,0.05)';
                 b.style.color = 'var(--text-secondary)';
                 b.style.border = '1px solid var(--border-color)';
@@ -1165,7 +1266,6 @@
         }
 
         function changePlayerRole(username, newRole) {
-            // Update teamCredentials
             teamCredentials[username].role = newRole;
             teamCredentials[username].isAdmin = newRole !== 'Player';
             if (newRole === 'System Creator') {
@@ -1179,7 +1279,6 @@
                 teamCredentials[username].isAdmin = false;
             }
             
-            // Update teamData
             const player = teamData.find(t => t.username === username);
             if (player) player.role = newRole;
             
@@ -1187,7 +1286,6 @@
             showToast(`Role updated to ${newRole}`);
             renderTeam();
             
-            // Update current user if changed self
             if (currentUser.username === username) {
                 currentUser.role = newRole;
                 currentUser.isAdmin = teamCredentials[username].isAdmin;
@@ -1197,10 +1295,14 @@
         }
 
         // ===================================================================
-        // SYSTEM CREATOR - PLAYER MANAGEMENT
+        // SYSTEM CREATOR FUNCTIONS
         // ===================================================================
 
         function openPlayerManagerModal() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
             renderPlayerList();
             openModal('playerManagerModal');
         }
@@ -1236,7 +1338,7 @@
             }
             
             teamCredentials[username] = {
-                password: 'Rack2026', // Default password
+                password: 'Rack2026',
                 name: name,
                 role: 'Player',
                 isAdmin: false,
@@ -1270,11 +1372,12 @@
             showToast('Player removed');
         }
 
-        // ===================================================================
-        // LOGIN INFO (System Creator Only)
-        // ===================================================================
-
         function openLoginInfoModal() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
+            
             const tbody = document.getElementById('loginInfoTableBody');
             tbody.innerHTML = Object.keys(teamCredentials).map(username => {
                 const user = teamCredentials[username];
@@ -1295,11 +1398,46 @@
             openModal('loginInfoModal');
         }
 
+        function toggleMaintenanceMode() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
+            
+            maintenanceMode = !maintenanceMode;
+            saveData();
+            
+            if (maintenanceMode) {
+                document.getElementById('maintenanceOverlay').classList.add('active');
+                logToConsole('🔒 MAINTENANCE MODE ENABLED');
+            } else {
+                document.getElementById('maintenanceOverlay').classList.remove('active');
+                logToConsole('🔓 MAINTENANCE MODE DISABLED');
+            }
+            
+            showToast(maintenanceMode ? 'Maintenance mode enabled' : 'Maintenance mode disabled', 
+                     maintenanceMode ? 'error' : 'success');
+        }
+
+        function logToConsole(msg) {
+            const console = document.getElementById('systemConsole');
+            if (console) {
+                const line = document.createElement('div');
+                line.textContent = `> ${msg}`;
+                console.appendChild(line);
+                console.scrollTop = console.scrollHeight;
+            }
+        }
+
         // ===================================================================
         // TRAINING
         // ===================================================================
 
         function openScheduleTrainingModal() {
+            if (!currentUser || !currentUser.isAdmin) {
+                showToast('Admin access required', 'error');
+                return;
+            }
             document.getElementById('trainingDate').valueAsDate = new Date();
             openModal('scheduleTrainingModal');
         }
@@ -1396,7 +1534,6 @@
             const session = trainingSessions.find(s => s.id === sessionId);
             if (!session) return;
             
-            // Remove from both lists first
             session.attendees = session.attendees.filter(n => n !== currentUser.name);
             session.declined = session.declined.filter(n => n !== currentUser.name);
             
@@ -1421,7 +1558,7 @@
         }
 
         // ===================================================================
-        // SCORECARDS (10 FRAMES)
+        // SCORECARDS & MATCH RESULTS
         // ===================================================================
 
         function renderScorecards() {
@@ -1497,12 +1634,12 @@
             openModal('frameDetailModal');
         }
 
-        // ===================================================================
-        // MATCH RESULTS WITH FRAME DETAILS
-        // ===================================================================
-
         function openAddResultModal() {
-            // Populate frame inputs
+            if (!currentUser || !currentUser.isAdmin) {
+                showToast('Admin access required', 'error');
+                return;
+            }
+            
             const frameInputs = document.getElementById('frameInputs');
             frameInputs.innerHTML = '';
             for (let i = 0; i < 10; i++) {
@@ -1522,7 +1659,6 @@
                 `;
             }
             
-            // Populate opponent select
             const oppSelect = document.getElementById('resultOpponent');
             oppSelect.innerHTML = '<option value="">Select opponent...</option>';
             opponentsList.forEach(opp => {
@@ -1548,7 +1684,6 @@
                 return;
             }
             
-            // Calculate result from scores if frames not filled
             let result;
             if (ourScore > theirScore) result = 'W';
             else if (ourScore < theirScore) result = 'L';
@@ -1567,7 +1702,6 @@
                 played: true
             });
             
-            // Collect frame data
             const frames = [];
             let calculatedOurScore = 0;
             let calculatedTheirScore = 0;
@@ -1586,23 +1720,19 @@
                 }
             }
             
-            // Use calculated score if frames were filled, otherwise use input scores
             const finalOurScore = frames.length > 0 ? calculatedOurScore : ourScore;
             const finalTheirScore = frames.length > 0 ? calculatedTheirScore : theirScore;
             
-            // Update scorecard
             scorecards.push({
                 fixtureId: matchId,
                 frames: frames.length > 0 ? frames : Array(10).fill({result: '', player: '', notes: ''})
             });
             
-            // Update league data
             leagueData[0].played++;
             leagueData[0].points += finalOurScore;
             if (finalOurScore > finalTheirScore) leagueData[0].won++;
             else if (finalOurScore < finalTheirScore) leagueData[0].lost++;
             
-            // Find opponent in league data or add them
             let opp = leagueData.find(t => t.name === opponent);
             if (!opp) {
                 opp = { id: leagueData.length + 1, name: opponent, played: 0, won: 0, lost: 0, points: 0, isUs: false };
@@ -1613,13 +1743,11 @@
             if (finalTheirScore > finalOurScore) opp.won++;
             else if (finalTheirScore < finalOurScore) opp.lost++;
             
-            // Update player stats
             frames.forEach(frame => {
                 if (frame.player && frame.result) {
                     const player = teamData.find(p => p.name === frame.player);
                     if (player) {
                         player.played++;
-                        // For individual stats, count frames played
                         if (!player.gameHistory) player.gameHistory = [];
                         player.gameHistory.unshift({
                             date: date,
@@ -1642,16 +1770,56 @@
             showToast('Result saved successfully');
         }
 
-        function viewScorecard(fixtureId) {
-            const scorecard = scorecards.find(s => s.fixtureId === fixtureId);
-            if (scorecard) {
-                renderScorecards();
-                // Scroll to specific match if needed
+        function openScheduleModal() {
+            if (!currentUser || !currentUser.isAdmin) {
+                showToast('Admin access required', 'error');
+                return;
             }
+            
+            const select = document.getElementById('scheduleOpponent');
+            select.innerHTML = '<option value="">Select opponent...</option>';
+            opponentsList.forEach(opp => {
+                const opt = document.createElement('option');
+                opt.value = opp;
+                opt.textContent = opp;
+                select.appendChild(opt);
+            });
+            document.getElementById('scheduleDate').valueAsDate = new Date();
+            openModal('scheduleModal');
+        }
+
+        function submitSchedule() {
+            const opponent = document.getElementById('scheduleOpponent').value;
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
+            
+            if (!opponent || !date) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            fixturesData.push({
+                id: Date.now(),
+                opponent,
+                date,
+                time,
+                venue: 'home',
+                played: false
+            });
+            
+            saveData();
+            closeModal('scheduleModal');
+            updateDisplays();
+            showToast('Match scheduled');
+        }
+
+        function viewScorecard(fixtureId) {
+            // Just a placeholder - in real implementation would scroll to specific scorecard
+            showToast('Viewing scorecard details');
         }
 
         // ===================================================================
-        // PROFILE & GAME HISTORY
+        // PROFILE
         // ===================================================================
 
         function renderProfile() {
@@ -1714,67 +1882,8 @@
         }
 
         // ===================================================================
-        // OTHER FUNCTIONS
+        // UTILITIES
         // ===================================================================
-
-        function submitSchedule() {
-            const opponent = document.getElementById('scheduleOpponent').value;
-            const date = document.getElementById('scheduleDate').value;
-            const time = document.getElementById('scheduleTime').value;
-            
-            if (!opponent || !date) {
-                showToast('Please fill all fields', 'error');
-                return;
-            }
-            
-            fixturesData.push({
-                id: Date.now(),
-                opponent,
-                date,
-                time,
-                venue: 'home',
-                played: false
-            });
-            
-            saveData();
-            closeModal('scheduleModal');
-            updateDisplays();
-            showToast('Match scheduled');
-        }
-
-        function openScheduleModal() {
-            const select = document.getElementById('scheduleOpponent');
-            select.innerHTML = '<option value="">Select opponent...</option>';
-            opponentsList.forEach(opp => {
-                const opt = document.createElement('option');
-                opt.value = opp;
-                opt.textContent = opp;
-                select.appendChild(opt);
-            });
-            document.getElementById('scheduleDate').valueAsDate = new Date();
-            openModal('scheduleModal');
-        }
-
-        function toggleMaintenanceMode() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator access required', 'error');
-                return;
-            }
-            
-            maintenanceMode = !maintenanceMode;
-            saveData();
-            
-            if (maintenanceMode) {
-                document.getElementById('maintenanceOverlay').classList.add('active');
-                logToConsole('🔒 MAINTENANCE MODE ENABLED');
-            } else {
-                document.getElementById('maintenanceOverlay').classList.remove('active');
-                logToConsole('🔓 MAINTENANCE MODE DISABLED');
-            }
-            
-            showToast(maintenanceMode ? 'Maintenance mode enabled' : 'Maintenance mode disabled', 
-                     maintenanceMode ? 'error' : 'success');
-        }
 
         function attemptMaintenanceLogin() {
             document.getElementById('maintenanceOverlay').classList.remove('active');
@@ -1782,24 +1891,10 @@
             showToast('🔓 Maintenance override engaged', 'error');
         }
 
-        function openAdminPanel() {
-            showToast('Captain controls active');
-        }
-
         function manualSync() {
             loadData();
             updateDisplays();
             showToast('Data refreshed');
-        }
-
-        function logToConsole(msg) {
-            const console = document.getElementById('systemConsole');
-            if (console) {
-                const line = document.createElement('div');
-                line.textContent = `> ${msg}`;
-                console.appendChild(line);
-                console.scrollTop = console.scrollHeight;
-            }
         }
 
         // ===================================================================
