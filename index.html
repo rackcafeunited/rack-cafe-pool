@@ -10,71 +10,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --bg-dark: #0a0a14; --bg-card: #151520; --primary-pink: #e94560; --primary-pink-dark: #d63d56; --accent-orange: #f39c12; --gold-primary: #ffd700; --text-primary: #ffffff; --text-secondary: #a0a0b8; --text-muted: #606070; --border-color: #2a2a3a; --success: #2ed573; --danger: #ff4757; --info: #00ffff; --reserve-color: #9b59b6; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1420 100%); color: var(--text-primary); min-height: 100vh; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        /* MAINTENANCE OVERLAY - CRITICAL FIXES */
+        /* CRITICAL: Maintenance overlay must be highest z-index */
         .maintenance-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%);
-            z-index: 999999; /* Highest possible z-index */
+            z-index: 2147483647; /* Max z-index */
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px;
             text-align: center;
-            backdrop-filter: blur(20px);
         }
-        
-        .maintenance-overlay.active {
-            display: flex !important; /* Force display */
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .maintenance-icon {
-            font-size: 80px;
-            color: #ff4757;
-            margin-bottom: 30px;
-            animation: pulse 2s infinite;
-            text-shadow: 0 0 30px rgba(255, 71, 87, 0.5);
-        }
-        
-        .maintenance-title {
-            font-size: 36px;
-            font-weight: 900;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #ff4757, #ff6348);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .maintenance-message {
-            font-size: 16px;
-            color: var(--text-secondary);
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        
-        .maintenance-hint {
-            position: fixed;
-            bottom: 40px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            font-family: monospace;
-            animation: blink 3s infinite;
-        }
+        .maintenance-overlay.active { display: flex !important; animation: fadeIn 0.3s ease; }
+        .maintenance-icon { font-size: 80px; color: #ff4757; margin-bottom: 30px; animation: pulse 2s infinite; text-shadow: 0 0 30px rgba(255, 71, 87, 0.5); }
+        .maintenance-title { font-size: 36px; font-weight: 900; margin-bottom: 16px; background: linear-gradient(135deg, #ff4757, #ff6348); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .maintenance-message { font-size: 16px; color: var(--text-secondary); max-width: 500px; line-height: 1.6; margin-bottom: 30px; }
+        .maintenance-hint { position: fixed; bottom: 40px; font-size: 12px; color: rgba(255, 255, 255, 0.3); font-family: monospace; }
 
-        .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #151525 0%, #0a0a14 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99998; }
+        .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #151525 0%, #0a0a14 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999998; }
         .login-screen.show { display: flex; }
         .logo { width: 110px; height: 110px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #e94560 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4); position: relative; cursor: pointer; }
         .logo::before { content: ''; position: absolute; width: 50%; height: 50%; border: 5px solid rgba(255,255,255,0.95); border-radius: 50%; }
@@ -82,36 +41,49 @@
         .login-card { background: rgba(21, 21, 32, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6); animation: slideUp 0.6s ease; }
         .login-header { text-align: center; margin-bottom: 35px; }
         .login-header h1 { font-size: 32px; margin-bottom: 8px; font-weight: 800; }
-        .login-error { background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); color: #ff4757; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; display: none; align-items: center; gap: 8px; }
-        .login-error.show { display: flex; }
+        .login-header p { color: var(--text-secondary); font-size: 14px; }
         .form-group { margin-bottom: 24px; }
         .form-label { display: block; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700; }
         .input-wrapper { position: relative; }
         .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
-        .form-input { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; }
-        .form-input:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
-        .login-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; box-shadow: 0 4px 25px rgba(233, 69, 96, 0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 16px 16px 16px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; transition: all 0.3s; font-family: inherit; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary-pink); background: rgba(255, 255, 255, 0.08); }
+        .login-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; box-shadow: 0 4px 25px rgba(233, 69, 96, 0.4); transition: all 0.3s; }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 35px rgba(233, 69, 96, 0.5); }
+        .login-error { background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); color: #ff4757; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; display: none; align-items: center; gap: 8px; }
+        .login-error.show { display: flex; }
         
         .dashboard { display: none; min-height: 100vh; padding-bottom: 90px; }
         .dashboard.active { display: block; animation: fadeIn 0.5s; }
         .header { background: rgba(15, 15, 25, 0.98); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-logo { width: 42px; height: 42px; background: linear-gradient(135deg, #ff6b35 0%, #e94560 100%); border-radius: 10px; position: relative; }
-        .header-logo::before { content: ''; position: absolute; width: 20px; height: 20px; border: 3px solid white; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-        .header-title h2 { font-size: 17px; font-weight: 800; }
+        .header-logo { width: 42px; height: 42px; background: linear-gradient(135deg, #ff6b35 0%, #e94560 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .header-logo::before { content: ''; position: absolute; width: 20px; height: 20px; border: 3px solid white; border-radius: 50%; }
+        .header-logo::after { content: ''; position: absolute; width: 8px; height: 8px; background: white; border-radius: 50%; }
+        .header-title h2 { font-size: 17px; font-weight: 800; display: flex; align-items: center; }
         .header-title p { font-size: 12px; color: var(--text-secondary); }
-        .header-right { display: flex; align-items: center; gap: 12px; }
+        .header-right { display: flex; align-items: center; gap: 12px; position: relative; }
         .sync-badge { background: rgba(46, 213, 115, 0.15); color: #2ed573; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(46, 213, 115, 0.3); cursor: pointer; }
-        
         .profile-container { position: relative; display: none; }
         .profile-container.show { display: block; }
-        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-pink) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s; }
-        .avatar:hover { transform: scale(1.05); }
-        
+        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-pink) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .avatar:hover { transform: scale(1.05); border-color: rgba(233, 69, 96, 0.5); }
         .dropdown-menu { position: absolute; top: calc(100% + 12px); right: 0; background: rgba(21, 21, 32, 0.98); backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: 16px; padding: 8px; min-width: 280px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; }
         .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; cursor: pointer; transition: all 0.2s; color: var(--text-primary); font-size: 14px; font-weight: 600; }
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .dropdown-item.system-creator { color: #00ffff; background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.2); margin: 4px 0; }
+        .dropdown-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
+        .user-info { padding: 12px 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 8px; }
+        .user-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .user-role { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
         
+        .main-content { padding: 24px 20px; max-width: 900px; margin: 0 auto; }
+        .page-title { margin-bottom: 24px; }
+        .page-title h1 { font-size: 32px; margin-bottom: 6px; font-weight: 800; }
+        .page-title p { color: var(--text-secondary); font-size: 15px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         .admin-panel { background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; position: relative; }
         .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
         @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
@@ -122,59 +94,55 @@
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 10px; text-align: center; transition: all 0.3s; }
-        .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #e94560, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-value { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #e94560, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
         .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-        
-        .main-content { padding: 24px 20px; max-width: 900px; margin: 0 auto; }
-        .page-title { margin-bottom: 24px; }
-        .page-title h1 { font-size: 32px; margin-bottom: 6px; font-weight: 800; }
-        .page-title p { color: var(--text-secondary); font-size: 15px; }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal-overlay.show { display: flex; }
         .modal-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8); animation: slideUp 0.3s ease; }
         .modal-header { background: linear-gradient(135deg, rgba(233,69,96,0.2) 0%, rgba(243,156,18,0.1) 100%); padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-size: 20px; font-weight: 800; }
+        .modal-title { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
         .modal-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .modal-body { padding: 24px; }
-        .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; }
+        .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; transition: all 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4); }
         
         #systemCreatorModal .modal-container { max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3); }
+        #systemCreatorModal .modal-title { color: #00ffff; }
         
-        .maintenance-toggle { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
+        .maintenance-toggle { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s; }
         .maintenance-toggle.active { background: rgba(0, 255, 255, 0.1); border-color: rgba(0, 255, 255, 0.3); }
         .toggle-switch { width: 50px; height: 26px; background: rgba(255, 255, 255, 0.1); border-radius: 13px; position: relative; transition: all 0.3s; }
         .maintenance-toggle.active .toggle-switch { background: #00ffff; }
         .toggle-switch::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: all 0.3s; }
         .maintenance-toggle.active .toggle-switch::after { left: 26px; }
         
-        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; z-index: 2000; opacity: 0; transition: all 0.3s ease; }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .role-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; border: 1px solid; vertical-align: middle; }
+        .badge-system-creator { background: rgba(0, 255, 255, 0.15); border-color: #00ffff; color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); animation: pulse 2s infinite; }
+        .badge-captain { background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700; }
+        .badge-co-captain { background: rgba(243, 156, 18, 0.15); border-color: #f39c12; color: #f39c12; }
         
-        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .fixture-date { min-width: 60px; text-align: center; }
+        .fixture-card { background: #151520; border: 1px solid #2a2a3a; border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .fixture-date { min-width: 60px; text-align: center; margin-right: 20px; }
         .date-day { font-size: 28px; font-weight: 900; color: #e94560; line-height: 1; }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 15, 25, 0.98); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; cursor: pointer; background: none; border: none; font-family: inherit; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #606070; text-decoration: none; font-size: 10px; font-weight: 700; padding: 8px; border-radius: 16px; flex: 1; max-width: 90px; transition: all 0.3s; cursor: pointer; background: none; border: none; font-family: inherit; }
         .nav-item.active { color: var(--primary-pink); }
         
-        .header-login-btn { background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 10px; color: white; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .header-login-btn.hidden { display: none !important; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; z-index: 2000; opacity: 0; transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         
-        .role-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-left: 8px; border: 1px solid; }
-        .badge-system-creator { background: rgba(0, 255, 255, 0.15); border-color: #00ffff; color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); animation: pulse 2s infinite; }
-        .badge-captain { background: rgba(255, 215, 0, 0.15); border-color: #ffd700; color: #ffd700; }
+        .header-login-btn { background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%); border: none; border-radius: 10px; color: white; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+        .header-login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
+        .header-login-btn.hidden { display: none !important; }
         
         kbd { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; border: 1px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <!-- MAINTENANCE OVERLAY - ENSURE THIS IS FIRST IN BODY -->
+    <!-- MAINTENANCE OVERLAY - MUST BE FIRST ELEMENT -->
     <div id="maintenanceOverlay" class="maintenance-overlay">
         <i class="fas fa-radiation maintenance-icon"></i>
         <div class="maintenance-title">SYSTEM MAINTENANCE</div>
@@ -195,39 +163,14 @@
     <div class="login-screen" id="loginScreen">
         <div class="logo" id="loginLogo"></div>
         <div class="login-card">
-            <div class="login-header">
-                <h1>Rack Café Utd</h1>
-                <p style="color: var(--text-secondary);">Huddersfield Tuesday Night Pool League</p>
-            </div>
-            <div class="login-error" id="loginError">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText">Invalid credentials</span>
-            </div>
+            <div class="login-header"><h1>Rack Café Utd</h1><p style="color: var(--text-secondary);">Huddersfield Tuesday Night Pool League</p></div>
+            <div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i><span id="errorText">Invalid credentials</span></div>
             <form onsubmit="event.preventDefault(); doLogin();">
-                <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user"></i>
-                        <input type="text" class="form-input" id="usernameInput" required autocomplete="username">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" class="form-input" id="passwordInput" required autocomplete="current-password">
-                    </div>
-                </div>
-                <button type="submit" class="login-btn" id="loginBtn">
-                    <i class="fas fa-arrow-right-to-bracket"></i> LOGIN
-                </button>
-                <button type="button" class="login-btn" style="margin-top: 10px; background: rgba(255,255,255,0.1);" onclick="cancelLogin()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
+                <div class="form-group"><label class="form-label">Username</label><div class="input-wrapper"><i class="fas fa-user"></i><input type="text" class="form-input" id="usernameInput" required autocomplete="username"></div></div>
+                <div class="form-group"><label class="form-label">Password</label><div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" class="form-input" id="passwordInput" required autocomplete="current-password"></div></div>
+                <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> LOGIN</button>
+                <button type="button" class="login-btn" style="margin-top: 10px; background: rgba(255,255,255,0.1);" onclick="cancelLogin()"><i class="fas fa-times"></i> Cancel</button>
             </form>
-            <div style="text-align: center; margin-top: 16px; font-size: 11px; color: var(--text-muted);">
-                <i class="fas fa-shield-alt" style="color: var(--success);"></i> System Secure
-            </div>
         </div>
     </div>
 
@@ -241,27 +184,26 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="sync-badge" id="syncBadge" onclick="manualSync()">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="syncStatus">Ready</span>
-                </div>
-                <button id="headerLoginBtn" class="header-login-btn" onclick="showLogin()">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
+                <div class="sync-badge" id="syncBadge" onclick="manualSync()"><i class="fas fa-check-circle"></i><span id="syncStatus">Synced</span></div>
+                <button id="headerLoginBtn" class="header-login-btn" onclick="showLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
                 <div class="profile-container" id="profileContainer">
-                    <div class="avatar" id="userAvatar" style="display: none;">--</div>
+                    <div class="avatar" id="userAvatar" onclick="toggleDropdown(event)">--</div>
                     <div class="dropdown-menu" id="profileDropdown">
-                        <div class="user-info" style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);">
-                            <div class="user-name" id="userNameDisplay" style="font-weight: 800; margin-bottom: 4px;">User</div>
-                            <div class="user-role" id="userRoleDisplay" style="font-size: 12px; color: var(--text-secondary);">Player</div>
+                        <div class="user-info">
+                            <div class="user-name" id="dropdownUserName"><span id="userNameText">User</span><span id="userBadge"></span></div>
+                            <div class="user-role" id="dropdownUserRole"><i class="fas fa-user"></i> <span id="roleText">Player</span></div>
                         </div>
-                        <div class="dropdown-item" onclick="openSystemCreatorModal(); toggleDropdown();" id="systemCreatorMenuItem" style="display: none; color: #00ffff;">
-                            <i class="fas fa-terminal"></i> System Creator
+                        <div class="dropdown-item" onclick="switchTab('profileTab'); toggleDropdown();"><i class="fas fa-user"></i> My Profile</div>
+                        <div id="adminMenuItems" style="display: none;">
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item" onclick="openAdminPanel(); toggleDropdown();" style="color: var(--gold-primary);"><i class="fas fa-shield-alt"></i> Captain's Panel</div>
+                        </div>
+                        <div id="systemCreatorMenuItem" style="display: none;">
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item system-creator" onclick="openSystemCreatorModal(); toggleDropdown();"><i class="fas fa-terminal"></i> System Creator</div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item logout" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i> Log Out
-                        </div>
+                        <div class="dropdown-item" onclick="logout()" style="color: #ff4757;"><i class="fas fa-sign-out-alt"></i> Log Out</div>
                     </div>
                 </div>
             </div>
@@ -269,182 +211,283 @@
 
         <main class="main-content">
             <div class="tab-content active" id="homeTab">
-                <div class="page-title">
-                    <h1>Dashboard</h1>
-                    <p id="welcomeText">Welcome to Rack Café Utd</p>
-                </div>
-                <div class="next-match-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <div style="display: flex; align-items: center; gap: 10px; font-weight: 700;">
-                            <i class="fas fa-calendar-check"></i> Next Match
-                        </div>
-                        <span style="background: rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800;">Home</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
-                        <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 20px; font-weight: 800;">Rack Café Utd</div>
-                        </div>
-                        <div style="font-size: 28px; font-weight: 900; opacity: 0.5; margin: 0 30px;">VS</div>
-                        <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 20px; font-weight: 800;">TBD</div>
-                        </div>
-                    </div>
-                </div>
+                <div class="page-title"><h1>Dashboard</h1><p id="welcomeText">Welcome to Rack Café Utd</p></div>
                 
+                <div id="nextMatchCard" class="next-match-card">
+                    <div class="match-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div class="match-label"><i class="fas fa-calendar-check"></i> Next Match</div>
+                        <span class="home-badge" id="nextMatchVenue">Home</span>
+                    </div>
+                    <div class="match-teams" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+                        <div class="team" style="text-align: center; flex: 1;"><div class="team-name">Rack Café Utd</div></div>
+                        <div class="vs">VS</div>
+                        <div class="team" style="text-align: center; flex: 1;"><div class="team-name" id="nextMatchOpponent">TBD</div></div>
+                    </div>
+                    <div class="match-details">
+                        <div style="text-align: center;"><i class="fas fa-calendar" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i><div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Date</div><div style="font-weight: 700; margin-top: 4px;" id="nextMatchDate">TBC</div></div>
+                        <div style="text-align: center;"><i class="fas fa-clock" style="font-size: 24px; margin-bottom: 8px; opacity: 0.8;"></i><div style="font-size: 12px; text-transform: uppercase; opacity: 0.7;">Kickoff</div><div style="font-weight: 700; margin-top: 4px; color: #ffd700;" id="nextMatchTime">--:--</div></div>
+                    </div>
+                </div>
+
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statPos">1st</div>
-                        <div class="stat-label">Position</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statPlayed">0</div>
-                        <div class="stat-label">Played</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statWon">0</div>
-                        <div class="stat-label">Won</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statPoints">0</div>
-                        <div class="stat-label">Points</div>
+                    <div class="stat-card"><div class="stat-value" id="statPosition">--</div><div class="stat-label">Position</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statPlayed">0</div><div class="stat-label">Played</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statWon">0</div><div class="stat-label">Won</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label">Win Rate</div></div>
+                </div>
+
+                <div id="adminPanel" style="display: none;">
+                    <div class="admin-panel">
+                        <div class="section-title" style="color: var(--gold-primary); margin-bottom: 16px;"><i class="fas fa-shield-alt"></i> Admin Controls</div>
+                        <div class="admin-grid">
+                            <button class="admin-btn" onclick="openAddResultModal()"><i class="fas fa-plus-circle"></i> Add Result</button>
+                            <button class="admin-btn" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="admin-panel" id="adminPanel" style="display: none;">
-                    <div style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--gold-primary);">
-                        <i class="fas fa-shield-alt"></i> Captain's Panel
-                    </div>
-                    <div class="admin-grid">
-                        <button class="admin-btn" onclick="toggleMaintenanceMode()">
-                            <i class="fas fa-power-off"></i> Toggle Maintenance
-                        </button>
-                        <button class="admin-btn" onclick="exportData()">
-                            <i class="fas fa-download"></i> Export Data
-                        </button>
+                <div id="systemCreatorPanel" style="display: none; margin-top: 24px;">
+                    <div class="admin-panel" style="border-color: #00ffff; background: rgba(0,255,255,0.05);">
+                        <div class="section-title" style="color: #00ffff; margin-bottom: 16px;"><i class="fas fa-terminal"></i> System Creator Controls</div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-family: monospace; font-size: 12px; color: #00ffff;">
+                            <div>Status: <span id="maintStatusText" style="color: #2ed573;">ONLINE</span></div>
+                            <div>Lockdown: <span id="maintLockText" style="color: #ff4757;">DISABLED</span></div>
+                        </div>
+                        <div class="admin-grid">
+                            <button class="admin-btn" onclick="toggleMaintenanceMode()" id="maintToggleBtn" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.1);">
+                                <i class="fas fa-radiation"></i> Enable Lockdown
+                            </button>
+                            <button class="admin-btn" onclick="exportDatabase()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);">
+                                <i class="fas fa-file-export"></i> Export Data
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="admin-panel" style="border-color: #00ffff; background: rgba(0,255,255,0.05);">
-                    <div style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #00ffff;">
-                        <i class="fas fa-terminal"></i> System Creator
-                    </div>
-                    <div id="maintenanceStatusDisplay" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
-                        Checking status...
-                    </div>
-                    <div class="admin-grid">
-                        <button class="admin-btn" onclick="toggleMaintenanceMode()" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.1);">
-                            <i class="fas fa-radiation"></i> <span id="maintBtnText">Enable Lockdown</span>
-                        </button>
-                        <button class="admin-btn" onclick="clearMaintenanceMode()" style="border-color: #00ff00; color: #00ff00;">
-                            <i class="fas fa-unlock"></i> Emergency Unlock
-                        </button>
-                    </div>
+            <div class="tab-content" id="fixturesTab">
+                <div class="page-title"><h1>Fixtures</h1><p>2025/26 Season</p></div>
+                <div class="filter-tabs" style="display: flex; gap: 10px; margin-bottom: 24px;">
+                    <button class="filter-btn active" onclick="filterFixtures('all', this)" style="background: linear-gradient(135deg, #e94560 0%, #d63d56 100%); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer;">All</button>
+                    <button class="filter-btn" onclick="filterFixtures('upcoming', this)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer;">Upcoming</button>
                 </div>
+                <div id="fixturesList"></div>
             </div>
         </main>
 
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchTab('homeTab', this)"><i class="fas fa-home"></i><span>Home</span></button>
+            <button class="nav-item" onclick="switchTab('fixturesTab', this)"><i class="fas fa-calendar-days"></i><span>Fixtures</span></button>
+            <button class="nav-item" onclick="if(!currentUser){showLogin(); showToast('Login required', 'error');} else {switchTab('tableTab', this);}"><i class="fas fa-table"></i><span>Table</span></button>
+            <button class="nav-item" onclick="if(!currentUser){showLogin(); showToast('Login required', 'error');} else {switchTab('teamTab', this);}"><i class="fas fa-users"></i><span>Team</span></button>
         </nav>
     </div>
 
-    <!-- System Creator Modal -->
+    <!-- Modals -->
     <div class="modal-overlay" id="systemCreatorModal">
-        <div class="modal-container">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(0,255,255,0.3);">
-                <div class="modal-title" style="color: #00ffff;"><i class="fas fa-terminal"></i> SYSTEM CREATOR PANEL</div>
-                <button class="modal-close" onclick="closeSystemCreatorModal()"><i class="fas fa-times" style="color: #fff;"></i></button>
+        <div class="modal-container" style="max-width: 900px; border: 2px solid rgba(0, 255, 255, 0.3);">
+            <div class="modal-header" style="background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, rgba(147,0,255,0.1) 100%); border-bottom: 1px solid rgba(0,255,255,0.2);">
+                <div class="modal-title" style="color: #00ffff;"><i class="fas fa-terminal"></i> SYSTEM_CREATOR_PANEL</div>
+                <button class="modal-close" onclick="closeSystemCreatorModal()" style="color: #00ffff;"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="maintenance-toggle" id="maintenanceToggle" onclick="toggleMaintenanceMode()">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-power-off" style="font-size: 20px; color: #ff4757;"></i>
-                        <div>
-                            <div style="font-weight: 800;">Maintenance Mode</div>
-                            <div style="font-size: 12px; color: var(--text-secondary);">Lock all users except System Creator</div>
+                <div style="margin-bottom: 24px;">
+                    <div style="font-size: 12px; color: #ff4757; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,71,87,0.2); padding-bottom: 8px;">
+                        <i class="fas fa-radiation"></i> Server Lockdown Control
+                    </div>
+                    <div style="background: rgba(255,71,87,0.05); border: 1px solid rgba(255,71,87,0.2); border-radius: 12px; padding: 16px;">
+                        <div class="maintenance-toggle" id="modalMaintToggle" onclick="toggleMaintenanceMode()">
+                            <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-power-off" style="font-size: 20px; color: #ff4757;"></i>
+                                <div><div style="font-weight: 800; margin-bottom: 2px;">Maintenance Mode</div><div style="font-size: 12px; color: var(--text-secondary);">Lock all users except System Creator</div></div>
+                            </div>
+                            <div class="toggle-switch"></div>
+                        </div>
+                        <div id="modalMaintStatus" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,71,87,0.1); border-radius: 8px; border-left: 3px solid #ff4757; font-size: 12px; color: #ff4757;">
+                            <i class="fas fa-exclamation-triangle"></i> Currently Locked: All users except System Creator are blocked
                         </div>
                     </div>
-                    <div class="toggle-switch"></div>
                 </div>
-                <div id="maintenanceActiveText" style="display: none; padding: 12px; background: rgba(255,71,87,0.1); border-radius: 8px; border-left: 3px solid #ff4757; margin-bottom: 16px; font-size: 12px; color: #ff4757;">
-                    <i class="fas fa-exclamation-triangle"></i> Maintenance is currently ACTIVE
+                <div style="background: rgba(0,0,0,0.8); border: 1px solid rgba(0,255,255,0.3); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; color: #00ffff; font-size: 12px; height: 150px; overflow-y: auto;" id="dbConsole">
+                    <div style="color: #00ff00;">> System Creator v2.0 initialized...</div>
+                    <div style="color: #00ffff;">> Maintenance: <span id="consoleMaint">OFFLINE</span></div>
                 </div>
-                <button class="submit-btn" onclick="forceSaveMaintenance()">
+                <button class="submit-btn" onclick="forceSaveMaintenance()" style="margin-top: 12px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; color: #00ffff;">
                     <i class="fas fa-save"></i> Force Save State
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toastMessage">Success</span>
+    <div class="modal-overlay" id="addResultModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-plus-circle" style="color: var(--primary-pink);"></i> Add Match Result</div><button class="modal-close" onclick="closeAddResultModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group"><label class="form-label">Opponent</label><select class="form-select" id="resultOpponent" style="padding-left: 16px; width: 100%;"></select></div>
+                    <div class="form-group"><label class="form-label">Venue</label><select class="form-select" id="resultVenue" style="padding-left: 16px; width: 100%;"><option value="home">Home</option><option value="away">Away</option></select></div>
+                </div>
+                <div class="form-group"><label class="form-label">Match Date</label><input type="date" class="form-input" id="resultDate" style="padding-left: 16px; width: 100%;"></div>
+                <div class="score-input-container" style="display: flex; align-items: center; gap: 16px; justify-content: center; margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--border-color);">
+                    <div style="text-align: center;"><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Rack Café</div><input type="number" class="score-input" id="ourScore" min="0" max="10" value="0" style="width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 900; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: white;"></div>
+                    <div style="font-size: 24px; font-weight: 700; color: var(--text-secondary);">-</div>
+                    <div style="text-align: center;"><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Opponent</div><input type="number" class="score-input" id="theirScore" min="0" max="10" value="0" style="width: 80px; height: 60px; text-align: center; font-size: 32px; font-weight: 900; background: rgba(255,255,255,0.05); border: 2px solid var(--border-color); border-radius: 12px; color: white;"></div>
+                </div>
+                <button type="button" class="submit-btn" onclick="submitMatchResult()"><i class="fas fa-save" style="margin-right: 8px;"></i> Save Result</button>
+            </div>
+        </div>
     </div>
 
+    <div class="modal-overlay" id="scheduleModal">
+        <div class="modal-container">
+            <div class="modal-header"><div class="modal-title"><i class="fas fa-calendar-plus" style="color: var(--primary-pink);"></i> Schedule Match</div><button class="modal-close" onclick="closeScheduleModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label">Opponent</label><select class="form-select" id="scheduleOpponent" style="padding-left: 16px; width: 100%;"></select></div>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="scheduleDate" style="padding-left: 16px; width: 100%;"></div>
+                    <div class="form-group"><label class="form-label">Time</label><input type="time" class="form-input" id="scheduleTime" style="padding-left: 16px; width: 100%;" value="20:00"></div>
+                </div>
+                <button type="button" class="submit-btn" onclick="submitSchedule()"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Success</span></div>
+
     <script>
-        // CRITICAL: Define storage key
-        const STORAGE_KEY = 'rackCafe_Maintenance_v1';
-        let currentUser = null;
-        let maintenanceMode = { enabled: false, timestamp: null };
+        // ===================================================================
+        // ALL ORIGINAL DATA RESTORED
+        // ===================================================================
         
-        // Admin credentials
-        const credentials = {
-            'admin': { password: 'admin123', name: 'System Admin', isSystemCreator: true },
-            'captain': { password: 'captain', name: 'Captain', isSystemCreator: false }
+        const STORAGE_KEY = 'rackCafeData_v2';
+        const SESSION_KEY = 'rackCafeSession';
+        
+        // Original credentials preserved exactly
+        const teamCredentials = {
+            'BDannatt': { password: 'HTAFC26', name: 'Brandon Dannatt', role: 'Captain', isAdmin: true, initials: 'BD', firstLogin: true },
+            'THayes-Smith': { password: '071122Mia', name: 'Tom Hayes-Smith', role: 'System Creator + Co-Captain', isAdmin: true, initials: 'THS', isSystemCreator: true, firstLogin: true },
+            'CShearon': { password: 'Rack2026', name: 'Chris Shearon', role: 'Co-Captain', isAdmin: true, initials: 'CS', firstLogin: true },
+            'TDannatt': { password: 'Rack2026', name: 'Terry Dannatt', role: 'Player', isAdmin: false, initials: 'TD', firstLogin: true },
+            'KBurns': { password: 'Rack2026', name: 'Keely Burns', role: 'Player', isAdmin: false, initials: 'KB', firstLogin: true },
+            'CSyrat': { password: 'Rack2026', name: 'Chloë Syrat', role: 'Player', isAdmin: false, initials: 'CSy', firstLogin: true }
         };
 
-        // CRITICAL: Check maintenance immediately before anything else
-        (function initMaintenanceCheck() {
-            console.log('🔍 Checking maintenance mode...');
+        let teamData = [
+            { id: 1, name: 'Brandon Dannatt', initials: 'BD', role: 'Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
+            { id: 2, name: 'Tom Hayes-Smith', initials: 'THS', role: 'System Creator + Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
+            { id: 3, name: 'Chris Shearon', initials: 'CS', role: 'Co-Captain', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
+            { id: 4, name: 'Terry Dannatt', initials: 'TD', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
+            { id: 5, name: 'Keely Burns', initials: 'KB', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 },
+            { id: 6, name: 'Chloë Syrat', initials: 'CSy', role: 'Player', played: 0, won: 0, lost: 0, winRate: 0, trainingAttended: 0 }
+        ];
+
+        let opponentsList = ['Ashfield Massive', 'Carlton Club', 'Longwood BC Wednesday', 'Monkey Club', 'BYE'];
+        let leagueData = [{ id: 1, name: 'Rack Café Utd', played: 0, won: 0, lost: 0, points: 0, isUs: true }];
+        let fixturesData = [];
+        let currentUser = null;
+        let currentFilter = 'all';
+        
+        // Maintenance state - stored within main data object
+        let maintenanceMode = {
+            enabled: false,
+            message: "The server is currently undergoing scheduled maintenance.",
+            timestamp: null,
+            setBy: null
+        };
+
+        // ===================================================================
+        // CRITICAL: IMMEDIATE MAINTENANCE CHECK ON LOAD
+        // ===================================================================
+        
+        (function immediateMaintenanceCheck() {
+            console.log('🔒 Checking maintenance status...');
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
-                console.log('Raw localStorage:', saved);
-                
                 if (saved) {
                     const data = JSON.parse(saved);
                     if (data.maintenanceMode) {
                         maintenanceMode = data.maintenanceMode;
-                        console.log('✅ Loaded maintenance state:', maintenanceMode);
+                        console.log('📋 Loaded maintenance state:', maintenanceMode.enabled ? 'ENABLED' : 'disabled');
+                        
+                        // If maintenance is enabled, block immediately
+                        if (maintenanceMode.enabled) {
+                            console.log('🚫 MAINTENANCE ACTIVE - Blocking UI');
+                            document.getElementById('maintenanceOverlay').classList.add('active');
+                        }
                     }
                 }
-                
-                // Apply immediately
-                applyMaintenanceState();
             } catch (e) {
-                console.error('❌ Maintenance check failed:', e);
+                console.error('Maintenance check error:', e);
             }
         })();
 
-        function applyMaintenanceState() {
+        // ===================================================================
+        // CORE FUNCTIONS
+        // ===================================================================
+
+        function getRoleBadgeHTML(role, isSystemCreator = false) {
+            if (isSystemCreator || role.includes('System Creator')) {
+                return `<span class="role-badge badge-system-creator"><i class="fas fa-crown"></i> SYS_CREATOR</span>`;
+            } else if (role === 'Captain') {
+                return `<span class="role-badge badge-captain"><i class="fas fa-star"></i> CAPTAIN</span>`;
+            } else if (role.includes('Co-Captain')) {
+                return `<span class="role-badge badge-co-captain"><i class="fas fa-star-half-alt"></i> CO-CAPTAIN</span>`;
+            }
+            return '';
+        }
+
+        function applyMaintenanceUI() {
             const overlay = document.getElementById('maintenanceOverlay');
-            const statusText = document.getElementById('maintenanceStatusDisplay');
-            const maintText = document.getElementById('maintenanceActiveText');
-            const toggle = document.getElementById('maintenanceToggle');
+            const statusText = document.getElementById('maintStatusText');
+            const lockText = document.getElementById('maintLockText');
+            const btnText = document.getElementById('maintToggleBtn');
+            const modalToggle = document.getElementById('modalMaintToggle');
+            const modalStatus = document.getElementById('modalMaintStatus');
+            const consoleMaint = document.getElementById('consoleMaint');
             
             if (maintenanceMode.enabled) {
-                console.log('🔒 MAINTENANCE IS ENABLED - Showing overlay');
-                
-                // Show overlay if no system creator logged in
+                // Only show overlay if not system creator
                 if (!currentUser || !currentUser.isSystemCreator) {
                     if (overlay) overlay.classList.add('active');
+                } else {
+                    if (overlay) overlay.classList.remove('active');
                 }
                 
-                if (statusText) statusText.innerHTML = '<span style="color: #ff4757;"><i class="fas fa-lock"></i> MAINTENANCE MODE ACTIVE</span>';
-                if (maintText) maintText.style.display = 'block';
-                if (toggle) toggle.classList.add('active');
-                
-                // Update button text
-                const btnText = document.getElementById('maintBtnText');
-                if (btnText) btnText.textContent = 'Disable Lockdown';
+                if (statusText) statusText.textContent = 'MAINTENANCE';
+                if (statusText) statusText.style.color = '#ff4757';
+                if (lockText) lockText.textContent = 'ENABLED';
+                if (lockText) lockText.style.color = '#ff4757';
+                if (btnText) {
+                    btnText.innerHTML = '<i class="fas fa-unlock"></i> Disable Lockdown';
+                    btnText.style.borderColor = '#00ff00';
+                    btnText.style.color = '#00ff00';
+                }
+                if (modalToggle) modalToggle.classList.add('active');
+                if (modalStatus) modalStatus.style.display = 'block';
+                if (consoleMaint) {
+                    consoleMaint.textContent = 'ENABLED';
+                    consoleMaint.style.color = '#ff4757';
+                }
             } else {
-                console.log('🔓 Maintenance is disabled');
                 if (overlay) overlay.classList.remove('active');
-                if (statusText) statusText.innerHTML = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> System Online</span>';
-                if (maintText) maintText.style.display = 'none';
-                if (toggle) toggle.classList.remove('active');
-                
-                const btnText = document.getElementById('maintBtnText');
-                if (btnText) btnText.textContent = 'Enable Lockdown';
+                if (statusText) {
+                    statusText.textContent = 'ONLINE';
+                    statusText.style.color = '#2ed573';
+                }
+                if (lockText) {
+                    lockText.textContent = 'DISABLED';
+                    lockText.style.color = '#2ed573';
+                }
+                if (btnText) {
+                    btnText.innerHTML = '<i class="fas fa-radiation"></i> Enable Lockdown';
+                    btnText.style.borderColor = '#ff4757';
+                    btnText.style.color = '#ff4757';
+                }
+                if (modalToggle) modalToggle.classList.remove('active');
+                if (modalStatus) modalStatus.style.display = 'none';
+                if (consoleMaint) {
+                    consoleMaint.textContent = 'OFFLINE';
+                    consoleMaint.style.color = '#00ff00';
+                }
             }
         }
 
@@ -454,75 +497,72 @@
                 return;
             }
             
-            // Toggle state
             maintenanceMode.enabled = !maintenanceMode.enabled;
             maintenanceMode.timestamp = new Date().toISOString();
             maintenanceMode.setBy = currentUser.name;
             
-            console.log('🔄 Toggling maintenance to:', maintenanceMode.enabled);
-            
-            // Save immediately
-            saveMaintenanceState();
-            
-            // Apply UI changes
-            applyMaintenanceState();
+            saveData();
+            applyMaintenanceUI();
             
             showToast(maintenanceMode.enabled ? '🔒 Maintenance Mode ENABLED' : '🔓 Maintenance Mode DISABLED', 
                      maintenanceMode.enabled ? 'error' : 'success');
             
-            // If enabling, show overlay immediately for testing
+            // If enabling, show overlay immediately for testing (will disappear since we're admin)
             if (maintenanceMode.enabled) {
                 setTimeout(() => {
-                    const overlay = document.getElementById('maintenanceOverlay');
-                    if (overlay) overlay.classList.add('active');
+                    applyMaintenanceUI(); // Re-apply to remove overlay for current admin user
                 }, 500);
             }
         }
 
-        function saveMaintenanceState() {
+        function saveData() {
             try {
                 const data = {
-                    maintenanceMode: maintenanceMode,
-                    lastUpdate: new Date().toISOString()
+                    teamData,
+                    leagueData,
+                    fixturesData,
+                    opponentsList,
+                    maintenanceMode,
+                    lastSave: new Date().toISOString()
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                console.log('💾 Saved to localStorage:', data);
+                localStorage.setItem('rackCafeCredentials', JSON.stringify(teamCredentials));
+                console.log('💾 Data saved, maintenance:', maintenanceMode.enabled);
             } catch (e) {
-                console.error('❌ Failed to save:', e);
-                showToast('Failed to save state', 'error');
+                console.error('Save failed:', e);
             }
         }
 
-        function forceSaveMaintenance() {
-            saveMaintenanceState();
-            showToast('State force-saved', 'success');
-        }
-
-        function clearMaintenanceMode() {
-            if (!currentUser || !currentUser.isSystemCreator) {
-                showToast('System Creator required', 'error');
-                return;
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.teamData) teamData = data.teamData;
+                    if (data.leagueData) leagueData = data.leagueData;
+                    if (data.fixturesData) fixturesData = data.fixturesData;
+                    if (data.opponentsList) opponentsList = data.opponentsList;
+                    if (data.maintenanceMode) maintenanceMode = data.maintenanceMode;
+                }
+                
+                const savedCreds = localStorage.getItem('rackCafeCredentials');
+                if (savedCreds) {
+                    const creds = JSON.parse(savedCreds);
+                    Object.keys(creds).forEach(key => {
+                        if (teamCredentials[key]) {
+                            teamCredentials[key].password = creds[key].password;
+                            teamCredentials[key].firstLogin = creds[key].firstLogin;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Load failed:', e);
             }
-            
-            maintenanceMode = { enabled: false, timestamp: null, setBy: null };
-            saveMaintenanceState();
-            applyMaintenanceState();
-            
-            const overlay = document.getElementById('maintenanceOverlay');
-            const loginScreen = document.getElementById('loginScreen');
-            
-            if (overlay) overlay.classList.remove('active');
-            if (loginScreen) loginScreen.classList.remove('show');
-            
-            showToast('🚨 Emergency unlock executed', 'success');
         }
 
         function attemptMaintenanceLogin() {
-            const overlay = document.getElementById('maintenanceOverlay');
-            const loginScreen = document.getElementById('loginScreen');
-            
-            if (overlay) overlay.classList.remove('active');
-            if (loginScreen) loginScreen.classList.add('show');
+            document.getElementById('maintenanceOverlay').classList.remove('active');
+            document.getElementById('loginScreen').classList.add('show');
             
             // Visual feedback
             const loginCard = document.querySelector('.login-card');
@@ -531,23 +571,19 @@
                 loginCard.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
             }
             
-            showToast('🔓 Maintenance override: Login as System Creator', 'error');
+            showToast('🔓 Maintenance override engaged', 'error');
         }
 
         function cancelLogin() {
-            const loginScreen = document.getElementById('loginScreen');
-            if (loginScreen) loginScreen.classList.remove('show');
-            
-            // Re-check maintenance
-            if (maintenanceMode.enabled) {
-                const overlay = document.getElementById('maintenanceOverlay');
-                if (overlay) overlay.classList.add('active');
+            document.getElementById('loginScreen').classList.remove('show');
+            // Re-check if we should show maintenance overlay again
+            if (maintenanceMode.enabled && (!currentUser || !currentUser.isSystemCreator)) {
+                document.getElementById('maintenanceOverlay').classList.add('active');
             }
         }
 
         function showLogin() {
-            const loginScreen = document.getElementById('loginScreen');
-            if (loginScreen) loginScreen.classList.add('show');
+            document.getElementById('loginScreen').classList.add('show');
         }
 
         function doLogin() {
@@ -555,142 +591,406 @@
             const password = document.getElementById('passwordInput').value;
             const errorDiv = document.getElementById('loginError');
             
-            const user = credentials[username];
+            const userData = teamCredentials[username];
             
-            if (user && user.password === password) {
-                // Check maintenance
-                if (maintenanceMode.enabled && !user.isSystemCreator) {
-                    if (errorDiv) {
-                        errorDiv.innerHTML = '<i class="fas fa-ban"></i> System under maintenance - Only System Creator may access';
-                        errorDiv.classList.add('show');
-                        errorDiv.style.color = '#ff4757';
-                    }
+            if (userData && userData.password === password) {
+                // Check maintenance mode
+                if (maintenanceMode.enabled && !userData.isSystemCreator) {
+                    errorDiv.innerHTML = '<i class="fas fa-ban"></i> System under maintenance - Only System Creator may access';
+                    errorDiv.classList.add('show');
                     return;
                 }
                 
-                currentUser = { username, ...user };
+                currentUser = { username, ...userData };
                 
-                // Hide login
+                // Save session
+                localStorage.setItem(SESSION_KEY, JSON.stringify({
+                    username: username,
+                    password: password,
+                    timestamp: new Date().toISOString()
+                }));
+                
+                // Hide login, show dashboard
                 document.getElementById('loginScreen').classList.remove('show');
-                document.getElementById('loginError').classList.remove('show');
+                errorDiv.classList.remove('show');
                 
-                // Show profile
+                // Update UI
                 document.getElementById('headerLoginBtn').classList.add('hidden');
                 document.getElementById('profileContainer').classList.add('show');
-                document.getElementById('userAvatar').textContent = user.name.split(' ').map(n => n[0]).join('');
-                document.getElementById('userAvatar').style.display = 'flex';
-                document.getElementById('userNameDisplay').innerHTML = user.name + (user.isSystemCreator ? ' <span class="role-badge badge-system-creator">SYS_CREATOR</span>' : '');
-                document.getElementById('userRoleDisplay').textContent = user.isSystemCreator ? 'System Creator' : 'Captain';
+                document.getElementById('userAvatar').textContent = userData.initials;
+                document.getElementById('userNameText').textContent = userData.name;
+                document.getElementById('userBadge').innerHTML = getRoleBadgeHTML(userData.role, userData.isSystemCreator);
+                document.getElementById('roleText').textContent = userData.role;
+                document.getElementById('welcomeText').textContent = `Welcome back, ${userData.name.split(' ')[0]}!`;
                 
-                if (user.isSystemCreator) {
+                if (userData.isAdmin) {
+                    document.getElementById('adminMenuItems').style.display = 'block';
+                    document.getElementById('adminPanel').style.display = 'block';
+                }
+                if (userData.isSystemCreator) {
                     document.getElementById('systemCreatorMenuItem').style.display = 'flex';
+                    document.getElementById('systemCreatorPanel').style.display = 'block';
+                    document.getElementById('adminMenuItems').style.display = 'block';
                     document.getElementById('adminPanel').style.display = 'block';
                 }
                 
-                // Re-apply maintenance (removes overlay for system creator)
-                applyMaintenanceState();
+                // Apply maintenance UI (removes overlay for admin)
+                applyMaintenanceUI();
+                updateDisplays();
                 
-                showToast('Welcome ' + user.name);
+                showToast(`Welcome ${userData.name}`);
             } else {
-                if (errorDiv) {
-                    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid credentials';
-                    errorDiv.classList.add('show');
-                }
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid credentials';
+                errorDiv.classList.add('show');
             }
         }
 
         function logout() {
+            if (!confirm('Logout?')) return;
             currentUser = null;
+            localStorage.removeItem(SESSION_KEY);
             document.getElementById('headerLoginBtn').classList.remove('hidden');
             document.getElementById('profileContainer').classList.remove('show');
-            document.getElementById('userAvatar').style.display = 'none';
+            document.getElementById('adminMenuItems').style.display = 'none';
             document.getElementById('systemCreatorMenuItem').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('systemCreatorPanel').style.display = 'none';
             
-            // Re-check maintenance
-            applyMaintenanceState();
+            // Re-check maintenance mode for logged out state
+            applyMaintenanceUI();
+        }
+
+        function checkSession() {
+            const saved = localStorage.getItem(SESSION_KEY);
+            if (saved) {
+                try {
+                    const session = JSON.parse(saved);
+                    const userData = teamCredentials[session.username];
+                    if (userData && userData.password === session.password) {
+                        // Check maintenance
+                        if (maintenanceMode.enabled && !userData.isSystemCreator) {
+                            localStorage.removeItem(SESSION_KEY);
+                            showLoggedOutState();
+                            showToast('Session expired - System under maintenance', 'error');
+                            return;
+                        }
+                        currentUser = { username: session.username, ...userData };
+                        completeLoginRestore();
+                    } else {
+                        showLoggedOutState();
+                    }
+                } catch (e) {
+                    showLoggedOutState();
+                }
+            } else {
+                showLoggedOutState();
+            }
+        }
+
+        function completeLoginRestore() {
+            if (!currentUser) return;
+            
+            document.getElementById('headerLoginBtn').classList.add('hidden');
+            document.getElementById('profileContainer').classList.add('show');
+            document.getElementById('userAvatar').textContent = currentUser.initials;
+            document.getElementById('userNameText').textContent = currentUser.name;
+            document.getElementById('userBadge').innerHTML = getRoleBadgeHTML(currentUser.role, currentUser.isSystemCreator);
+            document.getElementById('roleText').textContent = currentUser.role;
+            document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
+            
+            if (currentUser.isAdmin) {
+                document.getElementById('adminMenuItems').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'block';
+            }
+            if (currentUser.isSystemCreator) {
+                document.getElementById('systemCreatorMenuItem').style.display = 'flex';
+                document.getElementById('systemCreatorPanel').style.display = 'block';
+            }
+            
+            applyMaintenanceUI();
+        }
+
+        function showLoggedOutState() {
+            document.getElementById('headerLoginBtn').classList.remove('hidden');
+            document.getElementById('profileContainer').classList.remove('show');
+            applyMaintenanceUI(); // This will show overlay if maintenance is on
+        }
+
+        // UI Functions
+        function toggleDropdown(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('profileDropdown').classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const profileContainer = document.querySelector('.profile-container');
+            if (profileContainer && !profileContainer.contains(e.target)) {
+                document.getElementById('profileDropdown').classList.remove('show');
+            }
+        });
+
+        function switchTab(tabId, navElement) {
+            if (!currentUser && tabId !== 'homeTab') {
+                showLogin();
+                showToast('Please login to access this feature', 'error');
+                return;
+            }
+            
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (navElement) navElement.classList.add('active');
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            const color = type === 'success' ? '#2ed573' : '#ff4757';
+            t.className = 'toast show';
+            t.innerHTML = `<i class="fas ${icon}" style="color: ${color};"></i><span>${msg}</span>`;
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         function openSystemCreatorModal() {
+            if (!currentUser || !currentUser.isSystemCreator) {
+                showToast('System Creator access required', 'error');
+                return;
+            }
             document.getElementById('systemCreatorModal').classList.add('show');
-            // Update toggle visual
-            const toggle = document.getElementById('maintenanceToggle');
-            if (maintenanceMode.enabled && toggle) toggle.classList.add('active');
+            applyMaintenanceUI(); // Sync toggle state
         }
 
         function closeSystemCreatorModal() {
             document.getElementById('systemCreatorModal').classList.remove('show');
         }
 
-        function toggleDropdown() {
-            document.getElementById('profileDropdown').classList.toggle('show');
-        }
-
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            if (btn) btn.classList.add('active');
-        }
-
-        function showToast(msg, type = 'success') {
-            const toast = document.getElementById('toast');
-            const icon = toast.querySelector('i');
-            const text = document.getElementById('toastMessage');
+        function openAddResultModal() {
+            if (!currentUser || !currentUser.isAdmin) {
+                showToast('Admin access required', 'error');
+                return;
+            }
+            document.getElementById('addResultModal').classList.add('show');
+            document.getElementById('resultDate').valueAsDate = new Date();
             
-            text.textContent = msg;
-            icon.className = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
-            icon.style.color = type === 'error' ? '#ff4757' : '#2ed573';
-            
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+            const select = document.getElementById('resultOpponent');
+            select.innerHTML = '<option value="">Select opponent...</option>';
+            opponentsList.forEach(opp => {
+                const opt = document.createElement('option');
+                opt.value = opp;
+                opt.textContent = opp;
+                select.appendChild(opt);
+            });
         }
 
-        function exportData() {
+        function closeAddResultModal() {
+            document.getElementById('addResultModal').classList.remove('show');
+        }
+
+        function openScheduleModal() {
+            if (!currentUser || !currentUser.isAdmin) {
+                showToast('Admin access required', 'error');
+                return;
+            }
+            document.getElementById('scheduleModal').classList.add('show');
+            document.getElementById('scheduleDate').valueAsDate = new Date();
+            
+            const select = document.getElementById('scheduleOpponent');
+            select.innerHTML = '<option value="">Select opponent...</option>';
+            opponentsList.forEach(opp => {
+                const opt = document.createElement('option');
+                opt.value = opp;
+                opt.textContent = opp;
+                select.appendChild(opt);
+            });
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.remove('show');
+        }
+
+        function submitMatchResult() {
+            const opponent = document.getElementById('resultOpponent').value;
+            const ourScore = parseInt(document.getElementById('ourScore').value);
+            const theirScore = parseInt(document.getElementById('theirScore').value);
+            const date = document.getElementById('resultDate').value;
+            
+            if (!opponent) return showToast('Select opponent', 'error');
+            
+            fixturesData.push({
+                id: Date.now(),
+                opponent,
+                ourScore,
+                theirScore,
+                result: ourScore > theirScore ? 'W' : 'L',
+                date,
+                played: true
+            });
+            
+            leagueData[0].played++;
+            leagueData[0].points += ourScore;
+            if (ourScore > theirScore) leagueData[0].won++;
+            else leagueData[0].lost++;
+            
+            const opp = leagueData.find(t => t.name === opponent);
+            if (opp) {
+                opp.played++;
+                opp.points += theirScore;
+                if (theirScore > ourScore) opp.won++;
+                else opp.lost++;
+            }
+            
+            saveData();
+            closeAddResultModal();
+            updateDisplays();
+            showToast('Result saved');
+        }
+
+        function submitSchedule() {
+            const opponent = document.getElementById('scheduleOpponent').value;
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
+            
+            if (!opponent || !date) return showToast('Fill all fields', 'error');
+            
+            fixturesData.push({
+                id: Date.now(),
+                opponent,
+                date,
+                time,
+                played: false
+            });
+            
+            saveData();
+            closeScheduleModal();
+            updateDisplays();
+            showToast('Match scheduled');
+        }
+
+        function filterFixtures(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.05)';
+                b.style.color = 'var(--text-secondary)';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'linear-gradient(135deg, #e94560 0%, #d63d56 100%)';
+            btn.style.color = 'white';
+            renderFixtures();
+        }
+
+        function renderFixtures() {
+            const list = document.getElementById('fixturesList');
+            let matches = fixturesData.filter(f => {
+                if (currentFilter === 'played') return f.played;
+                if (currentFilter === 'upcoming') return !f.played;
+                return true;
+            });
+            
+            if (matches.length === 0) {
+                list.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No fixtures found</div>';
+                return;
+            }
+            
+            list.innerHTML = matches.map(m => `
+                <div class="fixture-card">
+                    <div style="display: flex; align-items: center;">
+                        <div class="fixture-date">
+                            <div class="date-day">${new Date(m.date).getDate()}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">${new Date(m.date).toLocaleString('default', {month: 'short'})}</div>
+                        </div>
+                        <div style="margin-left: 16px;">
+                            <div style="font-weight: 800;">vs ${m.opponent}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">${m.played ? 'Played' : 'Upcoming'}</div>
+                        </div>
+                    </div>
+                    ${m.played ? `<div style="font-weight: 800; font-size: 20px; color: ${m.result === 'W' ? '#2ed573' : '#e94560'};">${m.ourScore}-${m.theirScore}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function exportDatabase() {
             const data = {
-                maintenanceMode: maintenanceMode,
-                exported: new Date().toISOString()
+                teamData,
+                leagueData,
+                fixturesData,
+                opponentsList,
+                maintenanceMode,
+                exportedAt: new Date().toISOString()
             };
-            console.log('Export:', data);
-            showToast('Data exported to console');
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rack_cafe_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('Database exported');
         }
 
-        function manualSync() {
-            applyMaintenanceState();
-            showToast('Status refreshed');
+        function forceSaveMaintenance() {
+            saveData();
+            showToast('State force-saved', 'success');
+        }
+
+        function updateDisplays() {
+            // Update stats
+            const us = leagueData[0];
+            document.getElementById('statPlayed').textContent = us.played;
+            document.getElementById('statWon').textContent = us.won;
+            document.getElementById('statWinRate').textContent = us.played > 0 ? Math.round((us.won/us.played)*100) + '%' : '0%';
+            
+            const sorted = [...leagueData].sort((a,b) => b.points - a.points);
+            const pos = sorted.findIndex(t => t.isUs) + 1;
+            document.getElementById('statPosition').textContent = pos ? pos + (pos === 1 ? 'st' : pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th') : '--';
+            
+            // Next match
+            const upcoming = fixturesData.filter(f => !f.played).sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+            if (upcoming) {
+                document.getElementById('nextMatchOpponent').textContent = upcoming.opponent;
+                document.getElementById('nextMatchDate').textContent = new Date(upcoming.date).toLocaleDateString();
+                document.getElementById('nextMatchTime').textContent = upcoming.time || '20:00';
+            }
+            
+            renderFixtures();
+        }
+
+        function openAdminPanel() {
+            switchTab('homeTab');
+            showToast('Captain controls active');
         }
 
         // Secret key listener
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey && (e.key === 'm' || e.key === 'M')) {
                 e.preventDefault();
-                console.log('🔑 Secret key pressed');
-                
                 if (maintenanceMode.enabled || (currentUser && currentUser.isSystemCreator)) {
                     attemptMaintenanceLogin();
-                } else {
-                    showToast('Maintenance mode not active', 'error');
                 }
             }
         });
 
-        // Check maintenance on visibility change (when user returns to tab)
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                console.log('👁️ Tab visible, re-checking maintenance...');
-                // Reload from storage to catch changes from other tabs
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.maintenanceMode) {
-                        maintenanceMode = data.maintenanceMode;
-                        applyMaintenanceState();
-                    }
-                }
-            }
-        });
+        function manualSync() {
+            loadData(); // Reload to sync across tabs
+            applyMaintenanceUI();
+            updateDisplays();
+            showToast('Data refreshed');
+        }
 
-        console.log('🚀 App initialized');
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Rack Café Utd initializing...');
+            loadData();
+            checkSession(); // This calls applyMaintenanceUI()
+            updateDisplays();
+            
+            // Visibility check for multi-tab sync
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    loadData();
+                    applyMaintenanceUI();
+                }
+            });
+        });
     </script>
 </body>
 </html>
