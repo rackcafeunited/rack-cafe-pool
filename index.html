@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rack Café Utd - Pool League</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,12 +12,12 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1420 100%); color: var(--text-primary); min-height: 100vh; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         
         .maintenance-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a0a1a 0%, #1a0a20 100%); z-index: 2147483647; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .maintenance-overlay.active { display: flex !important; animation: fadeIn 0.3s ease; }
         .maintenance-icon { font-size: 80px; color: #ff4757; margin-bottom: 30px; animation: pulse 2s infinite; text-shadow: 0 0 30px rgba(255, 71, 87, 0.5); }
         .maintenance-title { font-size: 36px; font-weight: 900; margin-bottom: 16px; background: linear-gradient(135deg, #ff4757, #ff6348); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         
         .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #151525 0%, #0a0a14 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999998; }
         .login-screen.show { display: flex; }
@@ -73,12 +73,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         
-        .admin-panel { background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; margin-bottom: 24px; position: relative; }
-        .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
-        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
-        .admin-btn { background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-primary); padding: 16px; border-radius: 12px; cursor: pointer; transition: all 0.3s; font-family: inherit; font-weight: 700; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .admin-btn:hover { background: rgba(212, 175, 55, 0.25); transform: translateY(-2px); }
-        
         .next-match-card { background: linear-gradient(135deg, #e94560 0%, #c73e54 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 15px 50px rgba(233, 69, 96, 0.3); }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -93,6 +87,39 @@
         .form-w { background: rgba(46, 213, 115, 0.2); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
         .form-l { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
         .form-d { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
+        
+        /* WWLDW Live Updates Styles */
+        .live-update-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            padding: 16px; 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            animation: slideUp 0.4s ease;
+        }
+        .live-update-item:hover { border-color: var(--primary-pink); background: rgba(255,255,255,0.05); }
+        .live-update-badge { 
+            min-width: 48px; 
+            height: 48px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .live-update-content { flex: 1; }
+        .live-update-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+        .live-update-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
+        .live-update-score { font-size: 20px; font-weight: 900; color: var(--text-primary); }
+        .live-update-item.win { border-left: 3px solid #2ed573; }
+        .live-update-item.loss { border-left: 3px solid #ff4757; }
+        .live-update-item.draw { border-left: 3px solid #ffd700; }
         
         /* Announcement Styles */
         .announcement-card { background: linear-gradient(135deg, rgba(233,69,96,0.1) 0%, rgba(255,215,0,0.05) 100%); border: 1px solid rgba(233,69,96,0.3); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
@@ -235,7 +262,7 @@
                         </div>
                         <div class="dropdown-item" onclick="switchTab('profileTab'); toggleDropdown();"><i class="fas fa-user"></i> My Profile</div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" onclick="switchTab('homeTab'); openAdminPanel(); toggleDropdown();" id="adminMenuItem" style="display: none; color: var(--gold-primary);">
+                        <div class="dropdown-item" onclick="switchTab('homeTab'); toggleDropdown();" id="adminMenuItem" style="display: none; color: var(--gold-primary);">
                             <i class="fas fa-shield-alt"></i> Admin Panel
                         </div>
                         <div class="dropdown-item system-creator" onclick="openSystemCreatorModal(); toggleDropdown();" id="systemCreatorMenuItem" style="display: none;">
@@ -269,6 +296,17 @@
                     <div style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">Last 5 Matches</div>
                 </div>
 
+                <!-- WWLDW Live Updates - REPLACES ADMIN PANELS -->
+                <div class="form-panel" id="wwldwLivePanel">
+                    <div class="section-title">
+                        <span><i class="fas fa-bolt"></i> WWLDW Live Updates</span>
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Real-time Results</span>
+                    </div>
+                    <div id="wwldwLiveList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
                 <!-- Latest Announcements -->
                 <div class="form-panel" id="announcementsPanel" style="display: none;">
                     <div class="section-title"><span><i class="fas fa-bullhorn"></i> Latest Announcements</span></div>
@@ -296,27 +334,6 @@
                     <div class="stat-card"><div class="stat-value" id="statPlayed">0</div><div class="stat-label">Played</div></div>
                     <div class="stat-card"><div class="stat-value" id="statWon">0</div><div class="stat-label">Won</div></div>
                     <div class="stat-card"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label">Win Rate</div></div>
-                </div>
-
-                <!-- Admin Controls (Hidden by default, shown based on role) -->
-                <div id="adminPanel" class="admin-panel" style="display: none;">
-                    <div style="color: var(--gold-primary); margin-bottom: 16px; font-weight: 800; font-size: 18px;"><i class="fas fa-shield-alt"></i> Admin Controls</div>
-                    <div class="admin-grid">
-                        <button class="admin-btn" onclick="openAddResultModal()"><i class="fas fa-plus-circle"></i> Add Result</button>
-                        <button class="admin-btn" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule</button>
-                        <button class="admin-btn" onclick="openAnnouncementModal()"><i class="fas fa-bullhorn"></i> Announcement</button>
-                        <button class="admin-btn" onclick="openRoleManagerModal()" id="roleManagerBtn" style="display: none;"><i class="fas fa-user-tag"></i> Manage Roles</button>
-                    </div>
-                </div>
-
-                <!-- System Creator Panel (Hidden by default) -->
-                <div id="systemCreatorPanel" class="admin-panel" style="display: none; border-color: #00ffff; background: rgba(0,255,255,0.05);">
-                    <div style="color: #00ffff; margin-bottom: 16px; font-weight: 800; font-size: 18px;"><i class="fas fa-terminal"></i> System Creator Controls</div>
-                    <div class="admin-grid">
-                        <button class="admin-btn" onclick="openPlayerManagerModal()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);"><i class="fas fa-users-cog"></i> Manage Players</button>
-                        <button class="admin-btn" onclick="openLoginInfoModal()" style="border-color: #00ffff; color: #00ffff; background: rgba(0,255,255,0.05);"><i class="fas fa-history"></i> Login History</button>
-                        <button class="admin-btn" onclick="toggleMaintenanceMode()" style="border-color: #ff4757; color: #ff4757; background: rgba(255,71,87,0.1);"><i class="fas fa-radiation"></i> Maintenance</button>
-                    </div>
                 </div>
             </div>
 
@@ -723,21 +740,14 @@
             document.getElementById('roleText').textContent = currentUser.role;
             document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name.split(' ')[0]}!`;
             
-            // Show Admin Panel for Captains, Co-Captains and System Creator
+            // Show menu items for Captains and System Creator (dropdown only)
             if (currentUser.isAdmin) {
                 document.getElementById('adminMenuItem').style.display = 'flex';
-                document.getElementById('adminPanel').style.display = 'block';
-                
-                // Show Role Manager only for Captain and System Creator (NOT Co-Captain unless System Creator)
-                if ((currentUser.role === 'Captain') || currentUser.isSystemCreator) {
-                    document.getElementById('roleManagerBtn').style.display = 'flex';
-                }
             }
             
             // Show System Creator specific items
             if (currentUser.isSystemCreator) {
                 document.getElementById('systemCreatorMenuItem').style.display = 'flex';
-                document.getElementById('systemCreatorPanel').style.display = 'block';
             }
             
             // Show Training controls for Captains and Co-Captains
@@ -776,8 +786,6 @@
         function showLoggedOutState() {
             document.getElementById('headerLoginBtn').classList.remove('hidden');
             document.getElementById('profileContainer').classList.remove('show');
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('systemCreatorPanel').style.display = 'none';
             document.getElementById('adminTrainingControls').style.display = 'none';
             document.getElementById('adminMenuItem').style.display = 'none';
             document.getElementById('systemCreatorMenuItem').style.display = 'none';
@@ -853,8 +861,9 @@
         }
 
         function updateDisplays() {
-            // Update WWLDW panel
+            // Update WWLDW panel and Live Updates
             renderWWLDW();
+            renderWWLDWLiveUpdates();
             
             // Update announcements
             renderAnnouncements();
@@ -881,7 +890,7 @@
         }
 
         // ===================================================================
-        // WWLDW PANEL
+        // WWLDW PANEL & LIVE UPDATES
         // ===================================================================
 
         function renderWWLDW() {
@@ -904,6 +913,61 @@
                 
                 const className = result === 'W' ? 'form-w' : result === 'L' ? 'form-l' : 'form-d';
                 return `<div class="form-badge ${className}">${result}</div>`;
+            }).join('');
+        }
+
+        function renderWWLDWLiveUpdates() {
+            const container = document.getElementById('wwldwLiveList');
+            const last5 = fixturesData
+                .filter(f => f.played)
+                .sort((a,b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+            
+            if (last5.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px;"><i class="fas fa-info-circle" style="display: block; margin-bottom: 8px; font-size: 24px;"></i>No recent match updates available</div>';
+                return;
+            }
+            
+            container.innerHTML = last5.map(match => {
+                let resultClass, resultText, resultColor;
+                if (match.ourScore > match.theirScore) {
+                    resultClass = 'win';
+                    resultText = 'W';
+                    resultColor = '#2ed573';
+                } else if (match.ourScore < match.theirScore) {
+                    resultClass = 'loss';
+                    resultText = 'L';
+                    resultColor = '#ff4757';
+                } else {
+                    resultClass = 'draw';
+                    resultText = 'D';
+                    resultColor = '#ffd700';
+                }
+                
+                const dateStr = new Date(match.date).toLocaleDateString('en-GB', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    year: '2-digit' 
+                });
+                
+                return `
+                    <div class="live-update-item ${resultClass}">
+                        <div class="live-update-badge" style="background: ${resultColor}20; color: ${resultColor}; border: 2px solid ${resultColor};">
+                            ${resultText}
+                        </div>
+                        <div class="live-update-content">
+                            <div class="live-update-title">vs ${match.opponent}</div>
+                            <div class="live-update-meta">
+                                <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+                                <span><i class="fas fa-map-marker-alt"></i> ${match.venue === 'home' ? 'Home' : 'Away'}</span>
+                                ${match.ourScore !== undefined ? `<span><i class="fas fa-trophy"></i> ${match.ourScore > match.theirScore ? 'Victory' : match.ourScore < match.theirScore ? 'Defeat' : 'Draw'}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="live-update-score" style="color: ${resultColor};">
+                            ${match.ourScore !== undefined ? `${match.ourScore} <span style="color: var(--text-muted); font-size: 14px;">-</span> ${match.theirScore}` : '-'}
+                        </div>
+                    </div>
+                `;
             }).join('');
         }
 
