@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a1a">
+    <title>The Junction - Loyalty & Till System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #8B2635;
+            --gold: #D4AF37;
+            --dark: #1a1a1a;
+            --light: #f5f5f0;
+            --staff: #FF9800;
+            --success: #4CAF50;
+            --management: #9C27B0;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--light); padding-bottom: 80px; }
+        
+        /* Header & Navigation */
+        .header { position: sticky; top: 0; background: rgba(26,26,26,0.95); backdrop-filter: blur(10px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid rgba(212,175,55,0.2); }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); }
+        .icon-btn { background: none; border: none; color: var(--light); font-size: 1.3rem; cursor: pointer; padding: 5px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(26,26,26,0.98); border-top: 1px solid rgba(212,175,55,0.2); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--gray); text-decoration: none; font-size: 0.7rem; transition: color 0.3s; }
+        .nav-item.active { color: var(--gold); }
+        .nav-item svg { width: 24px; height: 24px; }
+        
+        /* Sections */
+        .section { display: none; padding: 20px; animation: fadeIn 0.3s; min-height: 100vh; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Auth Modal */
+        .auth-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 300; justify-content: flex-end; align-items: flex-end; }
+        .auth-modal.active { display: flex; }
+        .auth-container { background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%); border-radius: 30px 30px 0 0; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.4s; border-top: 2px solid var(--gold); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .auth-header { padding: 30px; text-align: center; position: relative; }
+        .close-auth { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; }
+        .auth-logo { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 10px; }
+        .auth-tabs { display: flex; padding: 0 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .auth-tab { flex: 1; background: none; border: none; color: var(--gray); padding: 15px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+        .auth-tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        .auth-body { padding: 30px; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--gray); }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); background: #1a1a1a; color: var(--light); border-radius: 8px; font-size: 1rem; }
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: var(--dark); border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        .btn-secondary { background: transparent; border: 2px solid var(--gold); color: var(--gold); margin-top: 10px; }
+        .btn-staff { background: var(--staff); color: white; }
+        .btn-danger { background: var(--primary); color: white; }
+        .error-message { background: rgba(244,67,54,0.1); border: 1px solid #f44336; color: #f44336; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; display: none; }
+        .error-message.show { display: block; animation: shake 0.5s; }
+        
+        /* Loyalty Card Section */
+        .loyalty-hero { background: linear-gradient(135deg, var(--primary) 0%, #6b1d29 100%); border-radius: 20px; padding: 30px; margin-bottom: 25px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(139,38,53,0.4); }
+        .loyalty-hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: rgba(212,175,55,0.1); border-radius: 50%; }
+        .loyalty-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative; z-index: 1; }
+        .loyalty-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); }
+        .loyalty-subtitle { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
+        
+        /* QR Code Section */
+        .qr-section { background: white; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        .qr-code-container { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .qr-instructions { color: #333; font-size: 0.85rem; text-align: center; font-weight: 600; }
+        .qr-id { color: #666; font-size: 0.75rem; margin-top: 5px; font-family: monospace; }
+        
+        /* Stamp Grid */
+        .stamp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 20px; position: relative; z-index: 1; }
+        .stamp { aspect-ratio: 1; border: 3px dashed rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(0,0,0,0.2); transition: all 0.3s; }
+        .stamp.earned { background: var(--gold); border-color: var(--gold); color: var(--dark); box-shadow: 0 0 15px rgba(212,175,55,0.5); }
+        .stamp.reward { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+        
+        .progress-bar { background: rgba(0,0,0,0.3); height: 8px; border-radius: 10px; margin-top: 20px; overflow: hidden; position: relative; z-index: 1; }
+        .progress-fill { background: linear-gradient(90deg, var(--gold), #FFD700); height: 100%; border-radius: 10px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(212,175,55,0.3); }
+        
+        /* Staff Till Interface */
+        .till-mode-switch { position: fixed; top: 100px; right: 20px; z-index: 99; background: var(--staff); color: white; padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 0.85rem; cursor: pointer; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,152,0,0.3); }
+        .till-mode-switch.visible { display: flex; }
+        .till-mode-switch.active { background: var(--success); }
+        
+        .till-interface { display: none; background: #2d2d2d; border-radius: 20px; padding: 25px; margin-bottom: 80px; border: 2px solid var(--staff); }
+        .till-interface.active { display: block; animation: fadeIn 0.3s; }
+        
+        .scanner-area { background: #1a1a1a; border: 3px dashed var(--staff); border-radius: 15px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .scanner-line { position: absolute; width: 100%; height: 2px; background: var(--staff); box-shadow: 0 0 10px var(--staff); animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        .scan-btn { background: var(--staff); color: white; padding: 15px 40px; border: none; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; z-index: 2; }
+        
+        .manual-entry { background: rgba(255,152,0,0.1); border: 1px solid var(--staff); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+        .manual-entry h4 { color: var(--staff); margin-bottom: 10px; font-size: 0.95rem; }
+        
+        .customer-found { display: none; background: rgba(76,175,80,0.1); border: 1px solid var(--success); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .customer-found.show { display: block; animation: slideIn 0.3s; }
+        
+        .customer-card { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .customer-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+        
+        .stamp-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-add-stamp { background: var(--success); color: white; }
+        .btn-redeem { background: var(--gold); color: var(--dark); }
+        
+        /* Menu with Staff Discount */
+        .menu-item { background: #2d2d2d; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .menu-item.staff-item { border-color: var(--staff); background: linear-gradient(135deg, rgba(255,152,0,0.1), #2d2d2d); }
+        
+        .price-container { text-align: right; }
+        .original-price { text-decoration: line-through; color: var(--gray); font-size: 0.9rem; }
+        .staff-price { color: var(--staff); font-weight: bold; font-size: 1.2rem; }
+        .discount-badge { background: var(--staff); color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
+        
+        /* Transaction History */
+        .history-item { background: #2d2d2d; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .history-item.staff-transaction { border-left: 3px solid var(--staff); }
+        .history-item.redeemed { border-left: 3px solid var(--gold); }
+        
+        /* Notifications */
+        .notification { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-100%); background: var(--success); color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; z-index: 400; opacity: 0; transition: all 0.3s; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .notification.error { background: var(--primary); }
+        
+        /* User Profile */
+        .profile-header { background: linear-gradient(135deg, rgba(139,38,53,0.2) 0%, rgba(212,175,55,0.1) 100%); border-radius: 15px; padding: 30px; text-align: center; margin-bottom: 25px; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto 15px; border: 3px solid var(--gold); }
+        .role-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+        .role-badge.staff { background: var(--staff); color: white; }
+        .role-badge.customer { background: var(--success); color: white; }
+        .role-badge.management { background: var(--management); color: white; }
+        
+        .user-list { background: #2d2d2d; border-radius: 15px; overflow: hidden; margin-top: 15px; }
+        .user-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .role-selector { padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: #1a1a1a; color: var(--light); font-size: 0.85rem; }
+        
+        /* Stats Cards */
+        .admin-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%); border: 1px solid rgba(212,175,55,0.2); border-radius: 12px; padding: 20px; text-align: center; }
+        .stat-number { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); }
+    </style>
+</head>
+<body>
+
+<!-- Notifications -->
+<div id="notification" class="notification">Action Successful</div>
+
+<!-- Till Mode Switch (Staff Only) -->
+<div id="tillModeSwitch" class="till-mode-switch" onclick="toggleTillMode()">
+    <span>🛒</span>
+    <span>Till Mode</span>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <h1>The Junction</h1>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <button class="icon-btn" onclick="toggleAuthModal()" id="userBtn">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Auth Modal -->
+<div id="authModal" class="auth-modal">
+    <div class="auth-container">
+        <div class="auth-header">
+            <button class="close-auth" onclick="toggleAuthModal()">×</button>
+            <div class="auth-logo">The Junction</div>
+            <div style="color: var(--gray); font-size: 0.9rem;">Marsh, Huddersfield</div>
+        </div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+            <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+        <div class="auth-body">
+            <div id="authError" class="error-message"></div>
+            <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+                <button type="button" class="btn btn-secondary" onclick="fillAdminCreds()">Demo: Admin</button>
+            </form>
+            <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" required placeholder="John Smith">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="signupUsername" required placeholder="Choose username">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" required placeholder="Create password">
+                </div>
+                <button type="submit" class="btn">Create Account</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Sections -->
+<div id="home" class="section active">
+    <div class="loyalty-hero">
+        <div class="loyalty-header">
+            <div>
+                <div class="loyalty-title">The Junction Rewards</div>
+                <div class="loyalty-subtitle">Buy 9 coffees, get the 10th FREE</div>
+            </div>
+            <div style="text-align: right;">
+                <div id="stampCount" style="font-size: 2rem; font-weight: bold; color: var(--gold);">0/10</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">Stamps Collected</div>
+            </div>
+        </div>
+        
+        <!-- QR Code Display -->
+        <div class="qr-section">
+            <div id="qrcode" class="qr-code-container"></div>
+            <div class="qr-instructions">Scan at the till to collect stamps</div>
+            <div class="qr-id" id="qrId">ID: LOADING...</div>
+        </div>
+        
+        <div class="stamp-grid" id="stampGrid">
+            <!-- Stamps generated by JS -->
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+    </div>
+    
+    <h3 style="font-family: 'Playfair Display', serif; color: var(--gold); margin-bottom: 15px;">Recent Activity</h3>
+    <div id="transactionHistory">
+        <div style="text-align: center; color: var(--gray); padding: 20px;">No transactions yet</div>
+    </div>
+</div>
+
+<!-- Till Interface (Staff Only) -->
+<div id="tillInterface" class="section">
+    <h2 style="font-family: 'Playfair Display', serif; color: var(--staff); margin-bottom: 20px;">Till Mode - Scan Loyalty Card</h2>
+    
+    <div class="scanner-area">
+        <div class="scanner-line"></div>
+        <button class="scan-btn" onclick="simulateScan()">Scan QR Code</button>
+        <div style="color: var(--gray); margin-top: 15px; font-size: 0.9rem;">or enter manually below</div>
+    </div>
+    
+    <div class="manual-entry">
+        <h4>Manual Entry</h4>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <input type="text" id="manualUsername" placeholder="Enter customer username" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #1a1a1a; color: white;">
+            <button class="btn btn-staff" style="width: auto; padding: 12px 20px;" onclick="lookupCustomer()">Search</button>
+        </div>
+    </div>
+    
+    <div id="customerFound" class="customer-found">
+        <div class="customer-card">
+            <div class="customer-avatar" id="customerAvatar">?</div>
+            <div>
+                <div id="customerName" style="font-weight: bold; font-size: 1.1rem;">Customer Name</div>
+                <div id="customerRole" style="font-size: 0.85rem; color: var(--gray);">Role</div>
+            </div>
+        </div>
+        
+        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>Current Stamps:</span>
+                <span id="currentStamps" style="font-weight: bold; color: var(--gold);">0/10</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--staff); display: none;" id="staffDiscountRow">
+                <span>Staff Discount:</span>
+                <span style="font-weight: bold;">20% OFF</span>
+            </div>
+        </div>
+        
+        <div class="stamp-controls">
+            <button class="btn btn-add-stamp" onclick="addStamp()">+ Add Stamp</button>
+            <button class="btn btn-redeem" onclick="redeemReward()" id="redeemBtn">Redeem Free Coffee</button>
+        </div>
+    </div>
+</div>
+
+<!-- Menu Section -->
+<div id="menu" class="section">
+    <h2 style="font-family: 'Playfair Display', serif; color: var(--gold); margin-bottom: 20px;">Our Menu</h2>
+    
+    <div id="staffDiscountBanner" style="display: none; background: linear-gradient(135deg, rgba(255,152,0,0.2), rgba(255,152,0,0.1)); border: 1px solid var(--staff); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center;">
+        <div style="color: var(--staff); font-weight: bold; font-size: 1.1rem;">🎉 Staff Discount Active</div>
+        <div style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">You receive 20% off all items</div>
+    </div>
+    
+    <div class="menu-category">
+        <h3 style="color: var(--gold); margin-bottom: 15px; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 5px;">Coffee & Drinks</h3>
+        
+        <div class="menu-item" data-price="3.50">
+            <div class="menu-item-info">
+                <h4>Latte</h4>
+                <p>Double shot espresso with steamed milk</p>
+            </div>
+            <div class="price-container">
+                <div class="current-price" style="color: var(--gold); font-weight: bold; font-size: 1.2rem;">£3.50</div>
+            </div>
+        </div>
+        
+        <div class="menu-item" data-price="3.20">
+            <div class="menu-item-info">
+                <h4>Cappuccino</h4>
+                <p>Rich espresso with foam</p>
+            </div>
+            <div class="price-container">
+                <div class="current-price" style="color: var(--gold); font-weight: bold; font-size: 1.2rem;">£3.20</div>
+            </div>
+        </div>
+        
+        <div class="menu-item" data-price="2.80">
+            <div class="menu-item-info">
+                <h4>Americano</h4>
+                <p>Double shot with hot water</p>
+            </div>
+            <div class="price-container">
+                <div class="current-price" style="color: var(--gold); font-weight: bold; font-size: 1.2rem;">£2.80</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="menu-category" style="margin-top: 25px;">
+        <h3 style="color: var(--gold); margin-bottom: 15px; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 5px;">Food</h3>
+        
+        <div class="menu-item" data-price="12.95">
+            <div class="menu-item-info">
+                <h4>Junction Burger</h4>
+                <p>6oz beef, brioche, triple cooked chips</p>
+            </div>
+            <div class="price-container">
+                <div class="current-price" style="color: var(--gold); font-weight: bold; font-size: 1.2rem;">£12.95</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Section -->
+<div id="profile" class="section">
+    <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">G</div>
+        <div style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold);" id="profileName">Guest</div>
+        <div style="color: var(--gray); margin-top: 5px;" id="profileEmail">Not signed in</div>
+        <div id="profileRoleBadge"></div>
+    </div>
+    
+    <div id="adminPanel" style="display: none;">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">Management Dashboard</h3>
+        <div class="admin-stats">
+            <div class="stat-card"><div class="stat-number" id="totalUsers">0</div><div style="color: var(--gray); font-size: 0.8rem;">Users</div></div>
+            <div class="stat-card"><div class="stat-number" id="activeStamps">0</div><div style="color: var(--gray); font-size: 0.8rem;">Active Cards</div></div>
+        </div>
+        
+        <h4 style="color: var(--gold); margin: 20px 0 10px;">User Management</h4>
+        <input type="text" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #1a1a1a; color: white; margin-bottom: 10px;">
+        <div class="user-list" id="userList"></div>
+    </div>
+    
+    <button id="logoutBtn" class="btn btn-danger" style="margin-top: 20px; display: none;" onclick="handleLogout()">Sign Out</button>
+    <button id="loginPromptBtn" class="btn" style="margin-top: 20px;" onclick="toggleAuthModal()">Sign In</button>
+</div>
+
+<nav class="nav-bar">
+    <a href="#" class="nav-item active" onclick="switchTab('home')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Card
+    </a>
+    <a href="#" class="nav-item" onclick="switchTab('menu')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"></path></svg>
+        Menu
+    </a>
+    <a href="#" class="nav-item" onclick="switchTab('profile')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Profile
+    </a>
+</nav>
+
+<script>
+const ROLES = { CUSTOMER: 'customer', STAFF: 'staff', MANAGEMENT: 'management' };
+let currentUser = null;
+let tillMode = false;
+let currentCustomer = null; // For till transactions
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuthState();
+    initSampleData();
+    updateMenuPrices();
+});
+
+function initSampleData() {
+    if (!localStorage.getItem('junction_users')) {
+        const users = [
+            { username: 'staff1', password: 'staff1', firstName: 'Sarah', lastName: 'Smith', email: 'sarah@junction.com', role: ROLES.STAFF, stamps: 3, joined: 'Jan 2024' },
+            { username: 'customer1', password: 'cust1', firstName: 'John', lastName: 'Doe', email: 'john@email.com', role: ROLES.CUSTOMER, stamps: 7, joined: 'Jan 2024' },
+            { username: 'manager1', password: 'mgr1', firstName: 'Mike', lastName: 'Johnson', email: 'mike@junction.com', role: ROLES.MANAGEMENT, stamps: 0, joined: 'Dec 2023' }
+        ];
+        localStorage.setItem('junction_users', JSON.stringify(users));
+    }
+}
+
+// Auth Functions
+function toggleAuthModal() {
+    document.getElementById('authModal').classList.toggle('active');
+    document.body.style.overflow = document.getElementById('authModal').classList.contains('active') ? 'hidden' : '';
+}
+
+function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById(tab + 'Form').classList.add('active');
+    document.getElementById('authError').classList.remove('show');
+}
+
+function fillAdminCreds() {
+    document.getElementById('loginUsername').value = 'manager1';
+    document.getElementById('loginPassword').value = 'mgr1';
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user || (username === 'Junction' && password === 'TheJunctionMarsh')) {
+        if (username === 'Junction') {
+            currentUser = { username: 'Junction', role: ROLES.MANAGEMENT, firstName: 'Admin', email: 'admin@junction.com', stamps: 0 };
+        } else {
+            currentUser = { ...user };
+        }
+        localStorage.setItem('junction_current_user', JSON.stringify(currentUser));
+        toggleAuthModal();
+        updateUIForUser();
+        showNotification('Welcome back, ' + currentUser.firstName + '!');
+    } else {
+        document.getElementById('authError').textContent = 'Invalid credentials';
+        document.getElementById('authError').classList.add('show');
+    }
+}
+
+function handleSignup(e) {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value.split(' ');
+    const firstName = name[0];
+    const lastName = name.slice(1).join(' ') || '';
+    const username = document.getElementById('signupUsername').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    if (users.find(u => u.username === username)) {
+        document.getElementById('authError').textContent = 'Username already exists';
+        document.getElementById('authError').classList.add('show');
+        return;
+    }
+    
+    const newUser = { username, password, firstName, lastName, email, role: ROLES.CUSTOMER, stamps: 0, joined: new Date().toLocaleDateString('en-GB', {month:'short', year:'numeric'}) };
+    users.push(newUser);
+    localStorage.setItem('junction_users', JSON.stringify(users));
+    
+    currentUser = newUser;
+    localStorage.setItem('junction_current_user', JSON.stringify(currentUser));
+    toggleAuthModal();
+    updateUIForUser();
+    showNotification('Account created successfully!');
+}
+
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem('junction_current_user');
+    updateUIForUser();
+    switchTab('home');
+    showNotification('Signed out successfully');
+}
+
+function checkAuthState() {
+    const saved = localStorage.getItem('junction_current_user');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        updateUIForUser();
+    }
+}
+
+// QR Code & Loyalty Functions
+function generateQRCode() {
+    if (!currentUser) return;
+    
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    
+    const qrData = JSON.stringify({
+        u: currentUser.username,
+        t: Date.now()
+    });
+    
+    new QRCode(qrContainer, {
+        text: qrData,
+        width: 128,
+        height: 128,
+        colorDark: "#1a1a1a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    document.getElementById('qrId').textContent = 'ID: ' + currentUser.username.toUpperCase();
+}
+
+function renderStamps() {
+    if (!currentUser) return;
+    
+    const grid = document.getElementById('stampGrid');
+    grid.innerHTML = '';
+    const stamps = currentUser.stamps || 0;
+    
+    for (let i = 0; i < 10; i++) {
+        const stamp = document.createElement('div');
+        stamp.className = 'stamp';
+        if (i < stamps) {
+            stamp.classList.add('earned');
+            stamp.innerHTML = '✓';
+        } else if (i === 9) {
+            stamp.classList.add('reward');
+            stamp.innerHTML = '☕';
+        }
+        grid.appendChild(stamp);
+    }
+    
+    document.getElementById('stampCount').textContent = stamps + '/10';
+    document.getElementById('progressFill').style.width = (stamps * 10) + '%';
+}
+
+// Till Mode Functions
+function toggleTillMode() {
+    tillMode = !tillMode;
+    const switchBtn = document.getElementById('tillModeSwitch');
+    const tillInterface = document.getElementById('tillInterface');
+    const homeSection = document.getElementById('home');
+    
+    if (tillMode) {
+        switchBtn.classList.add('active');
+        switchBtn.innerHTML = '<span>✓</span><span>Active</span>';
+        switchTab('till');
+        document.querySelector('.nav-item[onclick*="home"]').style.display = 'none';
+        document.querySelector('.nav-item[onclick*="till"]').style.display = 'flex';
+    } else {
+        switchBtn.classList.remove('active');
+        switchBtn.innerHTML = '<span>🛒</span><span>Till Mode</span>';
+        switchTab('home');
+        document.querySelector('.nav-item[onclick*="home"]').style.display = 'flex';
+        document.querySelector('.nav-item[onclick*="till"]').style.display = 'none';
+    }
+}
+
+function simulateScan() {
+    // Simulated scan
+    setTimeout(() => {
+        const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+        if (users.length > 0) {
+            // Randomly select a user for demo, or use first non-staff
+            const randomUser = users.find(u => u.role === ROLES.CUSTOMER) || users[0];
+            loadCustomerForTill(randomUser.username);
+        }
+    }, 1000);
+    
+    showNotification('Scanning...');
+}
+
+function lookupCustomer() {
+    const username = document.getElementById('manualUsername').value.trim();
+    if (!username) return;
+    loadCustomerForTill(username);
+}
+
+function loadCustomerForTill(username) {
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    const user = users.find(u => u.username === username);
+    
+    if (!user) {
+        showNotification('User not found', true);
+        return;
+    }
+    
+    currentCustomer = user;
+    document.getElementById('customerFound').classList.add('show');
+    document.getElementById('customerName').textContent = user.firstName + ' ' + user.lastName;
+    document.getElementById('customerAvatar').textContent = user.firstName[0];
+    document.getElementById('customerRole').textContent = user.role.toUpperCase();
+    document.getElementById('currentStamps').textContent = (user.stamps || 0) + '/10';
+    
+    // Show staff discount indicator if applicable
+    const discountRow = document.getElementById('staffDiscountRow');
+    if (user.role === ROLES.STAFF || user.role === ROLES.MANAGEMENT) {
+        discountRow.style.display = 'flex';
+    } else {
+        discountRow.style.display = 'none';
+    }
+    
+    // Enable/disable redeem button
+    const redeemBtn = document.getElementById('redeemBtn');
+    if ((user.stamps || 0) >= 10) {
+        redeemBtn.style.opacity = '1';
+        redeemBtn.disabled = false;
+    } else {
+        redeemBtn.style.opacity = '0.5';
+        redeemBtn.disabled = true;
+    }
+}
+
+function addStamp() {
+    if (!currentCustomer) return;
+    
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    const index = users.findIndex(u => u.username === currentCustomer.username);
+    
+    if (index !== -1) {
+        users[index].stamps = (users[index].stamps || 0) + 1;
+        
+        // Check if reward earned
+        if (users[index].stamps === 10) {
+            showNotification('🎉 Reward Earned! Free Coffee');
+        } else {
+            showNotification('Stamp added! (' + users[index].stamps + '/10)');
+        }
+        
+        localStorage.setItem('junction_users', JSON.stringify(users));
+        
+        // Update display
+        loadCustomerForTill(currentCustomer.username);
+        
+        // If it's current user, update their view
+        if (currentUser && currentUser.username === currentCustomer.username) {
+            currentUser.stamps = users[index].stamps;
+            localStorage.setItem('junction_current_user', JSON.stringify(currentUser));
+            renderStamps();
+            addTransaction('Stamp earned', '+1');
+        }
+    }
+}
+
+function redeemReward() {
+    if (!currentCustomer) return;
+    
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    const index = users.findIndex(u => u.username === currentCustomer.username);
+    
+    if (index !== -1 && users[index].stamps >= 10) {
+        users[index].stamps = 0; // Reset
+        localStorage.setItem('junction_users', JSON.stringify(users));
+        
+        showNotification('🎉 Free Coffee Redeemed!');
+        loadCustomerForTill(currentCustomer.username);
+        
+        if (currentUser && currentUser.username === currentCustomer.username) {
+            currentUser.stamps = 0;
+            localStorage.setItem('junction_current_user', JSON.stringify(currentUser));
+            renderStamps();
+            addTransaction('Free Coffee Redeemed', '0');
+        }
+    }
+}
+
+// Staff Discount & Menu
+function updateMenuPrices() {
+    const isStaff = currentUser && (currentUser.role === ROLES.STAFF || currentUser.role === ROLES.MANAGEMENT);
+    const banner = document.getElementById('staffDiscountBanner');
+    
+    if (isStaff) {
+        banner.style.display = 'block';
+        document.querySelectorAll('.menu-item').forEach(item => {
+            const basePrice = parseFloat(item.getAttribute('data-price'));
+            if (basePrice) {
+                const discountedPrice = (basePrice * 0.8).toFixed(2);
+                const priceContainer = item.querySelector('.price-container');
+                priceContainer.innerHTML = `
+                    <div class="original-price">£${basePrice.toFixed(2)}</div>
+                    <div class="staff-price">£${discountedPrice}</div>
+                    <div class="discount-badge">Staff -20%</div>
+                `;
+                item.classList.add('staff-item');
+            }
+        });
+    } else {
+        banner.style.display = 'none';
+        document.querySelectorAll('.menu-item').forEach(item => {
+            const basePrice = parseFloat(item.getAttribute('data-price'));
+            if (basePrice) {
+                const priceContainer = item.querySelector('.price-container');
+                priceContainer.innerHTML = `<div class="current-price" style="color: var(--gold); font-weight: bold; font-size: 1.2rem;">£${basePrice.toFixed(2)}</div>`;
+                item.classList.remove('staff-item');
+            }
+        });
+    }
+}
+
+// Transaction History
+function addTransaction(action, value) {
+    if (!currentUser) return;
+    
+    const history = JSON.parse(localStorage.getItem('junction_history_' + currentUser.username) || '[]');
+    history.unshift({
+        action: action,
+        value: value,
+        date: new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+    });
+    localStorage.setItem('junction_history_' + currentUser.username, JSON.stringify(history.slice(0, 10)));
+    renderHistory();
+}
+
+function renderHistory() {
+    if (!currentUser) return;
+    
+    const history = JSON.parse(localStorage.getItem('junction_history_' + currentUser.username) || '[]');
+    const container = document.getElementById('transactionHistory');
+    
+    if (history.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">No transactions yet. Visit the pub to start collecting!</div>';
+        return;
+    }
+    
+    container.innerHTML = history.map(h => `
+        <div class="history-item ${h.action.includes('Staff') ? 'staff-transaction' : ''} ${h.action.includes('Redeem') ? 'redeemed' : ''}">
+            <div>
+                <div style="font-weight: 600;">${h.action}</div>
+                <div style="font-size: 0.8rem; color: var(--gray);">${h.date}</div>
+            </div>
+            <div style="color: ${h.value.includes('+') ? 'var(--success)' : 'var(--gold)'}; font-weight: bold;">${h.value}</div>
+        </div>
+    `).join('');
+}
+
+// UI Updates
+function updateUIForUser() {
+    const tillSwitch = document.getElementById('tillModeSwitch');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginPromptBtn = document.getElementById('loginPromptBtn');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileRoleBadge = document.getElementById('profileRoleBadge');
+    const adminPanel = document.getElementById('adminPanel');
+    
+    if (currentUser) {
+        // Enable till mode for staff+
+        if (currentUser.role === ROLES.STAFF || currentUser.role === ROLES.MANAGEMENT) {
+            tillSwitch.classList.add('visible');
+            updateMenuPrices();
+        } else {
+            tillSwitch.classList.remove('visible');
+            if (tillMode) toggleTillMode();
+        }
+        
+        // Profile updates
+        profileAvatar.textContent = currentUser.firstName[0];
+        profileName.textContent = currentUser.firstName + ' ' + (currentUser.lastName || '');
+        profileEmail.textContent = currentUser.email;
+        
+        const roleClass = currentUser.role;
+        const roleText = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+        profileRoleBadge.innerHTML = `<div class="role-badge ${roleClass}">${roleText}</div>`;
+        
+        logoutBtn.style.display = 'block';
+        loginPromptBtn.style.display = 'none';
+        
+        // Admin panel
+        if (currentUser.role === ROLES.MANAGEMENT) {
+            adminPanel.style.display = 'block';
+            populateUserManagement();
+        } else {
+            adminPanel.style.display = 'none';
+        }
+        
+        // Generate QR and stamps
+        generateQRCode();
+        renderStamps();
+        renderHistory();
+        
+    } else {
+        tillSwitch.classList.remove('visible');
+        if (tillMode) toggleTillMode();
+        
+        profileAvatar.textContent = 'G';
+        profileName.textContent = 'Guest';
+        profileEmail.textContent = 'Not signed in';
+        profileRoleBadge.innerHTML = '';
+        logoutBtn.style.display = 'none';
+        loginPromptBtn.style.display = 'block';
+        adminPanel.style.display = 'none';
+        document.getElementById('qrcode').innerHTML = '<div style="background: #eee; width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem;">Sign in for QR</div>';
+        document.getElementById('stampGrid').innerHTML = '';
+        document.getElementById('transactionHistory').innerHTML = '<div style="text-align: center; color: var(--gray); padding: 20px;">Sign in to view your loyalty card</div>';
+    }
+    
+    updateMenuPrices();
+}
+
+// User Management (Admin)
+function populateUserManagement() {
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    document.getElementById('totalUsers').textContent = users.length;
+    document.getElementById('activeStamps').textContent = users.reduce((sum, u) => sum + (u.stamps || 0), 0);
+    
+    renderUserList(users);
+}
+
+function renderUserList(users) {
+    const container = document.getElementById('userList');
+    container.innerHTML = users.map(user => `
+        <div class="user-item" data-username="${user.username}">
+            <div>
+                <div style="font-weight: 600;">${user.firstName} ${user.lastName}</div>
+                <div style="font-size: 0.8rem; color: var(--gray);">@${user.username} • ${user.stamps || 0} stamps</div>
+            </div>
+            <select class="role-selector" onchange="updateUserRole('${user.username}', this.value)">
+                <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>Customer</option>
+                <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>Staff</option>
+                <option value="management" ${user.role === 'management' ? 'selected' : ''}>Management</option>
+            </select>
+        </div>
+    `).join('');
+}
+
+function filterUsers() {
+    const search = document.getElementById('userSearch').value.toLowerCase();
+    document.querySelectorAll('.user-item').forEach(item => {
+        const username = item.getAttribute('data-username').toLowerCase();
+        const name = item.textContent.toLowerCase();
+        item.style.display = (username.includes(search) || name.includes(search)) ? 'flex' : 'none';
+    });
+}
+
+function updateUserRole(username, newRole) {
+    const users = JSON.parse(localStorage.getItem('junction_users') || '[]');
+    const index = users.findIndex(u => u.username === username);
+    if (index !== -1) {
+        users[index].role = newRole;
+        localStorage.setItem('junction_users', JSON.stringify(users));
+        showNotification('Role updated for ' + username);
+        
+        // Update current user if it's them
+        if (currentUser && currentUser.username === username) {
+            currentUser.role = newRole;
+            localStorage.setItem('junction_current_user', JSON.stringify(currentUser));
+            updateUIForUser();
+        }
+    }
+}
+
+// General
+function switchTab(tabName) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(tabName === 'till' ? 'tillInterface' : tabName).classList.add('active');
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(tabName)) {
+            item.classList.add('active');
+        }
+    });
+    
+    if (tabName !== 'till') {
+        window.scrollTo(0, 0);
+    }
+}
+
+function showNotification(message, isError = false) {
+    const notif = document.getElementById('notification');
+    notif.textContent = message;
+    notif.className = 'notification show' + (isError ? ' error' : '');
+    setTimeout(() => {
+        notif.classList.remove('show');
+    }, 3000);
+}
+</script>
+
+</body>
+</html>
