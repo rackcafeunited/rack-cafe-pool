@@ -25,6 +25,7 @@
             --warning: #ffc107;
             --info: #17a2b8;
             --bye: #6c757d;
+            --training: #9b59b6;
         }
         
         body {
@@ -83,6 +84,13 @@
             border: 1px solid rgba(233, 69, 96, 0.3);
             border-radius: 25px;
             margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-info-header:hover {
+            background: rgba(233, 69, 96, 0.25);
+            transform: translateY(-2px);
         }
 
         .user-avatar-small {
@@ -217,6 +225,19 @@
         .nav-btn:hover, .nav-btn.active {
             background: var(--accent);
             box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+        }
+
+        /* Training Nav Button */
+        .nav-btn.training-nav-btn {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.1));
+            border-color: var(--training);
+            color: var(--training);
+        }
+
+        .nav-btn.training-nav-btn:hover {
+            background: linear-gradient(135deg, var(--training), #8e44ad);
+            color: white;
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.4);
         }
 
         /* Admin Nav Button Special Styling */
@@ -400,6 +421,10 @@
         .btn-danger { background: var(--danger); color: white; }
         .btn-warning { background: var(--warning); color: var(--black); }
         .btn-info { background: var(--info); color: white; }
+        .btn-training {
+            background: linear-gradient(135deg, var(--training), #8e44ad);
+            color: white;
+        }
 
         .btn-gold {
             background: linear-gradient(135deg, var(--gold), #ff9500);
@@ -466,6 +491,15 @@
             background: rgba(40, 167, 69, 0.2);
             border: 2px solid var(--success);
             color: var(--success);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .warning-message {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid var(--warning);
+            color: var(--warning);
             padding: 1rem;
             border-radius: 8px;
             margin: 1rem 0;
@@ -1467,6 +1501,516 @@
             font-size: 0.85rem;
         }
 
+        /* TRAINING PANEL STYLES */
+        .training-card {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(155, 89, 182, 0.05));
+            border: 2px solid var(--training);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .training-card.upcoming {
+            animation: trainingPulse 2s infinite;
+        }
+
+        @keyframes trainingPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(155, 89, 182, 0.2); }
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .training-title {
+            font-size: 1.2rem;
+            color: var(--training);
+            font-weight: bold;
+        }
+
+        .training-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .training-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--silver);
+            font-size: 0.9rem;
+        }
+
+        .training-meta-item i {
+            color: var(--training);
+        }
+
+        .attendance-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .attendance-title {
+            color: var(--gold);
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .attendance-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .attendance-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .attendance-avatar.attending {
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+            color: white;
+            border: 2px solid var(--success);
+        }
+
+        .attendance-avatar.not-attending {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--silver);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            opacity: 0.5;
+        }
+
+        .attendance-avatar.pending {
+            background: linear-gradient(135deg, var(--warning), #f39c12);
+            color: var(--black);
+            border: 2px solid var(--warning);
+            animation: pendingPulse 2s infinite;
+        }
+
+        @keyframes pendingPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .attendance-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .attendance-status-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--secondary);
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attendance-status-indicator.yes { background: var(--success); }
+        .attendance-status-indicator.no { background: var(--danger); }
+        .attendance-status-indicator.maybe { background: var(--warning); }
+
+        .attendance-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .attendance-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .attendance-btn.yes {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        .attendance-btn.yes:hover, .attendance-btn.yes.active {
+            background: var(--success);
+            color: white;
+        }
+
+        .attendance-btn.no {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .attendance-btn.no:hover, .attendance-btn.no.active {
+            background: var(--danger);
+            color: white;
+        }
+
+        .attendance-btn.maybe {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .attendance-btn.maybe:hover, .attendance-btn.maybe.active {
+            background: var(--warning);
+            color: var(--black);
+        }
+
+        .training-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .training-stat {
+            text-align: center;
+        }
+
+        .training-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--training);
+        }
+
+        .training-stat-label {
+            font-size: 0.75rem;
+            color: var(--silver);
+            text-transform: uppercase;
+        }
+
+        .training-form {
+            background: rgba(155, 89, 182, 0.1);
+            border: 2px solid var(--training);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .training-form-title {
+            color: var(--training);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Password Change Modal */
+        .password-requirements {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+
+        .password-requirements ul {
+            margin: 0.5rem 0 0 1.5rem;
+            color: var(--silver);
+        }
+
+        .password-requirements li {
+            margin-bottom: 0.25rem;
+        }
+
+        .password-requirements li.met {
+            color: var(--success);
+        }
+
+        .password-requirements li.unmet {
+            color: var(--danger);
+        }
+
+        .password-strength {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: var(--danger); width: 33%; }
+        .strength-medium { background: var(--warning); width: 66%; }
+        .strength-strong { background: var(--success); width: 100%; }
+
+        /* Import/Export Styles */
+        .import-export-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .import-export-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .import-export-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .import-export-panel h4 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-drop-zone:hover, .file-drop-zone.dragover {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .file-drop-zone i {
+            font-size: 2rem;
+            color: var(--silver);
+            margin-bottom: 0.5rem;
+        }
+
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--gold);
+            transform: translateX(5px);
+        }
+
+        .export-btn-icon {
+            font-size: 1.5rem;
+        }
+
+        .export-btn-text {
+            flex: 1;
+            text-align: left;
+            margin-left: 1rem;
+        }
+
+        .export-btn-title {
+            font-weight: bold;
+            color: var(--white);
+        }
+
+        .export-btn-desc {
+            font-size: 0.8rem;
+            color: var(--silver);
+        }
+
+        .preview-table {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        /* Admin Attendance Override Styles */
+        .admin-attendance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-attendance-player {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-attendance-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: var(--black);
+        }
+
+        .admin-attendance-name {
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .admin-attendance-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .admin-attendance-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            border: 1px solid;
+            background: transparent;
+            color: var(--white);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .admin-attendance-btn.active-yes {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .admin-attendance-btn.active-no {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .admin-attendance-btn.active-maybe {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: var(--black);
+        }
+
+        /* New Season Styles */
+        .new-season-banner {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(255, 215, 0, 0.1));
+            border: 2px solid var(--success);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .new-season-banner h3 {
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .new-season-banner p {
+            color: var(--silver);
+            margin-bottom: 1rem;
+        }
+
+        .new-season-form {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .team-input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .season-setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .season-setup-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .season-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .archive-warning {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid var(--danger);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--danger);
+            font-size: 0.9rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .navbar {
@@ -1502,6 +2046,18 @@
             .player-management-grid {
                 grid-template-columns: 1fr;
             }
+
+            .training-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .import-export-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .season-setup-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -1519,6 +2075,162 @@
 
     <!-- Navigation Overlay -->
     <div class="nav-overlay" id="navOverlay" onclick="app.toggleMenu()"></div>
+
+    <!-- Password Change Modal (First Login) -->
+    <div id="passwordChangeModal" class="modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h3 class="card-title">🔐 Change Required</h3>
+            </div>
+            <div class="warning-message">
+                <strong>Security Notice:</strong> You must change your password before continuing. This is required for all new accounts.
+            </div>
+            <form id="firstLoginPasswordForm" onsubmit="app.handleFirstLoginPasswordChange(event)">
+                <div class="form-group">
+                    <label>New Password *</label>
+                    <input type="password" id="firstNewPassword" class="form-input" placeholder="Enter new password" required oninput="app.checkPasswordStrength(this.value, 'first')">
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="firstPasswordStrengthBar"></div>
+                    </div>
+                </div>
+                <div class="password-requirements">
+                    <strong>Password Requirements:</strong>
+                    <ul id="firstPasswordRequirements">
+                        <li class="unmet" data-req="length">At least 8 characters</li>
+                        <li class="unmet" data-req="uppercase">One uppercase letter</li>
+                        <li class="unmet" data-req="lowercase">One lowercase letter</li>
+                        <li class="unmet" data-req="number">One number</li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password *</label>
+                    <input type="password" id="firstConfirmPassword" class="form-input" placeholder="Confirm new password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password & Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile/Password Change Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="card-header">
+                <h3 class="card-title">👤 My Profile</h3>
+                <button class="btn btn-secondary" onclick="app.closeProfileModal()">Close</button>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div class="player-avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 1rem;">
+                    <span id="profileAvatar">?</span>
+                </div>
+                <h3 id="profileName" style="color: var(--gold); margin-bottom: 0.5rem;">Loading...</h3>
+                <p id="profileRole" style="color: var(--silver);">Loading...</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4 style="color: var(--gold); margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Change Password</h4>
+                <form id="profilePasswordForm" onsubmit="app.handleProfilePasswordChange(event)">
+                    <div class="form-group">
+                        <label>Current Password *</label>
+                        <input type="password" id="currentPassword" class="form-input" placeholder="Enter current password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password *</label>
+                        <input type="password" id="profileNewPassword" class="form-input" placeholder="Enter new password" required oninput="app.checkPasswordStrength(this.value, 'profile')">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="profilePasswordStrengthBar"></div>
+                        </div>
+                    </div>
+                    <div class="password-requirements">
+                        <strong>Password Requirements:</strong>
+                        <ul id="profilePasswordRequirements">
+                            <li class="unmet" data-req="length">At least 8 characters</li>
+                            <li class="unmet" data-req="uppercase">One uppercase letter</li>
+                            <li class="unmet" data-req="lowercase">One lowercase letter</li>
+                            <li class="unmet" data-req="number">One number</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password *</label>
+                        <input type="password" id="profileConfirmPassword" class="form-input" placeholder="Confirm new password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
+                </form>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem;">
+                <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Account Info</h4>
+                <p style="color: var(--silver); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    <strong>Username:</strong> <span id="profileUsername">-</span>
+                </p>
+                <p style="color: var(--silver); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    <strong>Email:</strong> <span id="profileEmail">-</span>
+                </p>
+                <p style="color: var(--silver); font-size: 0.9rem;">
+                    <strong>Team:</strong> <span id="profileTeam">-</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Season Modal -->
+    <div id="newSeasonModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="card-header">
+                <h3 class="card-title">🆕 Setup New Season</h3>
+                <button class="btn btn-secondary" onclick="app.closeNewSeasonModal()">Close</button>
+            </div>
+            
+            <div class="archive-warning">
+                <strong>⚠️ Important:</strong> Creating a new season will archive current season data and allow you to set up new teams. This action cannot be undone.
+            </div>
+
+            <div class="new-season-form">
+                <h4 style="color: var(--gold); margin-bottom: 1rem;">Season Details</h4>
+                <div class="form-group">
+                    <label>Season Name *</label>
+                    <input type="text" id="newSeasonName" class="form-input" placeholder="e.g. 2026-2027 Season" required>
+                </div>
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="newSeasonStartDate" class="form-input" required>
+                </div>
+            </div>
+
+            <div class="season-setup-grid">
+                <div>
+                    <h4 style="color: var(--gold); margin-bottom: 1rem;">Current Teams (Will be archived)</h4>
+                    <div id="currentSeasonTeamsList" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem;">
+                        Loading...
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold); margin-bottom: 1rem;">New Teams for Next Season</h4>
+                    <div id="newTeamsList" style="max-height: 300px; overflow-y: auto;">
+                        <div class="team-input-row">
+                            <input type="text" class="form-input new-team-name" placeholder="Team Name" required>
+                            <input type="text" class="form-input new-team-venue" placeholder="Venue">
+                            <input type="text" class="form-input new-team-contact" placeholder="Contact">
+                            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 0.5rem;">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="app.addNewTeamRow()">
+                        + Add Another Team
+                    </button>
+                </div>
+            </div>
+
+            <div class="season-actions">
+                <button class="btn btn-success" onclick="app.startNewSeason()">
+                    ✅ Create New Season & Archive Current
+                </button>
+                <button class="btn btn-warning" onclick="app.exportFullData()">
+                    📥 Backup Current Data First
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container hidden">
@@ -1559,7 +2271,7 @@
             </div>
 
             <!-- User Info Header -->
-            <div class="user-info-header" id="userInfoHeader">
+            <div class="user-info-header" id="userInfoHeader" onclick="app.openProfileModal()">
                 <div class="user-avatar-small" id="headerUserAvatar">?</div>
                 <div class="user-details">
                     <span class="user-name" id="headerUserName">Loading...</span>
@@ -1596,6 +2308,11 @@
                 
                 <div class="nav-divider"></div>
                 
+                <!-- Training Panel Button -->
+                <button class="nav-btn training-nav-btn hidden" id="trainingBtn" onclick="app.showPage('training'); app.toggleMenu()">
+                    🎯 Training
+                </button>
+                
                 <button class="nav-btn hidden" id="captainBtn" onclick="app.showPage('captain'); app.toggleMenu()">Captain Panel</button>
                 
                 <!-- Admin Navigation - Prominent -->
@@ -1604,6 +2321,9 @@
                 </button>
                 <button class="nav-btn hidden admin-nav-btn" id="adminFixturesBtn" onclick="app.showPage('admin'); app.toggleMenu()">
                     🏆 Manage Fixtures
+                </button>
+                <button class="nav-btn hidden admin-nav-btn" id="adminImportExportBtn" onclick="app.showPage('admin-import-export'); app.toggleMenu()">
+                    📊 Import/Export
                 </button>
                 
                 <div class="nav-divider"></div>
@@ -1622,6 +2342,15 @@
                         <div class="welcome-date" id="welcomeDate">Loading date...</div>
                     </div>
                     <div style="font-size: 2rem;">🎱</div>
+                </div>
+
+                <!-- New Season Banner (Visible after June 16th for admins) -->
+                <div id="newSeasonBanner" class="new-season-banner hidden">
+                    <h3>🎉 Season Ended - Time for New Season!</h3>
+                    <p>The current season has finished (after June 16th). As a System Administrator, you can now set up the new season.</p>
+                    <button class="btn btn-success" onclick="app.showNewSeasonModal()" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        🆕 Start New Season Setup
+                    </button>
                 </div>
 
                 <div class="dashboard-grid">
@@ -1660,6 +2389,14 @@
                         <h3 class="card-title">Upcoming Fixtures</h3>
                     </div>
                     <div id="upcomingFixturesPreview">Loading...</div>
+                </div>
+
+                <!-- Next Training Preview -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">🎯 Next Training</h3>
+                    </div>
+                    <div id="nextTrainingPreview">Loading...</div>
                 </div>
             </div>
 
@@ -1768,6 +2505,51 @@
                             </p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- TRAINING PANEL PAGE -->
+            <div id="page-training" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🎯 Training Sessions</h3>
+                        <span class="live-update-badge">Live Updates</span>
+                    </div>
+                    
+                    <!-- Captain/Co-Captain Training Form -->
+                    <div id="trainingFormContainer" class="hidden">
+                        <div class="training-form">
+                            <div class="training-form-title">📅 Schedule New Training</div>
+                            <form id="trainingForm" onsubmit="app.scheduleTraining(event)">
+                                <div class="form-group">
+                                    <label>Date *</label>
+                                    <input type="date" id="trainingDate" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Time *</label>
+                                    <input type="time" id="trainingTime" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Location *</label>
+                                    <input type="text" id="trainingLocation" class="form-input" placeholder="e.g. Rack Café, Table 1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Focus/Notes</label>
+                                    <textarea id="trainingNotes" class="form-input" rows="2" placeholder="e.g. Break practice, positional play..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" id="trainingRecurring" style="width: auto;">
+                                        <span>Weekly recurring session</span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-training" style="width: 100%;">Schedule Training</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Training Sessions List -->
+                    <div id="trainingSessionsList">Loading...</div>
                 </div>
             </div>
 
@@ -2027,13 +2809,109 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ADMIN IMPORT/EXPORT PAGE -->
+            <div id="page-admin-import-export" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 Import / Export Data</h3>
+                        <span style="color: var(--gold); font-size: 0.8rem;">System Administrator Only</span>
+                    </div>
+                    
+                    <div class="import-export-grid">
+                        <!-- Import Section -->
+                        <div class="import-export-panel">
+                            <h4>📥 Import Data</h4>
+                            
+                            <div class="form-group">
+                                <label>Import Type</label>
+                                <select id="importType" class="form-select" onchange="app.updateImportPreview()">
+                                    <option value="fixtures">Fixtures (CSV)</option>
+                                    <option value="results">Results (CSV)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="file-drop-zone" id="fileDropZone" onclick="document.getElementById('importFile').click()">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+                                <p style="color: var(--silver); margin-bottom: 0.5rem;">Click to select file or drag & drop</p>
+                                <p style="color: var(--silver); font-size: 0.8rem;">Supports CSV format</p>
+                                <input type="file" id="importFile" accept=".csv" style="display: none;" onchange="app.handleFileSelect(event)">
+                            </div>
+                            
+                            <div id="importPreview" class="preview-table hidden">
+                                <h5 style="color: var(--gold); margin-bottom: 0.5rem;">Preview:</h5>
+                                <div id="importPreviewContent"></div>
+                            </div>
+                            
+                            <button class="btn btn-success" style="width: 100%; margin-top: 1rem;" onclick="app.processImport()" id="importBtn" disabled>
+                                Import Data
+                            </button>
+                            
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                <h5 style="color: var(--gold); margin-bottom: 0.5rem; font-size: 0.9rem;">CSV Format:</h5>
+                                <p style="color: var(--silver); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                                    <strong>Fixtures:</strong> date,home_team_id,away_team_id<br>
+                                    <em>Example: 2024-03-15,rack-cafe-united,carlton-club</em>
+                                </p>
+                                <p style="color: var(--silver); font-size: 0.8rem;">
+                                    <strong>Results:</strong> fixture_id,home_score,away_score<br>
+                                    <em>Example: abc123,6,4</em>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Export Section -->
+                        <div class="import-export-panel">
+                            <h4>📤 Export Data</h4>
+                            
+                            <div class="export-options">
+                                <div class="export-btn" onclick="app.exportFixtures()">
+                                    <span class="export-btn-icon">📅</span>
+                                    <div class="export-btn-text">
+                                        <div class="export-btn-title">Export Fixtures</div>
+                                        <div class="export-btn-desc">All fixtures with dates and teams (CSV)</div>
+                                    </div>
+                                    <span style="color: var(--gold);">↓</span>
+                                </div>
+                                
+                                <div class="export-btn" onclick="app.exportResults()">
+                                    <span class="export-btn-icon">🏆</span>
+                                    <div class="export-btn-text">
+                                        <div class="export-btn-title">Export Results</div>
+                                        <div class="export-btn-desc">Completed matches with scores (CSV)</div>
+                                    </div>
+                                    <span style="color: var(--gold);">↓</span>
+                                </div>
+                                
+                                <div class="export-btn" onclick="app.exportFullData()">
+                                    <span class="export-btn-icon">💾</span>
+                                    <div class="export-btn-text">
+                                        <div class="export-btn-title">Export Full Backup</div>
+                                        <div class="export-btn-desc">Complete database backup (JSON)</div>
+                                    </div>
+                                    <span style="color: var(--gold);">↓</span>
+                                </div>
+                                
+                                <div class="export-btn" onclick="app.exportLeagueTable()">
+                                    <span class="export-btn-icon">📊</span>
+                                    <div class="export-btn-text">
+                                        <div class="export-btn-title">Export League Table</div>
+                                        <div class="export-btn-desc">Current standings (CSV)</div>
+                                    </div>
+                                    <span style="color: var(--gold);">↓</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, orderBy, addDoc, serverTimestamp, writeBatch, onSnapshot, limit } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
         
         const firebaseConfig = {
@@ -2062,6 +2940,7 @@
             teams: [],
             players: [],
             fixtures: [],
+            trainings: [],
             currentTeamId: null,
             isSystemAdmin: false,
             isCaptain: false,
@@ -2071,7 +2950,9 @@
             viewMode: 'team',
             editingFixtureId: null,
             playerProfilesUnsubscribers: [],
-            chatUnsubscriber: null
+            chatUnsubscriber: null,
+            trainingUnsubscriber: null,
+            pendingImportData: null
         };
 
         // UPDATED: Tom Hayes-Smith has both system-admin AND co-captain roles
@@ -2107,6 +2988,22 @@
             return fixtureDate < today;
         }
 
+        // Check if season has ended (after June 16th)
+        function isSeasonEnded() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const seasonEnd = new Date(currentYear, 5, 16); // June 16th (month is 0-indexed)
+            
+            // If we're past June 16th this year, season has ended
+            if (now > seasonEnd) {
+                return true;
+            }
+            
+            // Also check if we're in a new year and haven't set up new season
+            // This allows the banner to show in early months of new year
+            return false;
+        }
+
         window.app = {
             async init() {
                 try {
@@ -2119,6 +3016,27 @@
                     if (chatInput) {
                         chatInput.addEventListener('keypress', (e) => {
                             if (e.key === 'Enter') this.sendChatMessage();
+                        });
+                    }
+
+                    // Setup file drop zone
+                    const dropZone = document.getElementById('fileDropZone');
+                    if (dropZone) {
+                        dropZone.addEventListener('dragover', (e) => {
+                            e.preventDefault();
+                            dropZone.classList.add('dragover');
+                        });
+                        dropZone.addEventListener('dragleave', () => {
+                            dropZone.classList.remove('dragover');
+                        });
+                        dropZone.addEventListener('drop', (e) => {
+                            e.preventDefault();
+                            dropZone.classList.remove('dragover');
+                            const files = e.dataTransfer.files;
+                            if (files.length > 0) {
+                                document.getElementById('importFile').files = files;
+                                this.handleFileSelect({ target: { files: files } });
+                            }
                         });
                     }
                     
@@ -2237,8 +3155,18 @@
                         canAccessAdminPanel: state.canAccessAdminPanel
                     });
                     
+                    // Check if password change required
+                    if (state.userData.passwordChangeRequired || state.userData.isFirstLogin) {
+                        this.showPasswordChangeModal(true);
+                        this.showLoading(false);
+                        return;
+                    }
+                    
                     this.showApp();
                     await this.loadAllData();
+                    
+                    // Check for new season availability
+                    this.checkNewSeasonAvailability();
                     
                 } catch (error) {
                     console.error('Load user data error:', error);
@@ -2249,14 +3177,27 @@
                 }
             },
 
+            checkNewSeasonAvailability() {
+                if (state.isSystemAdmin && isSeasonEnded()) {
+                    const banner = document.getElementById('newSeasonBanner');
+                    if (banner) {
+                        banner.classList.remove('hidden');
+                    }
+                }
+            },
+
             async loadAllData() {
                 try {
                     await this.loadTeams();
                     await this.loadPlayers();
                     await this.loadFixtures();
+                    await this.loadTrainings();
                     this.renderAll();
                     this.setupPlayerProfileListeners();
                     this.setupChatListener();
+                    this.setupTrainingListener();
+                    // FIX: Explicitly render next training preview after data load
+                    this.renderNextTrainingPreview();
                 } catch (error) {
                     this.showToast('Error loading data: ' + error.message, 'error');
                 }
@@ -2275,6 +3216,11 @@
             async loadFixtures() {
                 const snapshot = await getDocs(collection(db, 'fixtures'));
                 state.fixtures = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            },
+
+            async loadTrainings() {
+                const snapshot = await getDocs(collection(db, 'trainings'));
+                state.trainings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             },
 
             setupPlayerProfileListeners() {
@@ -2320,6 +3266,823 @@
                     });
                     this.renderChatMessages(messages.reverse());
                 });
+            },
+
+            setupTrainingListener() {
+                if (state.trainingUnsubscriber) {
+                    state.trainingUnsubscriber();
+                }
+                
+                const trainingQuery = query(
+                    collection(db, 'trainings'),
+                    where('teamId', '==', state.currentTeamId),
+                    orderBy('dateTime', 'asc')
+                );
+                
+                state.trainingUnsubscriber = onSnapshot(trainingQuery, (snapshot) => {
+                    state.trainings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    if (document.getElementById('page-training').classList.contains('active')) {
+                        this.renderTraining();
+                    }
+                    this.renderNextTrainingPreview();
+                });
+            },
+
+            // PASSWORD CHANGE FUNCTIONS
+            showPasswordChangeModal(isFirstLogin = false) {
+                const modal = document.getElementById('passwordChangeModal');
+                if (modal) {
+                    modal.classList.add('active');
+                    // Prevent closing on first login
+                    if (isFirstLogin) {
+                        modal.onclick = (e) => {
+                            if (e.target === modal) {
+                                this.showToast('You must change your password to continue', 'warning');
+                            }
+                        };
+                    }
+                }
+            },
+
+            hidePasswordChangeModal() {
+                const modal = document.getElementById('passwordChangeModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    modal.onclick = null;
+                }
+            },
+
+            checkPasswordStrength(password, prefix) {
+                const requirements = {
+                    length: password.length >= 8,
+                    uppercase: /[A-Z]/.test(password),
+                    lowercase: /[a-z]/.test(password),
+                    number: /[0-9]/.test(password)
+                };
+
+                // Update requirements list
+                const reqList = document.getElementById(`${prefix}PasswordRequirements`);
+                if (reqList) {
+                    reqList.querySelectorAll('li').forEach(li => {
+                        const req = li.getAttribute('data-req');
+                        if (requirements[req]) {
+                            li.classList.remove('unmet');
+                            li.classList.add('met');
+                        } else {
+                            li.classList.remove('met');
+                            li.classList.add('unmet');
+                        }
+                    });
+                }
+
+                // Update strength bar
+                const metCount = Object.values(requirements).filter(Boolean).length;
+                const strengthBar = document.getElementById(`${prefix}PasswordStrengthBar`);
+                if (strengthBar) {
+                    strengthBar.className = 'password-strength-bar';
+                    if (metCount <= 2) {
+                        strengthBar.classList.add('strength-weak');
+                    } else if (metCount === 3) {
+                        strengthBar.classList.add('strength-medium');
+                    } else {
+                        strengthBar.classList.add('strength-strong');
+                    }
+                }
+
+                return metCount === 4;
+            },
+
+            async handleFirstLoginPasswordChange(e) {
+                e.preventDefault();
+                
+                const newPassword = document.getElementById('firstNewPassword').value;
+                const confirmPassword = document.getElementById('firstConfirmPassword').value;
+                
+                if (!this.checkPasswordStrength(newPassword, 'first')) {
+                    this.showToast('Password does not meet all requirements', 'error');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    this.showToast('Passwords do not match', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    const user = auth.currentUser;
+                    if (!user) throw new Error('No user logged in');
+                    
+                    await updatePassword(user, newPassword);
+                    
+                    // Update player document
+                    await updateDoc(doc(db, 'players', state.userData.id), {
+                        passwordChangeRequired: false,
+                        isFirstLogin: false,
+                        passwordChangedAt: serverTimestamp()
+                    });
+                    
+                    this.hidePasswordChangeModal();
+                    this.showToast('Password updated successfully!', 'success');
+                    
+                    // Continue to app
+                    this.showApp();
+                    await this.loadAllData();
+                    
+                } catch (error) {
+                    console.error('Password change error:', error);
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            openProfileModal() {
+                if (!state.userData) return;
+                
+                const modal = document.getElementById('profileModal');
+                
+                // Populate profile info
+                document.getElementById('profileAvatar').textContent = state.userData.name.charAt(0).toUpperCase();
+                document.getElementById('profileName').textContent = state.userData.name;
+                document.getElementById('profileRole').textContent = this.formatRole(state.userData.role, state.userData.isCoCaptain);
+                document.getElementById('profileUsername').textContent = state.userData.username;
+                document.getElementById('profileEmail').textContent = state.userData.email;
+                
+                const team = state.teams.find(t => t.id === state.userData.teamId);
+                document.getElementById('profileTeam').textContent = team?.name || 'Unknown';
+                
+                modal.classList.add('active');
+            },
+
+            closeProfileModal() {
+                document.getElementById('profileModal').classList.remove('active');
+                document.getElementById('profilePasswordForm').reset();
+                document.getElementById('profilePasswordStrengthBar').className = 'password-strength-bar';
+            },
+
+            async handleProfilePasswordChange(e) {
+                e.preventDefault();
+                
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('profileNewPassword').value;
+                const confirmPassword = document.getElementById('profileConfirmPassword').value;
+                
+                if (!this.checkPasswordStrength(newPassword, 'profile')) {
+                    this.showToast('Password does not meet all requirements', 'error');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    this.showToast('Passwords do not match', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    const user = auth.currentUser;
+                    if (!user) throw new Error('No user logged in');
+                    
+                    // Reauthenticate
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    
+                    // Update password
+                    await updatePassword(user, newPassword);
+                    
+                    // Update player document
+                    await updateDoc(doc(db, 'players', state.userData.id), {
+                        passwordChangedAt: serverTimestamp()
+                    });
+                    
+                    this.showToast('Password updated successfully!', 'success');
+                    document.getElementById('profilePasswordForm').reset();
+                    document.getElementById('profilePasswordStrengthBar').className = 'password-strength-bar';
+                    
+                } catch (error) {
+                    console.error('Password change error:', error);
+                    if (error.code === 'auth/wrong-password') {
+                        this.showToast('Current password is incorrect', 'error');
+                    } else {
+                        this.showToast('Error: ' + error.message, 'error');
+                    }
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            formatRole(role, isCoCaptain) {
+                if (isCoCaptain && role === 'system-admin') return 'System Admin + Co-Captain';
+                if (role === 'system-admin') return 'System Administrator';
+                if (role === 'captain') return 'Team Captain';
+                if (role === 'co-captain' || isCoCaptain) return 'Co-Captain';
+                return 'Player';
+            },
+
+            // TRAINING FUNCTIONS
+            async scheduleTraining(e) {
+                e.preventDefault();
+                
+                const date = document.getElementById('trainingDate').value;
+                const time = document.getElementById('trainingTime').value;
+                const location = document.getElementById('trainingLocation').value.trim();
+                const notes = document.getElementById('trainingNotes').value.trim();
+                const isRecurring = document.getElementById('trainingRecurring').checked;
+                
+                if (!date || !time || !location) {
+                    this.showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    const dateTime = new Date(`${date}T${time}`);
+                    
+                    const trainingData = {
+                        teamId: state.currentTeamId,
+                        dateTime: dateTime.toISOString(),
+                        date: date,
+                        time: time,
+                        location: location,
+                        notes: notes,
+                        isRecurring: isRecurring,
+                        createdBy: state.userData.id,
+                        createdAt: serverTimestamp(),
+                        attendance: {}
+                    };
+                    
+                    await addDoc(collection(db, 'trainings'), trainingData);
+                    
+                    this.showToast('Training scheduled successfully!', 'success');
+                    document.getElementById('trainingForm').reset();
+                    
+                    // If recurring, schedule next 4 weeks
+                    if (isRecurring) {
+                        for (let i = 1; i <= 4; i++) {
+                            const nextDate = new Date(dateTime);
+                            nextDate.setDate(nextDate.getDate() + (7 * i));
+                            
+                            await addDoc(collection(db, 'trainings'), {
+                                ...trainingData,
+                                dateTime: nextDate.toISOString(),
+                                date: nextDate.toISOString().split('T')[0],
+                                isRecurring: true,
+                                parentTraining: true
+                            });
+                        }
+                        this.showToast('Recurring trainings scheduled for next 4 weeks!', 'success');
+                    }
+                    
+                } catch (error) {
+                    this.showToast('Error scheduling training: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            async updateAttendance(trainingId, status) {
+                try {
+                    const trainingRef = doc(db, 'trainings', trainingId);
+                    const trainingDoc = await getDoc(trainingRef);
+                    
+                    if (!trainingDoc.exists()) return;
+                    
+                    const attendance = trainingDoc.data().attendance || {};
+                    attendance[state.userData.id] = {
+                        status: status,
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    await updateDoc(trainingRef, { attendance });
+                    this.showToast(`Attendance updated: ${status}`, 'success');
+                    
+                } catch (error) {
+                    this.showToast('Error updating attendance: ' + error.message, 'error');
+                }
+            },
+
+            // NEW: Admin function to manually set attendance for any player
+            async adminSetAttendance(trainingId, playerId, status) {
+                if (!state.isSystemAdmin) {
+                    this.showToast('Only system admins can manually set attendance', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    const trainingRef = doc(db, 'trainings', trainingId);
+                    const trainingDoc = await getDoc(trainingRef);
+                    
+                    if (!trainingDoc.exists()) {
+                        throw new Error('Training session not found');
+                    }
+                    
+                    const attendance = trainingDoc.data().attendance || {};
+                    attendance[playerId] = {
+                        status: status,
+                        updatedAt: new Date().toISOString(),
+                        setByAdmin: true,
+                        adminId: state.userData.id
+                    };
+                    
+                    await updateDoc(trainingRef, { attendance });
+                    this.showToast(`Attendance updated for player`, 'success');
+                    
+                    // Refresh the training display
+                    await this.loadTrainings();
+                    this.renderTraining();
+                    
+                } catch (error) {
+                    this.showToast('Error updating attendance: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            renderTraining() {
+                const container = document.getElementById('trainingSessionsList');
+                const formContainer = document.getElementById('trainingFormContainer');
+                
+                // Show form only for captains/co-captains
+                if (state.canAccessCaptainPanel) {
+                    formContainer.classList.remove('hidden');
+                } else {
+                    formContainer.classList.add('hidden');
+                }
+                
+                if (state.trainings.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No training sessions scheduled</div>';
+                    return;
+                }
+                
+                const now = new Date();
+                const sortedTrainings = [...state.trainings].sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+                
+                container.innerHTML = sortedTrainings.map(t => {
+                    const trainingDate = new Date(t.dateTime);
+                    const isPast = trainingDate < now;
+                    const isUpcoming = !isPast && trainingDate - now < 7 * 24 * 60 * 60 * 1000; // Within 7 days
+                    
+                    const attendance = t.attendance || {};
+                    const playerAttendance = attendance[state.userData.id]?.status || 'pending';
+                    
+                    const attending = Object.entries(attendance).filter(([_, data]) => data.status === 'yes');
+                    const notAttending = Object.entries(attendance).filter(([_, data]) => data.status === 'no');
+                    const maybe = Object.entries(attendance).filter(([_, data]) => data.status === 'maybe');
+                    
+                    const dateStr = trainingDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+                    const timeStr = trainingDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                    
+                    let statusClass = '';
+                    if (isUpcoming) statusClass = 'upcoming';
+                    else if (isPast) statusClass = 'past';
+                    
+                    // Admin attendance management section
+                    let adminAttendanceSection = '';
+                    if (state.isSystemAdmin && !isPast) {
+                        const teamPlayers = state.players.filter(p => p.teamId === state.currentTeamId);
+                        adminAttendanceSection = `
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px dashed rgba(255,215,0,0.3);">
+                                <div style="color: var(--gold); font-weight: bold; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                    ⚡ Admin: Manual Attendance Management
+                                </div>
+                                <div style="max-height: 200px; overflow-y: auto;">
+                                    ${teamPlayers.map(p => {
+                                        const currentStatus = attendance[p.id]?.status || 'pending';
+                                        return `
+                                            <div class="admin-attendance-row">
+                                                <div class="admin-attendance-player">
+                                                    <div class="admin-attendance-avatar">${p.name.charAt(0)}</div>
+                                                    <span class="admin-attendance-name">${p.name}</span>
+                                                </div>
+                                                <div class="admin-attendance-controls">
+                                                    <button class="admin-attendance-btn ${currentStatus === 'yes' ? 'active-yes' : ''}" 
+                                                        onclick="app.adminSetAttendance('${t.id}', '${p.id}', 'yes')">✓</button>
+                                                    <button class="admin-attendance-btn ${currentStatus === 'maybe' ? 'active-maybe' : ''}" 
+                                                        onclick="app.adminSetAttendance('${t.id}', '${p.id}', 'maybe')">?</button>
+                                                    <button class="admin-attendance-btn ${currentStatus === 'no' ? 'active-no' : ''}" 
+                                                        onclick="app.adminSetAttendance('${t.id}', '${p.id}', 'no')">✗</button>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="training-card ${statusClass}" style="${isPast ? 'opacity: 0.6;' : ''}">
+                            <div class="training-header">
+                                <div>
+                                    <div class="training-title">🎯 Training Session</div>
+                                    <div class="training-meta">
+                                        <span class="training-meta-item">📅 ${dateStr}</span>
+                                        <span class="training-meta-item">🕐 ${timeStr}</span>
+                                        <span class="training-meta-item">📍 ${t.location}</span>
+                                        ${t.isRecurring ? '<span class="training-meta-item">🔄 Recurring</span>' : ''}
+                                    </div>
+                                    ${t.notes ? `<div style="color: var(--silver); font-size: 0.9rem; margin-top: 0.5rem;">📝 ${t.notes}</div>` : ''}
+                                </div>
+                                ${state.canAccessCaptainPanel ? `
+                                    <button class="btn btn-danger" style="padding: 0.5rem;" onclick="app.deleteTraining('${t.id}')">🗑️</button>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="attendance-section">
+                                <div class="attendance-title">
+                                    👥 Attendance 
+                                    <span style="color: var(--silver); font-size: 0.8rem; font-weight: normal;">
+                                        (${attending.length} yes, ${notAttending.length} no, ${maybe.length} maybe)
+                                    </span>
+                                </div>
+                                
+                                <div class="attendance-list">
+                                    ${state.players.filter(p => p.teamId === state.currentTeamId).map(p => {
+                                        const status = attendance[p.id]?.status || 'pending';
+                                        let statusClass = 'pending';
+                                        let indicator = '⏳';
+                                        if (status === 'yes') { statusClass = 'attending'; indicator = '✓'; }
+                                        else if (status === 'no') { statusClass = 'not-attending'; indicator = '✗'; }
+                                        else if (status === 'maybe') { statusClass = 'pending'; indicator = '?'; }
+                                        
+                                        return `
+                                            <div class="attendance-avatar ${statusClass}" title="${p.name}: ${status}">
+                                                ${p.name.charAt(0)}
+                                                <span class="attendance-status-indicator ${status === 'yes' ? 'yes' : status === 'no' ? 'no' : 'maybe'}">${indicator}</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                
+                                ${!isPast ? `
+                                    <div class="attendance-actions">
+                                        <button class="attendance-btn yes ${playerAttendance === 'yes' ? 'active' : ''}" onclick="app.updateAttendance('${t.id}', 'yes')">
+                                            ✓ Attending
+                                        </button>
+                                        <button class="attendance-btn maybe ${playerAttendance === 'maybe' ? 'active' : ''}" onclick="app.updateAttendance('${t.id}', 'maybe')">
+                                            ? Maybe
+                                        </button>
+                                        <button class="attendance-btn no ${playerAttendance === 'no' ? 'active' : ''}" onclick="app.updateAttendance('${t.id}', 'no')">
+                                            ✗ Not Attending
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            ${adminAttendanceSection}
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            async deleteTraining(trainingId) {
+                if (!confirm('Are you sure you want to delete this training session?')) return;
+                
+                this.showLoading(true);
+                try {
+                    await deleteDoc(doc(db, 'trainings', trainingId));
+                    this.showToast('Training deleted', 'success');
+                } catch (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            renderNextTrainingPreview() {
+                const container = document.getElementById('nextTrainingPreview');
+                if (!container) return;
+                
+                // FIX: Ensure we have trainings data
+                if (!state.trainings || state.trainings.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No upcoming training sessions</div>';
+                    return;
+                }
+                
+                const now = new Date();
+                const upcoming = state.trainings
+                    .filter(t => new Date(t.dateTime) > now)
+                    .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))[0];
+                
+                if (!upcoming) {
+                    container.innerHTML = '<div class="empty-state">No upcoming training sessions</div>';
+                    return;
+                }
+                
+                const trainingDate = new Date(upcoming.dateTime);
+                const dateStr = trainingDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+                const timeStr = trainingDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                
+                const attendance = upcoming.attendance || {};
+                const attending = Object.entries(attendance).filter(([_, data]) => data.status === 'yes').length;
+                
+                container.innerHTML = `
+                    <div style="background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.1)); border: 2px solid var(--training); border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <div style="font-size: 1.3rem; color: var(--training); font-weight: bold; margin-bottom: 0.5rem;">${dateStr}</div>
+                                <div style="color: var(--silver); display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <span>🕐 ${timeStr}</span>
+                                    <span>📍 ${upcoming.location}</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--training);">${attending}</div>
+                                <div style="font-size: 0.8rem; color: var(--silver);">ATTENDING</div>
+                            </div>
+                        </div>
+                        ${upcoming.notes ? `<div style="color: var(--silver); font-size: 0.9rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 8px;">📝 ${upcoming.notes}</div>` : ''}
+                        <button class="btn btn-training" style="width: 100%;" onclick="app.showPage('training')">
+                            View Details & RSVP
+                        </button>
+                    </div>
+                `;
+            },
+
+            // IMPORT/EXPORT FUNCTIONS
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    this.parseImportData(content);
+                };
+                reader.readAsText(file);
+            },
+
+            parseImportData(content) {
+                const type = document.getElementById('importType').value;
+                const lines = content.trim().split('\n');
+                const data = [];
+                
+                // Skip header if present
+                const startIndex = lines[0].toLowerCase().includes('date') || lines[0].toLowerCase().includes('fixture') ? 1 : 0;
+                
+                for (let i = startIndex; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const parts = line.split(',');
+                    
+                    if (type === 'fixtures') {
+                        // Expected: date,home_team_id,away_team_id
+                        if (parts.length >= 3) {
+                            data.push({
+                                date: parts[0].trim(),
+                                homeTeamId: parts[1].trim(),
+                                awayTeamId: parts[2].trim()
+                            });
+                        }
+                    } else if (type === 'results') {
+                        // Expected: fixture_id,home_score,away_score
+                        if (parts.length >= 3) {
+                            data.push({
+                                fixtureId: parts[0].trim(),
+                                homeScore: parseInt(parts[1]) || 0,
+                                awayScore: parseInt(parts[2]) || 0
+                            });
+                        }
+                    }
+                }
+                
+                state.pendingImportData = data;
+                this.showImportPreview(data);
+            },
+
+            showImportPreview(data) {
+                const previewDiv = document.getElementById('importPreview');
+                const contentDiv = document.getElementById('importPreviewContent');
+                const importBtn = document.getElementById('importBtn');
+                
+                if (data.length === 0) {
+                    contentDiv.innerHTML = '<p style="color: var(--danger);">No valid data found in file</p>';
+                    importBtn.disabled = true;
+                } else {
+                    const type = document.getElementById('importType').value;
+                    let html = `<p style="color: var(--success); margin-bottom: 0.5rem;">Found ${data.length} records:</p>`;
+                    html += '<table class="data-table" style="font-size: 0.8rem;"><thead><tr>';
+                    
+                    if (type === 'fixtures') {
+                        html += '<th>Date</th><th>Home</th><th>Away</th>';
+                    } else {
+                        html += '<th>Fixture ID</th><th>Home Score</th><th>Away Score</th>';
+                    }
+                    html += '</tr></thead><tbody>';
+                    
+                    data.slice(0, 5).forEach(row => {
+                        html += '<tr>';
+                        if (type === 'fixtures') {
+                            html += `<td>${row.date}</td><td>${row.homeTeamId}</td><td>${row.awayTeamId}</td>`;
+                        } else {
+                            html += `<td>${row.fixtureId.substring(0, 8)}...</td><td>${row.homeScore}</td><td>${row.awayScore}</td>`;
+                        }
+                        html += '</tr>';
+                    });
+                    
+                    if (data.length > 5) {
+                        html += `<tr><td colspan="3" style="text-align: center; color: var(--silver);">... and ${data.length - 5} more</td></tr>`;
+                    }
+                    
+                    html += '</tbody></table>';
+                    contentDiv.innerHTML = html;
+                    importBtn.disabled = false;
+                }
+                
+                previewDiv.classList.remove('hidden');
+            },
+
+            async processImport() {
+                if (!state.pendingImportData || state.pendingImportData.length === 0) return;
+                
+                const type = document.getElementById('importType').value;
+                this.showLoading(true);
+                
+                try {
+                    let successCount = 0;
+                    let errorCount = 0;
+                    
+                    if (type === 'fixtures') {
+                        for (const item of state.pendingImportData) {
+                            try {
+                                const homeTeam = state.teams.find(t => t.id === item.homeTeamId || t.name.toLowerCase().replace(/\s+/g, '-') === item.homeTeamId);
+                                const awayTeam = state.teams.find(t => t.id === item.awayTeamId || t.name.toLowerCase().replace(/\s+/g, '-') === item.awayTeamId);
+                                
+                                if (!homeTeam || !awayTeam) {
+                                    console.warn('Team not found:', item.homeTeamId, item.awayTeamId);
+                                    errorCount++;
+                                    continue;
+                                }
+                                
+                                await addDoc(collection(db, 'fixtures'), {
+                                    homeTeamId: homeTeam.id,
+                                    awayTeamId: awayTeam.id,
+                                    date: item.date,
+                                    completed: false,
+                                    homeScore: 0,
+                                    awayScore: 0,
+                                    isBye: homeTeam.isBye || awayTeam.isBye,
+                                    createdAt: new Date().toISOString(),
+                                    lastUpdated: serverTimestamp()
+                                });
+                                successCount++;
+                            } catch (e) {
+                                console.error('Error importing fixture:', e);
+                                errorCount++;
+                            }
+                        }
+                    } else if (type === 'results') {
+                        for (const item of state.pendingImportData) {
+                            try {
+                                const fixtureRef = doc(db, 'fixtures', item.fixtureId);
+                                const fixtureDoc = await getDoc(fixtureRef);
+                                
+                                if (!fixtureDoc.exists()) {
+                                    console.warn('Fixture not found:', item.fixtureId);
+                                    errorCount++;
+                                    continue;
+                                }
+                                
+                                await updateDoc(fixtureRef, {
+                                    completed: true,
+                                    homeScore: item.homeScore,
+                                    awayScore: item.awayScore,
+                                    submittedBy: state.userData.id,
+                                    submittedAt: new Date().toISOString(),
+                                    lastUpdated: serverTimestamp()
+                                });
+                                successCount++;
+                            } catch (e) {
+                                console.error('Error importing result:', e);
+                                errorCount++;
+                            }
+                        }
+                    }
+                    
+                    this.showToast(`Import complete: ${successCount} successful, ${errorCount} errors`, successCount > 0 ? 'success' : 'warning');
+                    
+                    // Clear form
+                    document.getElementById('importFile').value = '';
+                    document.getElementById('importPreview').classList.add('hidden');
+                    document.getElementById('importBtn').disabled = true;
+                    state.pendingImportData = null;
+                    
+                    // Refresh data
+                    await this.loadFixtures();
+                    this.renderAll();
+                    
+                } catch (error) {
+                    this.showToast('Import error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            exportFixtures() {
+                let csv = 'Date,Home Team,Away Team,Status\n';
+                
+                const sortedFixtures = [...state.fixtures].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                sortedFixtures.forEach(f => {
+                    const homeTeam = state.teams.find(t => t.id === f.homeTeamId);
+                    const awayTeam = state.teams.find(t => t.id === f.awayTeamId);
+                    const status = f.completed ? `Completed (${f.homeScore}-${f.awayScore})` : 'Upcoming';
+                    
+                    csv += `${f.date},"${homeTeam?.name || 'Unknown'}","${awayTeam?.name || 'Unknown'}",${status}\n`;
+                });
+                
+                this.downloadFile(csv, 'fixtures.csv', 'text/csv');
+                this.showToast('Fixtures exported!', 'success');
+            },
+
+            exportResults() {
+                let csv = 'Date,Home Team,Away Team,Home Score,Away Score,Winner\n';
+                
+                const completedFixtures = state.fixtures
+                    .filter(f => f.completed && !isByeWeek(f))
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                completedFixtures.forEach(f => {
+                    const homeTeam = state.teams.find(t => t.id === f.homeTeamId);
+                    const awayTeam = state.teams.find(t => t.id === f.awayTeamId);
+                    const winner = (f.homeScore || 0) > (f.awayScore || 0) ? homeTeam?.name : awayTeam?.name;
+                    
+                    csv += `${f.date},"${homeTeam?.name || 'Unknown'}","${awayTeam?.name || 'Unknown'}",${f.homeScore || 0},${f.awayScore || 0},"${winner || 'Draw'}"\n`;
+                });
+                
+                this.downloadFile(csv, 'results.csv', 'text/csv');
+                this.showToast('Results exported!', 'success');
+            },
+
+            exportFullData() {
+                const data = {
+                    exportDate: new Date().toISOString(),
+                    exportedBy: state.userData.username,
+                    teams: state.teams,
+                    players: state.players.map(p => ({ ...p, password: undefined })), // Remove passwords
+                    fixtures: state.fixtures,
+                    trainings: state.trainings
+                };
+                
+                const json = JSON.stringify(data, null, 2);
+                this.downloadFile(json, `backup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+                this.showToast('Full backup exported!', 'success');
+            },
+
+            exportLeagueTable() {
+                const stats = state.teams
+                    .filter(t => !t.isBye && t.id !== 'bye')
+                    .map(team => {
+                        const teamFixtures = state.fixtures.filter(f => 
+                            f.completed && !isByeWeek(f) && (f.homeTeamId === team.id || f.awayTeamId === team.id)
+                        );
+                        let played = 0, won = 0, drawn = 0, lost = 0, framePoints = 0;
+                        teamFixtures.forEach(f => {
+                            played++;
+                            const isHome = f.homeTeamId === team.id;
+                            const ourScore = isHome ? (f.homeScore || 0) : (f.awayScore || 0);
+                            const theirScore = isHome ? (f.awayScore || 0) : (f.homeScore || 0);
+                            framePoints += ourScore;
+                            if (ourScore > theirScore) won++;
+                            else if (ourScore === theirScore) drawn++;
+                            else lost++;
+                        });
+                        return { team: team.name, played, won, drawn, lost, framePoints };
+                    }).sort((a, b) => b.framePoints - a.framePoints);
+                
+                let csv = 'Position,Team,Played,Won,Drawn,Lost,Frame Points\n';
+                stats.forEach((s, i) => {
+                    csv += `${i + 1},"${s.team}",${s.played},${s.won},${s.drawn},${s.lost},${s.framePoints}\n`;
+                });
+                
+                this.downloadFile(csv, 'league_table.csv', 'text/csv');
+                this.showToast('League table exported!', 'success');
+            },
+
+            downloadFile(content, filename, type) {
+                const blob = new Blob([content], { type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+
+            updateImportPreview() {
+                // Clear preview when type changes
+                document.getElementById('importPreview').classList.add('hidden');
+                document.getElementById('importBtn').disabled = true;
+                document.getElementById('importFile').value = '';
+                state.pendingImportData = null;
             },
 
             renderChatMessages(messages) {
@@ -2789,7 +4552,7 @@
                 const winRate = player.stats?.played > 0 ? ((player.stats.won / player.stats.played) * 100).toFixed(1) : 0;
                 
                 let roleBadge = player.role;
-                if (player.isCoCaptain && player.role === 'system-admin') {
+                if (p.isCoCaptain && p.role === 'system-admin') {
                     roleBadge = 'system-admin + co-captain';
                 }
                 
@@ -2958,10 +4721,15 @@
 
             setupRoleBasedFeatures() {
                 const captainBtn = document.getElementById('captainBtn');
+                const trainingBtn = document.getElementById('trainingBtn');
                 const adminPlayersBtn = document.getElementById('adminPlayersBtn');
                 const adminFixturesBtn = document.getElementById('adminFixturesBtn');
+                const adminImportExportBtn = document.getElementById('adminImportExportBtn');
                 const adminTeamSelector = document.getElementById('adminTeamSelector');
                 const viewModeIndicator = document.getElementById('viewModeIndicator');
+                
+                // Show training button for all (they can view), but form only for captains
+                trainingBtn.classList.remove('hidden');
                 
                 if (state.canAccessCaptainPanel) captainBtn.classList.remove('hidden');
                 else captainBtn.classList.add('hidden');
@@ -2969,6 +4737,7 @@
                 if (state.canAccessAdminPanel) {
                     adminPlayersBtn.classList.remove('hidden');
                     adminFixturesBtn.classList.remove('hidden');
+                    adminImportExportBtn.classList.remove('hidden');
                     adminTeamSelector.classList.remove('hidden');
                     viewModeIndicator.classList.remove('hidden');
                     
@@ -2982,6 +4751,7 @@
                 } else {
                     adminPlayersBtn.classList.add('hidden');
                     adminFixturesBtn.classList.add('hidden');
+                    adminImportExportBtn.classList.add('hidden');
                     adminTeamSelector.classList.add('hidden');
                     viewModeIndicator.classList.add('hidden');
                 }
@@ -3152,7 +4922,9 @@
                         authUid: userCred.user.uid,
                         stats: { played: 0, won: 0, lost: 0 },
                         createdAt: serverTimestamp(),
-                        lastLogin: serverTimestamp()
+                        lastLogin: serverTimestamp(),
+                        isFirstLogin: true,
+                        passwordChangeRequired: true
                     };
                     
                     await setDoc(doc(db, 'players', playerId), playerData);
@@ -3644,7 +5416,7 @@
             async clearAllData() {
                 this.showLoading(true);
                 try {
-                    const collections = ['teams', 'players', 'fixtures', 'usernameMappings'];
+                    const collections = ['teams', 'players', 'fixtures', 'usernameMappings', 'trainings'];
                     let deletedCount = 0;
                     
                     for (const col of collections) {
@@ -3684,6 +5456,7 @@
                     state.teams = [];
                     state.players = [];
                     state.fixtures = [];
+                    state.trainings = [];
                     this.renderAll();
                     
                 } catch (error) {
@@ -3734,7 +5507,9 @@
                                 authUid: userCred.user.uid,
                                 email: email,
                                 createdAt: serverTimestamp(),
-                                lastLogin: serverTimestamp()
+                                lastLogin: serverTimestamp(),
+                                isFirstLogin: false,
+                                passwordChangeRequired: false
                             };
                             
                             await setDoc(doc(db, 'players', player.id), playerData);
@@ -3843,6 +5618,7 @@
                 this.renderAll();
                 this.setupPlayerProfileListeners();
                 this.setupChatListener();
+                this.setupTrainingListener();
                 this.showToast(`Viewing: ${state.teams.find(t => t.id === teamId)?.name}`, 'success');
             },
 
@@ -3860,6 +5636,10 @@
                 
                 if (page === 'chat') {
                     this.setupChatListener();
+                }
+
+                if (page === 'training') {
+                    this.renderTraining();
                 }
 
                 // Refresh admin stats if on admin-players page
@@ -3901,9 +5681,185 @@
                 setTimeout(() => toast.remove(), 3000);
             },
 
+            // NEW SEASON FUNCTIONS
+            showNewSeasonModal() {
+                const modal = document.getElementById('newSeasonModal');
+                
+                // Populate current teams list
+                const currentTeamsList = document.getElementById('currentSeasonTeamsList');
+                currentTeamsList.innerHTML = state.teams
+                    .filter(t => !t.isBye)
+                    .map(t => `
+                        <div style="padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 0.25rem; display: flex; justify-content: space-between;">
+                            <span>${t.name}</span>
+                            <span style="color: var(--silver); font-size: 0.8rem;">${t.venue || 'No venue'}</span>
+                        </div>
+                    `).join('');
+                
+                // Set default season name
+                const currentYear = new Date().getFullYear();
+                document.getElementById('newSeasonName').value = `${currentYear}-${currentYear + 1} Season`;
+                
+                modal.classList.add('active');
+            },
+
+            closeNewSeasonModal() {
+                document.getElementById('newSeasonModal').classList.remove('active');
+            },
+
+            addNewTeamRow() {
+                const container = document.getElementById('newTeamsList');
+                const div = document.createElement('div');
+                div.className = 'team-input-row';
+                div.innerHTML = `
+                    <input type="text" class="form-input new-team-name" placeholder="Team Name" required>
+                    <input type="text" class="form-input new-team-venue" placeholder="Venue">
+                    <input type="text" class="form-input new-team-contact" placeholder="Contact">
+                    <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 0.5rem;">×</button>
+                `;
+                container.appendChild(div);
+            },
+
+            async startNewSeason() {
+                const seasonName = document.getElementById('newSeasonName').value.trim();
+                const startDate = document.getElementById('newSeasonStartDate').value;
+                
+                if (!seasonName || !startDate) {
+                    this.showToast('Please fill in season name and start date', 'error');
+                    return;
+                }
+                
+                // Collect new teams
+                const newTeams = [];
+                const teamRows = document.querySelectorAll('.team-input-row');
+                teamRows.forEach(row => {
+                    const name = row.querySelector('.new-team-name').value.trim();
+                    const venue = row.querySelector('.new-team-venue').value.trim();
+                    const contact = row.querySelector('.new-team-contact').value.trim();
+                    
+                    if (name) {
+                        newTeams.push({
+                            id: name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+                            name,
+                            venue,
+                            contact,
+                            section: 'Blackball Section 3',
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                });
+                
+                if (newTeams.length === 0) {
+                    this.showToast('Please add at least one team', 'error');
+                    return;
+                }
+                
+                if (!confirm(`Are you sure you want to start a new season?\n\n${newTeams.length} teams will be created.\nCurrent season data will be archived.\n\nThis action cannot be undone.`)) {
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    // 1. Archive current season
+                    const archiveData = {
+                        seasonName: seasonName,
+                        archivedAt: new Date().toISOString(),
+                        archivedBy: state.userData.id,
+                        teams: state.teams,
+                        players: state.players.map(p => ({ ...p, password: undefined })),
+                        fixtures: state.fixtures,
+                        finalStandings: this.calculateFinalStandings()
+                    };
+                    
+                    await setDoc(doc(db, 'seasonArchives', `season_${new Date().getFullYear()}`), archiveData);
+                    
+                    // 2. Clear current fixtures and create new teams
+                    const batch = writeBatch(db);
+                    
+                    // Delete old fixtures
+                    const fixturesSnapshot = await getDocs(collection(db, 'fixtures'));
+                    fixturesSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    // Delete old trainings
+                    const trainingsSnapshot = await getDocs(collection(db, 'trainings'));
+                    trainingsSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    // Delete old teams (except BYE)
+                    const teamsSnapshot = await getDocs(collection(db, 'teams'));
+                    teamsSnapshot.forEach(doc => {
+                        if (doc.id !== 'bye') {
+                            batch.delete(doc.ref);
+                        }
+                    });
+                    
+                    await batch.commit();
+                    
+                    // Create new teams
+                    for (const team of newTeams) {
+                        await setDoc(doc(db, 'teams', team.id), team);
+                    }
+                    
+                    // Reset player stats
+                    for (const player of state.players) {
+                        await updateDoc(doc(db, 'players', player.id), {
+                            stats: { played: 0, won: 0, lost: 0 },
+                            teamId: null // Players will need to be reassigned
+                        });
+                    }
+                    
+                    this.showToast('New season created successfully!', 'success');
+                    this.closeNewSeasonModal();
+                    
+                    // Reload data
+                    await this.loadAllData();
+                    
+                } catch (error) {
+                    console.error('Error creating new season:', error);
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            calculateFinalStandings() {
+                return state.teams
+                    .filter(t => !t.isBye && t.id !== 'bye')
+                    .map(team => {
+                        const teamFixtures = state.fixtures.filter(f => 
+                            f.completed && !isByeWeek(f) && (f.homeTeamId === team.id || f.awayTeamId === team.id)
+                        );
+                        let played = 0, won = 0, drawn = 0, lost = 0, framePoints = 0;
+                        teamFixtures.forEach(f => {
+                            played++;
+                            const isHome = f.homeTeamId === team.id;
+                            const ourScore = isHome ? (f.homeScore || 0) : (f.awayScore || 0);
+                            const theirScore = isHome ? (f.awayScore || 0) : (f.homeScore || 0);
+                            framePoints += ourScore;
+                            if (ourScore > theirScore) won++;
+                            else if (ourScore === theirScore) drawn++;
+                            else lost++;
+                        });
+                        return { 
+                            teamId: team.id,
+                            teamName: team.name, 
+                            played, 
+                            won, 
+                            drawn, 
+                            lost, 
+                            framePoints 
+                        };
+                    }).sort((a, b) => b.framePoints - a.framePoints);
+            },
+
             async logout() {
                 state.playerProfilesUnsubscribers.forEach(unsub => unsub());
                 if (state.chatUnsubscriber) state.chatUnsubscriber();
+                if (state.trainingUnsubscriber) state.trainingUnsubscriber();
                 await signOut(auth);
             }
         };
