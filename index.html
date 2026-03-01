@@ -1,0 +1,3918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rack Café United - Pool Team Management</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --white: #ffffff;
+            --black: #0f0f1a;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --bye: #6c757d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--black) 0%, var(--primary) 50%, var(--secondary) 100%);
+            position: relative;
+        }
+        
+        /* Burger Menu Navbar */
+        .navbar {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--accent);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .nav-brand h1 {
+            color: var(--gold);
+            font-size: 1.3rem;
+            margin: 0;
+        }
+        
+        .nav-brand p {
+            color: var(--silver);
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        /* User Info in Header */
+        .user-info-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(233, 69, 96, 0.15);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 25px;
+            margin-right: 1rem;
+        }
+
+        .user-avatar-small {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--black);
+            font-size: 0.9rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            color: var(--silver);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .user-info-header {
+                display: none;
+            }
+        }
+        
+        /* Burger Menu Button */
+        .burger-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+        
+        .burger-menu span {
+            width: 100%;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .burger-menu.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .burger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .burger-menu.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+        
+        /* Navigation Panel */
+        .nav-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 350px;
+            height: 100vh;
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(10px);
+            border-left: 3px solid var(--accent);
+            transition: right 0.3s ease;
+            z-index: 999;
+            padding: 5rem 2rem 2rem;
+            overflow-y: auto;
+        }
+        
+        .nav-panel.active {
+            right: 0;
+        }
+        
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 998;
+        }
+        
+        .nav-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--white);
+            padding: 0.75rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+        }
+
+        /* Admin Nav Button Special Styling */
+        .nav-btn.admin-nav-btn {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(233, 69, 96, 0.1));
+            border-color: var(--gold);
+            color: var(--gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn.admin-nav-btn::before {
+            content: '⚡';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .nav-btn.admin-nav-btn:hover {
+            background: linear-gradient(135deg, var(--gold), #ff9500);
+            color: var(--black);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .nav-divider {
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            margin: 1rem 0;
+        }
+        
+        .admin-team-selector {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+            border: 2px solid var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .admin-team-selector label {
+            color: var(--gold);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .admin-team-selector select {
+            width: 100%;
+            background: var(--primary);
+            color: var(--white);
+            border: 1px solid var(--accent);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .view-mode-indicator {
+            background: linear-gradient(135deg, var(--gold), #ff9500);
+            color: var(--black);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .logout-btn {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            margin-top: 1rem;
+        }
+        
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(255, 215, 0, 0.1));
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+        
+        .form-group { margin-bottom: 1rem; }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 1rem;
+        }
+        
+        .form-select {
+            background-color: rgba(26, 26, 46, 0.9);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #ff6b6b);
+            color: var(--white);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+        
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: var(--black); }
+        .btn-info { background: var(--info); color: white; }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), #ff9500);
+            color: var(--black);
+            border: 2px solid var(--gold);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--black) 0%, var(--primary) 100%);
+        }
+        
+        .login-box {
+            background: rgba(26, 26, 46, 0.9);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 3px solid var(--accent);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .data-table th {
+            background: rgba(233, 69, 96, 0.3);
+            padding: 1rem;
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .hidden { display: none !important; }
+        
+        .error-message {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .success-message {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid var(--success);
+            color: var(--success);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        /* Enhanced Fixture Styles */
+        .fixture-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fixture-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .fixture-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent);
+        }
+        
+        /* BYE Week Styling */
+        .fixture-card.bye-week {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.2) 0%, rgba(108, 117, 125, 0.05) 100%);
+            border-color: var(--bye);
+        }
+        
+        .fixture-card.bye-week::before {
+            background: var(--bye);
+        }
+        
+        .fixture-card.bye-week:hover {
+            box-shadow: 0 10px 30px rgba(108, 117, 125, 0.2);
+            border-color: var(--bye);
+        }
+        
+        .bye-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(108, 117, 125, 0.3);
+            border: 2px solid var(--bye);
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            color: var(--silver);
+        }
+        
+        .bye-indicator .icon {
+            font-size: 1.5rem;
+        }
+        
+        .fixture-teams {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+        
+        .fixture-team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .fixture-team.home {
+            align-items: flex-start;
+            text-align: left;
+        }
+        
+        .fixture-team.away {
+            align-items: flex-end;
+            text-align: right;
+        }
+        
+        .fixture-team-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--white);
+            margin-bottom: 0.25rem;
+        }
+        
+        .fixture-team-venue {
+            font-size: 0.8rem;
+            color: var(--silver);
+        }
+        
+        .fixture-vs {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+        
+        .vs-badge {
+            background: linear-gradient(135deg, var(--accent), #ff6b6b);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .vs-badge.bye {
+            background: linear-gradient(135deg, var(--bye), #8e99a4);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+        
+        .fixture-date {
+            font-size: 0.8rem;
+            color: var(--silver);
+            margin-top: 0.5rem;
+        }
+        
+        .fixture-result {
+            text-align: right;
+            min-width: 100px;
+        }
+        
+        .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+        
+        .status-upcoming {
+            background: rgba(23, 162, 184, 0.2);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+        
+        .status-completed {
+            background: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .status-bye {
+            background: rgba(108, 117, 125, 0.2);
+            color: var(--silver);
+            border: 1px solid var(--bye);
+        }
+        
+        .frame-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 100px;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            align-items: center;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+        
+        .toast {
+            background: var(--secondary);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            min-width: 300px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: var(--secondary);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid var(--accent);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--silver);
+        }
+        
+        .debug-info {
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--silver);
+            text-align: left;
+        }
+        
+        .break-week-banner {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.3), rgba(108, 117, 125, 0.1));
+            border: 2px dashed var(--bye);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .break-week-banner h3 {
+            color: var(--silver);
+            margin-bottom: 0.5rem;
+        }
+        
+        .break-week-banner p {
+            color: var(--silver);
+            opacity: 0.8;
+        }
+        
+        .next-fixture-highlight {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(233, 69, 96, 0.1));
+            border: 2px solid var(--gold);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(255, 215, 0, 0.2); }
+        }
+        
+        /* Admin Result Entry Styles */
+        .admin-fixture-selector {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .score-input-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .score-input-team {
+            text-align: center;
+        }
+        
+        .score-input-team h4 {
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-input-box {
+            width: 80px;
+            height: 60px;
+            font-size: 2rem;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            color: var(--white);
+        }
+        
+        .score-divider {
+            font-size: 1.5rem;
+            color: var(--silver);
+            font-weight: bold;
+        }
+        
+        .frame-entry-header {
+            display: grid;
+            grid-template-columns: 60px 1fr 1fr 120px;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: rgba(233, 69, 96, 0.2);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+        
+        .admin-frame-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 1fr 120px;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            align-items: center;
+        }
+        
+        /* Edit Result Button */
+        .edit-result-btn {
+            background: rgba(23, 162, 184, 0.2);
+            border: 2px solid var(--info);
+            color: var(--info);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .edit-result-btn:hover {
+            background: var(--info);
+            color: white;
+        }
+        
+        /* Completed Fixture with Edit */
+        .fixture-card.completed-editable {
+            border-color: var(--success);
+        }
+        
+        .fixture-card.completed-editable::before {
+            background: var(--success);
+        }
+        
+        /* Player Profile Styles */
+        .player-profile-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(233,69,96,0.05));
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .player-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--black);
+        }
+        
+        .player-profile-name {
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin: 0;
+        }
+        
+        .player-profile-role {
+            color: var(--silver);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .player-stat-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .player-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gold);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .player-stat-label {
+            font-size: 0.75rem;
+            color: var(--silver);
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+        
+        .match-history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .match-history-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+        }
+        
+        .match-history-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(5px);
+        }
+        
+        .match-result-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .match-result-indicator.win {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid var(--success);
+            color: var(--success);
+        }
+        
+        .match-result-indicator.loss {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .match-history-details {
+            font-size: 0.9rem;
+        }
+        
+        .match-history-score {
+            font-weight: bold;
+            color: var(--gold);
+        }
+        
+        .match-history-meta {
+            color: var(--silver);
+            font-size: 0.8rem;
+        }
+        
+        .match-history-frames {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .live-update-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 212, 132, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        .live-update-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+        
+        /* TEAM CHAT STYLES */
+        .chat-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding-right: 0.5rem;
+        }
+        
+        .chat-message {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .chat-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chat-author {
+            font-weight: bold;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chat-time {
+            font-size: 0.75rem;
+            color: var(--silver);
+        }
+        
+        .chat-text {
+            color: var(--white);
+            line-height: 1.5;
+        }
+        
+        .chat-reactions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .reaction {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .reaction:hover {
+            background: rgba(233, 69, 96, 0.3);
+            border-color: var(--accent);
+            transform: scale(1.1);
+        }
+        
+        .reaction.active {
+            background: rgba(233, 69, 96, 0.5);
+            border-color: var(--accent);
+        }
+        
+        .add-reaction {
+            background: transparent;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            color: var(--silver);
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        
+        .chat-message:hover .add-reaction {
+            opacity: 1;
+        }
+        
+        .reaction-picker {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: var(--secondary);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 0.5rem;
+            display: none;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .reaction-picker.active {
+            display: flex;
+        }
+        
+        .reaction-emoji {
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .reaction-emoji:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.2);
+        }
+        
+        .chat-input-area {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 0.75rem 1rem;
+            color: var(--white);
+            font-size: 1rem;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .chat-send-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .chat-send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+        }
+        
+        .typing-indicator {
+            color: var(--silver);
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .typing-indicator.active {
+            opacity: 1;
+        }
+        
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(255, 215, 0, 0.1));
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .welcome-text span {
+            color: var(--white);
+            font-weight: bold;
+        }
+
+        .welcome-date {
+            color: var(--silver);
+            font-size: 0.9rem;
+        }
+
+        /* Admin Player Management Styles - ENHANCED */
+        .admin-player-management {
+            background: rgba(255, 215, 0, 0.05);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-section-title {
+            color: var(--gold);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .player-management-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .player-management-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .management-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .management-panel h4 {
+            color: var(--gold);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .player-list-admin {
+            max-height: 500px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        .player-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .player-list-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(5px);
+            border-left-color: var(--gold);
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: var(--white);
+            font-size: 1rem;
+        }
+
+        .player-team {
+            font-size: 0.85rem;
+            color: var(--silver);
+            margin-top: 0.25rem;
+        }
+
+        .player-role-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+            font-weight: bold;
+        }
+
+        .role-admin { background: rgba(255, 215, 0, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        .role-captain { background: rgba(233, 69, 96, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+        .role-co-captain { background: rgba(255, 149, 0, 0.2); color: #ff9500; border: 1px solid #ff9500; }
+        .role-player { background: rgba(192, 192, 192, 0.2); color: var(--silver); border: 1px solid var(--silver); }
+
+        .remove-player-btn {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-player-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .add-player-btn {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1));
+            border: 2px solid var(--success);
+            color: var(--success);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .add-player-btn:hover {
+            background: var(--success);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-box-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .stat-box-label {
+            font-size: 0.8rem;
+            color: var(--silver);
+            text-transform: uppercase;
+        }
+
+        /* Quick Action Cards */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(233, 69, 96, 0.05));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .quick-action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action-title {
+            color: var(--gold);
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-action-desc {
+            color: var(--silver);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .nav-brand h1 {
+                font-size: 1.1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .score-input-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .score-divider {
+                transform: rotate(90deg);
+                margin: 0.5rem 0;
+            }
+            
+            .chat-container {
+                height: 400px;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .player-management-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay active">
+        <div class="spinner"></div>
+        <p style="color: var(--silver); margin-top: 1rem;">Initializing...</p>
+        <p id="loadingStatus" style="color: var(--silver); font-size: 0.8rem; margin-top: 0.5rem;">Loading Firebase...</p>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navigation Overlay -->
+    <div class="nav-overlay" id="navOverlay" onclick="app.toggleMenu()"></div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container hidden">
+        <div class="login-box">
+            <h2 style="color: var(--gold); margin-bottom: 0.5rem;">🎱 Rack Café United</h2>
+            <p style="color: var(--silver); margin-bottom: 2rem;">Pool Team Management</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="loginUsername" class="form-input" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button type="button" class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;" onclick="app.initializeDatabase()">
+                    ⚙️ Initialize Database
+                </button>
+                <button type="button" class="btn btn-warning" style="width: 100%;" onclick="app.checkStatus()">
+                    🔍 Check Status
+                </button>
+            </div>
+            
+            <div id="loginMessage"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appContent" class="app-container hidden">
+        <!-- Navbar with Burger Menu -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>🎱 Rack Café United</h1>
+                <p>Blackball Section 3</p>
+            </div>
+
+            <!-- User Info Header -->
+            <div class="user-info-header" id="userInfoHeader">
+                <div class="user-avatar-small" id="headerUserAvatar">?</div>
+                <div class="user-details">
+                    <span class="user-name" id="headerUserName">Loading...</span>
+                    <span class="user-role" id="headerUserRole">...</span>
+                </div>
+            </div>
+            
+            <button class="burger-menu" id="burgerMenu" onclick="app.toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+
+        <!-- Navigation Panel (Slide-out) -->
+        <div class="nav-panel" id="navPanel">
+            <div id="menuHeader">
+                <span id="viewModeIndicator" class="view-mode-indicator hidden">Admin View</span>
+            </div>
+            
+            <div class="admin-team-selector hidden" id="adminTeamSelector">
+                <label>View Team:</label>
+                <select id="adminTeamDropdown" onchange="app.switchTeam(this.value)">
+                    <option value="">Select...</option>
+                </select>
+            </div>
+            
+            <div class="nav-links">
+                <button class="nav-btn active" onclick="app.showPage('dashboard'); app.toggleMenu()">Dashboard</button>
+                <button class="nav-btn" onclick="app.showPage('table'); app.toggleMenu()">League Table</button>
+                <button class="nav-btn" onclick="app.showPage('fixtures'); app.toggleMenu()">Fixtures & Results</button>
+                <button class="nav-btn" onclick="app.showPage('team'); app.toggleMenu()">Team Players</button>
+                <button class="nav-btn" onclick="app.showPage('chat'); app.toggleMenu()">Team Chat</button>
+                
+                <div class="nav-divider"></div>
+                
+                <button class="nav-btn hidden" id="captainBtn" onclick="app.showPage('captain'); app.toggleMenu()">Captain Panel</button>
+                
+                <!-- Admin Navigation - Prominent -->
+                <button class="nav-btn hidden admin-nav-btn" id="adminPlayersBtn" onclick="app.showPage('admin-players'); app.toggleMenu()">
+                    👥 Manage Players
+                </button>
+                <button class="nav-btn hidden admin-nav-btn" id="adminFixturesBtn" onclick="app.showPage('admin'); app.toggleMenu()">
+                    🏆 Manage Fixtures
+                </button>
+                
+                <div class="nav-divider"></div>
+                
+                <button class="nav-btn logout-btn" onclick="app.logout()">Logout</button>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div id="page-dashboard" class="page active">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner" id="welcomeBanner">
+                    <div>
+                        <div class="welcome-text">Welcome back, <span id="welcomePlayerName">Player</span>! 👋</div>
+                        <div class="welcome-date" id="welcomeDate">Loading date...</div>
+                    </div>
+                    <div style="font-size: 2rem;">🎱</div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Next Fixture</h3>
+                            <span id="fixtureCountdown" style="color: var(--silver); font-size: 0.9rem;"></span>
+                        </div>
+                        <div id="nextFixture">Loading...</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Team Stats</h3>
+                        </div>
+                        <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="stat-card">
+                                <div class="stat-value" id="statPlayed">0</div>
+                                <div style="color: var(--silver);">Played</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="statWon">0</div>
+                                <div style="color: var(--silver);">Won</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="statPoints">0</div>
+                                <div style="color: var(--silver);">Frame Pts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Fixtures Preview -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Upcoming Fixtures</h3>
+                    </div>
+                    <div id="upcomingFixturesPreview">Loading...</div>
+                </div>
+            </div>
+
+            <!-- League Table -->
+            <div id="page-table" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">League Table</h3>
+                        <span style="color: var(--silver);">Points = Frames Won (Max 10)</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Team</th>
+                                    <th>Pl</th>
+                                    <th>W</th>
+                                    <th>D</th>
+                                    <th>L</th>
+                                    <th>Frame Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leagueTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fixtures -->
+            <div id="page-fixtures" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Fixtures & Results</h3>
+                    </div>
+                    <div id="fixturesList">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Team Players -->
+            <div id="page-team" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Team Players</h3>
+                        <span class="live-update-badge" id="teamLiveBadge">Live Updates</span>
+                    </div>
+                    <div id="teamPlayers">Loading...</div>
+                </div>
+                
+                <!-- Player Detail Modal -->
+                <div id="playerDetailModal" class="modal">
+                    <div class="modal-content" style="max-width: 800px;">
+                        <div class="card-header">
+                            <h3 class="card-title">Player Profile</h3>
+                            <button class="btn btn-secondary" onclick="app.closePlayerModal()">Close</button>
+                        </div>
+                        <div id="playerDetailContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEAM CHAT PAGE -->
+            <div id="page-chat" class="page">
+                <div class="dashboard-grid" style="grid-template-columns: 1fr 300px;">
+                    <div class="chat-container">
+                        <div class="card-header">
+                            <h3 class="card-title">💬 Team Chat</h3>
+                            <span class="live-update-badge">Live</span>
+                        </div>
+                        <div class="typing-indicator" id="typingIndicator">Someone is typing...</div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💬</div>
+                                <p>No messages yet. Start the conversation!</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." maxlength="500">
+                            <button class="chat-send-btn" onclick="app.sendChatMessage()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Online Now</h3>
+                            </div>
+                            <div id="onlineUsers">
+                                <p style="color: var(--silver);">Loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 1rem;">
+                            <div class="card-header">
+                                <h3 class="card-title">Chat Info</h3>
+                            </div>
+                            <p style="color: var(--silver); font-size: 0.9rem;">
+                                💡 Click the + button on messages to add reactions<br><br>
+                                👥 Only team members can see this chat<br><br>
+                                🔒 Messages are stored securely
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Captain Panel -->
+            <div id="page-captain" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Enter Results</h3>
+                        <span style="color: var(--silver); font-size: 0.8rem;">Captain & Co-Captain Only</span>
+                    </div>
+                    <form id="resultForm" onsubmit="app.submitResult(event)">
+                        <div class="form-group">
+                            <label>Select Fixture</label>
+                            <select id="resultFixture" class="form-select" required onchange="app.loadFixturePlayers(this.value)">
+                                <option value="">Select...</option>
+                            </select>
+                        </div>
+                        <div id="framesContainer"></div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Submit Result</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ADMIN PLAYERS PAGE - Dedicated Full Page -->
+            <div id="page-admin-players" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">👥 Player Management Center</h3>
+                        <span style="color: var(--gold); font-size: 0.8rem;">System Administrator Access</span>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="stats-summary">
+                        <div class="stat-box">
+                            <div class="stat-box-number" id="totalPlayersCount">0</div>
+                            <div class="stat-box-label">Total Players</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-number" id="totalTeamsCount">0</div>
+                            <div class="stat-box-label">Teams</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-number" id="adminsCount">0</div>
+                            <div class="stat-box-label">Admins</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions-grid">
+                        <div class="quick-action-card" onclick="app.scrollToAddPlayer()">
+                            <div class="quick-action-icon">➕</div>
+                            <div class="quick-action-title">Add New Player</div>
+                            <div class="quick-action-desc">Create account for any team</div>
+                        </div>
+                        <div class="quick-action-card" onclick="app.scrollToRemovePlayer()">
+                            <div class="quick-action-icon">🗑️</div>
+                            <div class="quick-action-title">Remove Player</div>
+                            <div class="quick-action-desc">Delete accounts from any team</div>
+                        </div>
+                        <div class="quick-action-card" onclick="app.showPage('admin')">
+                            <div class="quick-action-icon">🏆</div>
+                            <div class="quick-action-title">Manage Fixtures</div>
+                            <div class="quick-action-desc">Go to fixture management</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-player-management">
+                    <div class="player-management-grid">
+                        <!-- Add Player Section -->
+                        <div class="management-panel" id="addPlayerSection">
+                            <h4>➕ Add New Player</h4>
+                            <form id="adminAddPlayerForm" onsubmit="app.adminAddPlayer(event)">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" id="newPlayerName" class="form-input" placeholder="e.g. John Smith" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Username *</label>
+                                    <input type="text" id="newPlayerUsername" class="form-input" placeholder="e.g. JSmith" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password *</label>
+                                    <input type="password" id="newPlayerPassword" class="form-input" placeholder="Temporary password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="newPlayerEmail" class="form-input" placeholder="player@email.com (optional)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Team *</label>
+                                    <select id="newPlayerTeam" class="form-select" required>
+                                        <option value="">Select team...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Role *</label>
+                                    <select id="newPlayerRole" class="form-select" required>
+                                        <option value="player">Player</option>
+                                        <option value="captain">Captain</option>
+                                        <option value="co-captain">Co-Captain</option>
+                                        <option value="system-admin">System Admin</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success" style="width: 100%;">
+                                    ✓ Create Player Account
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Remove Player Section -->
+                        <div class="management-panel" id="removePlayerSection">
+                            <h4>🗑️ Remove Player</h4>
+                            
+                            <div class="filter-controls">
+                                <select id="removePlayerTeamFilter" class="form-select" onchange="app.filterPlayersForRemoval()" style="flex: 1;">
+                                    <option value="">All Teams</option>
+                                </select>
+                                <input type="text" id="searchPlayerInput" class="form-input search-box" placeholder="🔍 Search players..." onkeyup="app.searchPlayers()">
+                            </div>
+                            
+                            <div class="player-list-admin" id="adminPlayerList">
+                                <p style="color: var(--silver); text-align: center; padding: 2rem;">Loading players...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel (Fixtures & System) -->
+            <div id="page-admin" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏆 Fixture & System Management</h3>
+                        <span style="color: var(--gold); font-size: 0.8rem;">System Admin Only</span>
+                    </div>
+                    
+                    <!-- Quick Navigation Back to Players -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <button class="btn btn-gold" onclick="app.showPage('admin-players')">
+                            ← Back to Player Management
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Admin Result Entry -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Enter/Edit Fixture Result</h3>
+                            <span style="color: var(--silver); font-size: 0.8rem;">Admin Override</span>
+                        </div>
+                        <form id="adminResultForm" onsubmit="app.submitAdminResult(event)">
+                            <div class="admin-fixture-selector">
+                                <div class="form-group">
+                                    <label style="color: var(--gold); font-weight: bold;">Select Fixture</label>
+                                    <select id="adminResultFixture" class="form-select" required onchange="app.loadAdminFixtureDetails(this.value)">
+                                        <option value="">Choose fixture...</option>
+                                    </select>
+                                </div>
+                                <div id="adminFixturePreview" style="margin-top: 0.5rem; color: var(--silver); font-size: 0.9rem;"></div>
+                                <div id="editModeIndicator" style="display: none; margin-top: 0.5rem; padding: 0.5rem; background: rgba(255, 193, 7, 0.2); border: 1px solid var(--warning); border-radius: 8px; color: var(--warning); font-size: 0.85rem;">
+                                    ✏️ EDIT MODE: Modifying existing result
+                                </div>
+                            </div>
+                            
+                            <div id="adminScoreSection" style="display: none;">
+                                <div class="score-input-grid">
+                                    <div class="score-input-team">
+                                        <h4 id="adminHomeTeamName">Home</h4>
+                                        <input type="number" id="adminHomeScore" class="score-input-box" min="0" max="10" value="0" required>
+                                    </div>
+                                    <div class="score-divider">VS</div>
+                                    <div class="score-input-team">
+                                        <h4 id="adminAwayTeamName">Away</h4>
+                                        <input type="number" id="adminAwayScore" class="score-input-box" min="0" max="10" value="0" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" id="adminEnterFrameDetails" style="width: auto;" onchange="app.toggleAdminFrameDetails()">
+                                        <span>Enter individual frame details (optional)</span>
+                                    </label>
+                                </div>
+                                
+                                <div id="adminFramesContainer" style="display: none;">
+                                    <div class="frame-entry-header">
+                                        <div>Frame</div>
+                                        <div>Home Player</div>
+                                        <div>Away Player</div>
+                                        <div>Winner</div>
+                                    </div>
+                                    <div id="adminFrameRows"></div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="adminSubmitBtn">
+                                    Submit Result
+                                </button>
+                                <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="app.resetAdminForm()">
+                                    Cancel / Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Edit Previous Results List -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Edit Previous Results</h3>
+                        </div>
+                        <div id="completedFixturesList" style="max-height: 400px; overflow-y: auto;">
+                            Loading completed fixtures...
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Add Fixture</h3>
+                        </div>
+                        <form onsubmit="app.addFixture(event)">
+                            <div class="form-group">
+                                <label>Home Team</label>
+                                <select id="newFixtureHome" class="form-select" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Away Team</label>
+                                <select id="newFixtureAway" class="form-select" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="newFixtureDate" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="newFixtureIsBye" style="width: auto;">
+                                    <span>This is a BYE week (break week)</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Add Fixture</button>
+                        </form>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">System Management</h3>
+                        </div>
+                        <button class="btn btn-danger" style="width: 100%; margin-bottom: 0.5rem;" onclick="app.confirmClearAllData()">
+                            🗑️ Clear All Data
+                        </button>
+                        <button class="btn btn-warning" style="width: 100%; margin-bottom: 0.5rem;" onclick="app.loadSampleData()">
+                            📊 Load Sample Data
+                        </button>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="app.initializeDatabase()">
+                            🔄 Re-initialize Database
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, orderBy, addDoc, serverTimestamp, writeBatch, onSnapshot, limit } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4TOapJljZfiNcFcCar69fDhuE-vF6_Fw",
+            authDomain: "rack-cafe-united-pool-team.firebaseapp.com",
+            projectId: "rack-cafe-united-pool-team",
+            storageBucket: "rack-cafe-united-pool-team.firebasestorage.app",
+            messagingSenderId: "301844109745",
+            appId: "1:301844109745:web:a8d3fd7abe86ad92e70590"
+        };
+
+        let app, auth, db;
+        
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (error) {
+            document.getElementById('loadingStatus').textContent = 'Error: ' + error.message;
+            throw error;
+        }
+
+        const state = {
+            currentUser: null,
+            userData: null,
+            teams: [],
+            players: [],
+            fixtures: [],
+            currentTeamId: null,
+            isSystemAdmin: false,
+            isCaptain: false,
+            isCoCaptain: false,
+            canAccessCaptainPanel: false,
+            canAccessAdminPanel: false,
+            viewMode: 'team',
+            editingFixtureId: null,
+            playerProfilesUnsubscribers: [],
+            chatUnsubscriber: null
+        };
+
+        // UPDATED: Tom Hayes-Smith has both system-admin AND co-captain roles
+        const sampleData = {
+            teams: [
+                { id: 'rack-cafe-united', name: 'Rack Café United', section: 'Blackball Section 3', venue: 'Rack Café', address: 'Huddersfield', contact: '01484' },
+                { id: 'carlton-club', name: 'Carlton Club', section: 'Blackball Section 3', venue: 'Carlton Club', address: 'Huddersfield', contact: '' },
+                { id: 'marsh-lib', name: 'Marsh Lib', section: 'Blackball Section 3', venue: 'Marsh Liberal Club', address: 'Huddersfield', contact: '01484 420152' },
+                { id: 'longwood-bc-wed', name: 'Longwood BC Wednesday', section: 'Blackball Section 3', venue: 'Longwood BC', address: 'Huddersfield', contact: '' },
+                { id: 'milnsbridge-lib-d', name: 'Milnsbridge Lib D', section: 'Blackball Section 3', venue: 'Milnsbridge Lib', address: 'Huddersfield', contact: '' },
+                { id: 'monkey-club', name: 'Monkey Club', section: 'Blackball Section 3', venue: 'Monkey Club', address: 'Huddersfield', contact: '' },
+                { id: 'ashfield-massive', name: 'Ashfield Massive', section: 'Blackball Section 3', venue: 'Ashfield Club', address: 'Lepton', contact: '01484 621322' },
+                { id: 'cavalry-arms-jaegers', name: 'Cavalry Arms Jaegers', section: 'Blackball Section 3', venue: 'Cavalry Arms', address: 'Huddersfield', contact: '' },
+                { id: 'junction-marsh-a', name: 'Junction (Marsh) A', section: 'Blackball Section 3', venue: 'Junction', address: 'Marsh', contact: '' },
+                { id: 'bye', name: 'BYE', section: 'Blackball Section 3', venue: 'N/A', address: 'Break Week', contact: '', isBye: true }
+            ],
+            players: [
+                { id: 'bdannatt', username: 'BDannatt', password: 'HTAFC26', name: 'Brandon Dannatt', email: 'bdannatt@sky.com', teamId: 'rack-cafe-united', role: 'captain', stats: { played: 0, won: 0, lost: 0 } },
+                { id: 'thayes-smith', username: 'THayes-Smith', password: '071122Mia', name: 'Tom Hayes-Smith', email: 'thayessmith@gmail.com', teamId: 'rack-cafe-united', role: 'system-admin', isCoCaptain: true, stats: { played: 0, won: 0, lost: 0 } },
+                { id: 'cshearon', username: 'CShearon', password: 'Rack26', name: 'Chris Shearon', email: 'shearonchristian@gmail.com', teamId: 'rack-cafe-united', role: 'co-captain', stats: { played: 0, won: 0, lost: 0 } },
+                { id: 'tdannatt', username: 'TDannatt', password: 'Rack26', name: 'Terry Dannatt', email: '', teamId: 'rack-cafe-united', role: 'player', stats: { played: 0, won: 0, lost: 0 } }
+            ]
+        };
+
+        function isByeWeek(fixture) {
+            return fixture.isBye || fixture.homeTeamId === 'bye' || fixture.awayTeamId === 'bye';
+        }
+
+        function hasDatePassed(dateString) {
+            const fixtureDate = new Date(dateString);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return fixtureDate < today;
+        }
+
+        window.app = {
+            async init() {
+                try {
+                    const loginForm = document.getElementById('loginForm');
+                    if (loginForm) {
+                        loginForm.addEventListener('submit', (e) => this.login(e));
+                    }
+                    
+                    const chatInput = document.getElementById('chatInput');
+                    if (chatInput) {
+                        chatInput.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') this.sendChatMessage();
+                        });
+                    }
+                    
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            await this.loadUserData(user);
+                        } else {
+                            this.showLogin();
+                        }
+                    });
+                } catch (error) {
+                    this.showMessage('Initialization error: ' + error.message, 'error');
+                    this.showLogin();
+                }
+            },
+
+            toggleMenu() {
+                const burger = document.getElementById('burgerMenu');
+                const panel = document.getElementById('navPanel');
+                const overlay = document.getElementById('navOverlay');
+                
+                burger.classList.toggle('active');
+                panel.classList.toggle('active');
+                overlay.classList.toggle('active');
+            },
+
+            async login(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                this.showLoading(true);
+                
+                try {
+                    // FIXED: First check if username mapping exists
+                    const mappingDoc = await getDoc(doc(db, 'usernameMappings', username));
+                    
+                    if (!mappingDoc.exists()) {
+                        throw new Error('Username not found. Click "Initialize Database" first.');
+                    }
+                    
+                    const mappingData = mappingDoc.data();
+                    const email = mappingData.email;
+                    
+                    // FIXED: Sign in with email/password
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    
+                    // FIXED: Immediately link authUid to player document
+                    if (mappingData.playerId) {
+                        await updateDoc(doc(db, 'players', mappingData.playerId), {
+                            authUid: userCredential.user.uid,
+                            lastLogin: serverTimestamp()
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showMessage('Login failed: ' + error.message, 'error');
+                    this.showLoading(false);
+                }
+            },
+
+            async loadUserData(user) {
+                try {
+                    console.log('Loading user data for UID:', user.uid);
+                    
+                    // FIXED: First try to find player by authUid
+                    let q = query(collection(db, 'players'), where('authUid', '==', user.uid));
+                    let snapshot = await getDocs(q);
+                    
+                    console.log('Found by authUid:', snapshot.size);
+                    
+                    // If not found, try by email
+                    if (snapshot.empty) {
+                        console.log('Not found by authUid, trying email:', user.email);
+                        q = query(collection(db, 'players'), where('email', '==', user.email));
+                        snapshot = await getDocs(q);
+                        console.log('Found by email:', snapshot.size);
+                        
+                        // If found by email but no authUid, update it
+                        if (!snapshot.empty) {
+                            const playerDoc = snapshot.docs[0];
+                            await updateDoc(doc(db, 'players', playerDoc.id), { 
+                                authUid: user.uid,
+                                lastLogin: serverTimestamp()
+                            });
+                            console.log('Updated authUid for player:', playerDoc.id);
+                        }
+                    }
+                    
+                    if (snapshot.empty) {
+                        throw new Error('Player data not found. Please contact admin.');
+                    }
+                    
+                    state.userData = snapshot.docs[0].data();
+                    state.userData.id = snapshot.docs[0].id;
+                    
+                    console.log('User data loaded:', state.userData);
+                    
+                    state.currentUser = user;
+                    state.currentTeamId = state.userData.teamId;
+                    state.viewMode = 'team';
+                    
+                    // Check roles
+                    state.isSystemAdmin = state.userData.role === 'system-admin';
+                    state.isCaptain = state.userData.role === 'captain';
+                    state.isCoCaptain = state.userData.role === 'co-captain' || state.userData.isCoCaptain === true;
+                    state.canAccessCaptainPanel = state.isCaptain || state.isCoCaptain || state.isSystemAdmin;
+                    state.canAccessAdminPanel = state.isSystemAdmin;
+                    
+                    console.log('Roles:', {
+                        isSystemAdmin: state.isSystemAdmin,
+                        isCaptain: state.isCaptain,
+                        isCoCaptain: state.isCoCaptain,
+                        canAccessCaptainPanel: state.canAccessCaptainPanel,
+                        canAccessAdminPanel: state.canAccessAdminPanel
+                    });
+                    
+                    this.showApp();
+                    await this.loadAllData();
+                    
+                } catch (error) {
+                    console.error('Load user data error:', error);
+                    this.showMessage('Error: ' + error.message, 'error');
+                    await signOut(auth);
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            async loadAllData() {
+                try {
+                    await this.loadTeams();
+                    await this.loadPlayers();
+                    await this.loadFixtures();
+                    this.renderAll();
+                    this.setupPlayerProfileListeners();
+                    this.setupChatListener();
+                } catch (error) {
+                    this.showToast('Error loading data: ' + error.message, 'error');
+                }
+            },
+
+            async loadTeams() {
+                const snapshot = await getDocs(collection(db, 'teams'));
+                state.teams = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            },
+
+            async loadPlayers() {
+                const snapshot = await getDocs(collection(db, 'players'));
+                state.players = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            },
+
+            async loadFixtures() {
+                const snapshot = await getDocs(collection(db, 'fixtures'));
+                state.fixtures = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            },
+
+            setupPlayerProfileListeners() {
+                state.playerProfilesUnsubscribers.forEach(unsub => unsub());
+                state.playerProfilesUnsubscribers = [];
+                
+                const teamPlayers = state.players.filter(p => p.teamId === state.currentTeamId);
+                
+                teamPlayers.forEach(player => {
+                    const playerRef = doc(db, 'players', player.id);
+                    const unsub = onSnapshot(playerRef, (doc) => {
+                        if (doc.exists()) {
+                            const updatedPlayer = { id: doc.id, ...doc.data() };
+                            const idx = state.players.findIndex(p => p.id === updatedPlayer.id);
+                            if (idx !== -1) {
+                                state.players[idx] = updatedPlayer;
+                                if (document.getElementById('page-team').classList.contains('active')) {
+                                    this.renderTeam();
+                                    this.showToast(`${updatedPlayer.name}'s stats updated!`, 'success');
+                                }
+                            }
+                        }
+                    });
+                    state.playerProfilesUnsubscribers.push(unsub);
+                });
+            },
+
+            setupChatListener() {
+                if (state.chatUnsubscriber) {
+                    state.chatUnsubscriber();
+                }
+                
+                const chatQuery = query(
+                    collection(db, 'teamChats', state.currentTeamId, 'messages'),
+                    orderBy('timestamp', 'desc'),
+                    limit(50)
+                );
+                
+                state.chatUnsubscriber = onSnapshot(chatQuery, (snapshot) => {
+                    const messages = [];
+                    snapshot.forEach((doc) => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    this.renderChatMessages(messages.reverse());
+                });
+            },
+
+            renderChatMessages(messages) {
+                const container = document.getElementById('chatMessages');
+                
+                if (messages.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <p>No messages yet. Start the conversation!</p>
+                        </div>`;
+                    return;
+                }
+                
+                container.innerHTML = messages.map(msg => this.createChatMessageHTML(msg)).join('');
+                container.scrollTop = container.scrollHeight;
+            },
+
+            createChatMessageHTML(msg) {
+                const author = state.players.find(p => p.id === msg.authorId) || { name: 'Unknown', role: 'player' };
+                const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+                
+                const reactions = msg.reactions || {};
+                const reactionHTML = Object.entries(reactions).map(([emoji, users]) => `
+                    <span class="reaction ${users.includes(state.userData.id) ? 'active' : ''}" onclick="app.toggleReaction('${msg.id}', '${emoji}')">
+                        ${emoji} ${users.length}
+                    </span>
+                `).join('');
+                
+                return `
+                    <div class="chat-message" id="msg-${msg.id}">
+                        <div class="chat-message-header">
+                            <span class="chat-author">
+                                ${author.name}
+                                ${author.role === 'captain' || author.isCoCaptain ? '👑' : ''}
+                                ${author.role === 'system-admin' ? '⚡' : ''}
+                            </span>
+                            <span class="chat-time">${time}</span>
+                        </div>
+                        <div class="chat-text">${this.escapeHtml(msg.text)}</div>
+                        <div class="chat-reactions">
+                            ${reactionHTML}
+                            <div style="position: relative;">
+                                <span class="reaction add-reaction" onclick="this.nextElementSibling.classList.toggle('active')">+</span>
+                                <div class="reaction-picker">
+                                    <span class="reaction-emoji" onclick="app.addReaction('${msg.id}', '👍')">👍</span>
+                                    <span class="reaction-emoji" onclick="app.addReaction('${msg.id}', '❤️')">❤️</span>
+                                    <span class="reaction-emoji" onclick="app.addReaction('${msg.id}', '😂')">😂</span>
+                                    <span class="reaction-emoji" onclick="app.addReaction('${msg.id}', '🎱')">🎱</span>
+                                    <span class="reaction-emoji" onclick="app.addReaction('${msg.id}', '🔥')">🔥</span>
+                                    <span class="reaction-emoji" onclick="app.addReaction('${msg.id}', '👏')">👏</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+
+            async sendChatMessage() {
+                const input = document.getElementById('chatInput');
+                const text = input.value.trim();
+                if (!text) return;
+                
+                try {
+                    await addDoc(collection(db, 'teamChats', state.currentTeamId, 'messages'), {
+                        text: text,
+                        authorId: state.userData.id,
+                        timestamp: serverTimestamp(),
+                        reactions: {}
+                    });
+                    input.value = '';
+                } catch (error) {
+                    this.showToast('Error sending message: ' + error.message, 'error');
+                }
+            },
+
+            async addReaction(messageId, emoji) {
+                try {
+                    const msgRef = doc(db, 'teamChats', state.currentTeamId, 'messages', messageId);
+                    const msgDoc = await getDoc(msgRef);
+                    
+                    if (!msgDoc.exists()) return;
+                    
+                    const data = msgDoc.data();
+                    const reactions = data.reactions || {};
+                    
+                    if (!reactions[emoji]) reactions[emoji] = [];
+                    
+                    if (reactions[emoji].includes(state.userData.id)) {
+                        reactions[emoji] = reactions[emoji].filter(id => id !== state.userData.id);
+                        if (reactions[emoji].length === 0) delete reactions[emoji];
+                    } else {
+                        reactions[emoji].push(state.userData.id);
+                    }
+                    
+                    await updateDoc(msgRef, { reactions });
+                } catch (error) {
+                    this.showToast('Error adding reaction: ' + error.message, 'error');
+                }
+            },
+
+            toggleReaction(messageId, emoji) {
+                this.addReaction(messageId, emoji);
+            },
+
+            renderAll() {
+                this.renderHeader();
+                this.renderDashboard();
+                this.renderTable();
+                this.renderFixtures();
+                this.renderTeam();
+                this.setupRoleBasedFeatures();
+                if (state.isSystemAdmin) {
+                    this.loadAdminResultFixtures();
+                    this.renderCompletedFixturesList();
+                    this.renderAdminPlayerManagement();
+                    this.updateAdminStats();
+                }
+            },
+
+            // NEW: Render Header with User Info
+            renderHeader() {
+                if (!state.userData) return;
+                
+                const avatar = document.getElementById('headerUserAvatar');
+                const name = document.getElementById('headerUserName');
+                const role = document.getElementById('headerUserRole');
+                
+                avatar.textContent = state.userData.name.charAt(0).toUpperCase();
+                name.textContent = state.userData.name;
+                
+                let roleText = state.userData.role;
+                if (state.userData.isCoCaptain && state.userData.role === 'system-admin') {
+                    roleText = 'System Admin + Co-Captain';
+                } else if (state.userData.role === 'system-admin') {
+                    roleText = 'System Administrator';
+                } else if (state.userData.role === 'captain') {
+                    roleText = 'Team Captain';
+                } else if (state.userData.role === 'co-captain' || state.userData.isCoCaptain) {
+                    roleText = 'Co-Captain';
+                } else {
+                    roleText = 'Player';
+                }
+                
+                role.textContent = roleText;
+            },
+
+            renderDashboard() {
+                // Update Welcome Banner
+                const welcomeName = document.getElementById('welcomePlayerName');
+                const welcomeDate = document.getElementById('welcomeDate');
+                
+                if (state.userData) {
+                    welcomeName.textContent = state.userData.name;
+                }
+                
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                welcomeDate.textContent = now.toLocaleDateString('en-GB', options);
+
+                // Rest of dashboard rendering
+                const teamId = state.currentTeamId;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const teamFixtures = state.fixtures.filter(f => 
+                    (f.homeTeamId === teamId || f.awayTeamId === teamId) && !f.completed
+                ).sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                let nextFixture = null;
+                
+                for (const fixture of teamFixtures) {
+                    if (isByeWeek(fixture) && hasDatePassed(fixture.date)) continue;
+                    nextFixture = fixture;
+                    break;
+                }
+                
+                const container = document.getElementById('nextFixture');
+                const countdownEl = document.getElementById('fixtureCountdown');
+                
+                if (nextFixture) {
+                    const isBye = isByeWeek(nextFixture);
+                    const isHome = nextFixture.homeTeamId === teamId;
+                    const opponentId = isHome ? nextFixture.awayTeamId : nextFixture.homeTeamId;
+                    const opponent = state.teams.find(t => t.id === opponentId);
+                    const homeTeam = isHome ? state.teams.find(t => t.id === teamId) : opponent;
+                    const awayTeam = isHome ? opponent : state.teams.find(t => t.id === teamId);
+                    
+                    const fixtureDate = new Date(nextFixture.date);
+                    const daysUntil = Math.ceil((fixtureDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (isBye) {
+                        container.innerHTML = this.createByeWeekCard(nextFixture, true);
+                        countdownEl.textContent = daysUntil <= 0 ? 'This week' : `In ${daysUntil} days`;
+                    } else {
+                        container.innerHTML = this.createFixtureCard(nextFixture, homeTeam, awayTeam, false, true);
+                        countdownEl.textContent = daysUntil === 0 ? '🔥 TONIGHT' : daysUntil === 1 ? 'Tomorrow' : `In ${daysUntil} days`;
+                        countdownEl.style.color = daysUntil === 0 ? 'var(--accent)' : 'var(--silver)';
+                    }
+                } else {
+                    container.innerHTML = '<div class="empty-state">No upcoming fixtures</div>';
+                    countdownEl.textContent = '';
+                }
+                
+                this.renderUpcomingPreview(teamFixtures.slice(0, 4));
+                
+                const completed = state.fixtures.filter(f => 
+                    f.completed && !isByeWeek(f) && (f.homeTeamId === teamId || f.awayTeamId === teamId)
+                );
+                
+                let played = 0, won = 0, framePoints = 0;
+                completed.forEach(f => {
+                    played++;
+                    const isHome = f.homeTeamId === teamId;
+                    const ourScore = isHome ? f.homeScore : f.awayScore;
+                    const theirScore = isHome ? f.awayScore : f.homeScore;
+                    framePoints += ourScore || 0;
+                    if ((ourScore || 0) > (theirScore || 0)) won++;
+                });
+                
+                document.getElementById('statPlayed').textContent = played;
+                document.getElementById('statWon').textContent = won;
+                document.getElementById('statPoints').textContent = framePoints;
+            },
+
+            renderUpcomingPreview(fixtures) {
+                const container = document.getElementById('upcomingFixturesPreview');
+                const teamId = state.currentTeamId;
+                
+                if (fixtures.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No upcoming fixtures</div>';
+                    return;
+                }
+                
+                container.innerHTML = fixtures.map((f, index) => {
+                    if (isByeWeek(f) && hasDatePassed(f.date)) return '';
+                    
+                    const isBye = isByeWeek(f);
+                    const date = new Date(f.date);
+                    const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
+                    
+                    if (isBye) {
+                        return `<div style="padding: 0.75rem; background: rgba(108, 117, 125, 0.1); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.7;">
+                            <span style="color: var(--silver);">${dateStr} — ☕ BYE WEEK</span>
+                        </div>`;
+                    }
+                    
+                    const isHome = f.homeTeamId === teamId;
+                    const opponent = state.teams.find(t => t.id === (isHome ? f.awayTeamId : f.homeTeamId));
+                    
+                    return `<div style="padding: 0.75rem; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 0.5rem; ${index === 0 ? 'border: 1px solid var(--gold);' : ''}">
+                        <span style="color: var(--gold); font-weight: bold;">${dateStr}</span>
+                        <span style="margin-left: 1rem;">${isHome ? 'vs' : '@'} ${opponent?.name || 'Unknown'}</span>
+                    </div>`;
+                }).filter(html => html !== '').join('');
+            },
+
+            renderTable() {
+                const tbody = document.getElementById('leagueTableBody');
+                const stats = state.teams
+                    .filter(t => !t.isBye && t.id !== 'bye')
+                    .map(team => {
+                        const teamFixtures = state.fixtures.filter(f => 
+                            f.completed && !isByeWeek(f) && (f.homeTeamId === team.id || f.awayTeamId === team.id)
+                        );
+                        let played = 0, won = 0, drawn = 0, lost = 0, framePoints = 0;
+                        teamFixtures.forEach(f => {
+                            played++;
+                            const isHome = f.homeTeamId === team.id;
+                            const ourScore = isHome ? (f.homeScore || 0) : (f.awayScore || 0);
+                            const theirScore = isHome ? (f.awayScore || 0) : (f.homeScore || 0);
+                            framePoints += ourScore;
+                            if (ourScore > theirScore) won++;
+                            else if (ourScore === theirScore) drawn++;
+                            else lost++;
+                        });
+                        return { ...team, played, won, drawn, lost, framePoints };
+                    }).sort((a, b) => b.framePoints - a.framePoints);
+                
+                tbody.innerHTML = stats.map((team, i) => `
+                    <tr style="${team.id === state.currentTeamId ? 'background: rgba(233, 69, 96, 0.2);' : ''}">
+                        <td>${i + 1}</td>
+                        <td><strong>${team.name}</strong></td>
+                        <td>${team.played}</td>
+                        <td>${team.won}</td>
+                        <td>${team.drawn}</td>
+                        <td>${team.lost}</td>
+                        <td style="color: var(--gold); font-weight: bold;">${team.framePoints}</td>
+                    </tr>
+                `).join('');
+            },
+
+            renderFixtures() {
+                const container = document.getElementById('fixturesList');
+                const teamId = state.currentTeamId;
+                
+                const teamFixtures = state.fixtures
+                    .filter(f => f.homeTeamId === teamId || f.awayTeamId === teamId)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                if (teamFixtures.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No fixtures scheduled</div>';
+                    return;
+                }
+                
+                container.innerHTML = teamFixtures.map(f => {
+                    if (isByeWeek(f)) {
+                        const isPassed = hasDatePassed(f.date) && !f.completed;
+                        return this.createByeWeekCard(f, false, isPassed);
+                    }
+                    const homeTeam = state.teams.find(t => t.id === f.homeTeamId);
+                    const awayTeam = state.teams.find(t => t.id === f.awayTeamId);
+                    const isEditable = state.isSystemAdmin && f.completed;
+                    return this.createFixtureCard(f, homeTeam, awayTeam, true, false, isEditable);
+                }).join('');
+            },
+
+            createByeWeekCard(fixture, isNext = false, isPassed = false) {
+                const date = new Date(fixture.date);
+                const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                const opacity = isPassed ? 'opacity: 0.5;' : '';
+                const statusBadge = isPassed ? 
+                    '<span class="status-badge" style="background: rgba(108, 117, 125, 0.2); color: var(--bye); border: 1px solid var(--bye);">Passed</span>' :
+                    '<span class="status-badge status-bye">Upcoming Break</span>';
+                const highlightClass = isNext ? 'next-fixture-highlight' : '';
+                
+                return `<div class="fixture-card bye-week ${highlightClass}" style="${opacity}">
+                    <div class="fixture-teams">
+                        <div class="fixture-team home">
+                            <div class="fixture-team-name" style="color: var(--silver);">No Match</div>
+                            <div class="fixture-team-venue">Rest Week</div>
+                        </div>
+                        <div class="fixture-vs">
+                            <div class="vs-badge bye">BYE</div>
+                            <div class="fixture-date">${dateStr}</div>
+                        </div>
+                        <div class="fixture-team away">
+                            <div class="fixture-team-name" style="color: var(--silver);">Break Week</div>
+                        </div>
+                    </div>
+                    <div class="fixture-result">
+                        <div class="bye-indicator"><span class="icon">☕</span><span>${isPassed ? 'Rest Week' : 'No Game'}</span></div>
+                        ${statusBadge}
+                    </div>
+                </div>`;
+            },
+
+            createFixtureCard(fixture, homeTeam, awayTeam, showStatus, isNext = false, allowEdit = false) {
+                const isCompleted = fixture.completed;
+                const date = new Date(fixture.date);
+                const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                const highlightClass = isNext ? 'next-fixture-highlight' : '';
+                const editableClass = allowEdit ? 'completed-editable' : '';
+                
+                let editButton = '';
+                if (allowEdit) {
+                    editButton = `<button class="edit-result-btn" onclick="app.editFixture('${fixture.id}')">✏️ Edit Result</button>`;
+                }
+                
+                return `<div class="fixture-card ${highlightClass} ${editableClass}">
+                    <div class="fixture-teams">
+                        <div class="fixture-team home">
+                            <div class="fixture-team-name">${homeTeam?.name || 'Unknown'}</div>
+                            <div class="fixture-team-venue">${homeTeam?.venue || ''}</div>
+                        </div>
+                        <div class="fixture-vs">
+                            <div class="vs-badge">VS</div>
+                            <div class="fixture-date">${dateStr}</div>
+                        </div>
+                        <div class="fixture-team away">
+                            <div class="fixture-team-name">${awayTeam?.name || 'Unknown'}</div>
+                            <div class="fixture-team-venue">${awayTeam?.venue || ''}</div>
+                        </div>
+                    </div>
+                    <div class="fixture-result">
+                        ${isCompleted ? `
+                            <div class="score-display">${fixture.homeScore} - ${fixture.awayScore}</div>
+                            ${showStatus ? '<span class="status-badge status-completed">Completed</span>' : ''}
+                            ${editButton}
+                        ` : `
+                            <div style="color: var(--silver); font-size: 1.5rem;">-</div>
+                            ${showStatus ? '<span class="status-badge status-upcoming">Upcoming</span>' : ''}
+                        `}
+                    </div>
+                </div>`;
+            },
+
+            renderTeam() {
+                const container = document.getElementById('teamPlayers');
+                const playersToShow = state.viewMode === 'admin' && state.isSystemAdmin
+                    ? state.players.sort((a, b) => a.teamId.localeCompare(b.teamId))
+                    : state.players.filter(p => p.teamId === state.currentTeamId);
+                
+                if (playersToShow.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No players found</div>';
+                    return;
+                }
+                
+                container.innerHTML = playersToShow.map(p => {
+                    const team = state.teams.find(t => t.id === p.teamId);
+                    const isCurrentTeam = p.teamId === state.currentTeamId;
+                    const winRate = p.stats?.played > 0 ? ((p.stats.won / p.stats.played) * 100).toFixed(1) : 0;
+                    
+                    let roleDisplay = p.role;
+                    if (p.isCoCaptain && p.role === 'system-admin') {
+                        roleDisplay = 'system-admin + co-captain';
+                    }
+                    
+                    return `
+                        <div class="player-profile-card" style="${!isCurrentTeam ? 'opacity: 0.7;' : ''}">
+                            <div class="player-profile-header" onclick="app.showPlayerDetail('${p.id}')" style="cursor: pointer;">
+                                <div class="player-avatar">${p.name.charAt(0)}</div>
+                                <div>
+                                    <div class="player-profile-name">${p.name}</div>
+                                    <div class="player-profile-role">
+                                        ${roleDisplay} ${state.viewMode === 'admin' ? `• ${team?.name || 'Unknown'}` : ''}
+                                    </div>
+                                </div>
+                                <div style="margin-left: auto; text-align: right;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--gold);">
+                                        ${p.stats?.played || 0} <span style="font-size: 0.8rem; color: var(--silver);">matches</span>
+                                    </div>
+                                    <div style="font-size: 0.9rem; color: var(--success);">
+                                        ${winRate}% WR
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="player-stats-grid">
+                                <div class="player-stat-box">
+                                    <div class="player-stat-value">${p.stats?.won || 0}</div>
+                                    <div class="player-stat-label">Won</div>
+                                </div>
+                                <div class="player-stat-box">
+                                    <div class="player-stat-value">${p.stats?.lost || 0}</div>
+                                    <div class="player-stat-label">Lost</div>
+                                </div>
+                                <div class="player-stat-box">
+                                    <div class="player-stat-value">${p.stats?.played > 0 ? (p.stats.won / p.stats.played).toFixed(2) : '0.00'}</div>
+                                    <div class="player-stat-label">W/L Ratio</div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-secondary" style="width: 100%;" onclick="app.showPlayerDetail('${p.id}')">
+                                View Full Profile & Game History
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            async showPlayerDetail(playerId) {
+                const player = state.players.find(p => p.id === playerId);
+                if (!player) return;
+                
+                const modal = document.getElementById('playerDetailModal');
+                const content = document.getElementById('playerDetailContent');
+                
+                const playerFixtures = await this.getPlayerMatchHistory(playerId);
+                
+                const winRate = player.stats?.played > 0 ? ((player.stats.won / player.stats.played) * 100).toFixed(1) : 0;
+                
+                let roleBadge = player.role;
+                if (player.isCoCaptain && player.role === 'system-admin') {
+                    roleBadge = 'system-admin + co-captain';
+                }
+                
+                content.innerHTML = `
+                    <div class="player-profile-header">
+                        <div class="player-avatar" style="width: 80px; height: 80px; font-size: 2rem;">${player.name.charAt(0)}</div>
+                        <div>
+                            <div class="player-profile-name" style="font-size: 2rem;">${player.name}</div>
+                            <div class="player-profile-role" style="font-size: 1rem;">
+                                <span style="padding: 0.25rem 0.75rem; background: ${player.role === 'captain' ? 'var(--accent)' : player.role === 'co-captain' || player.isCoCaptain ? '#ff9500' : player.role === 'system-admin' ? 'var(--gold)' : 'var(--silver)'}; color: ${player.role === 'system-admin' && !player.isCoCaptain ? 'black' : 'white'}; border-radius: 12px; text-transform: uppercase; font-size: 0.8rem; font-weight: bold;">
+                                    ${roleBadge}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="player-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="player-stat-box">
+                            <div class="player-stat-value" style="font-size: 2rem;">${player.stats?.played || 0}</div>
+                            <div class="player-stat-label">Matches Played</div>
+                        </div>
+                        <div class="player-stat-box">
+                            <div class="player-stat-value" style="font-size: 2rem; color: var(--success);">${player.stats?.won || 0}</div>
+                            <div class="player-stat-label">Frames Won</div>
+                        </div>
+                        <div class="player-stat-box">
+                            <div class="player-stat-value" style="font-size: 2rem; color: var(--danger);">${player.stats?.lost || 0}</div>
+                            <div class="player-stat-label">Frames Lost</div>
+                        </div>
+                        <div class="player-stat-box">
+                            <div class="player-stat-value" style="font-size: 2rem; color: var(--gold);">${winRate}%</div>
+                            <div class="player-stat-label">Win Rate</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <h3 style="color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            🎱 Game History 
+                            <span class="live-update-badge">Auto-Updates</span>
+                        </h3>
+                        <div class="match-history-list" id="playerMatchHistory">
+                            ${playerFixtures.length === 0 ? 
+                                '<div class="empty-state">No matches played yet</div>' : 
+                                playerFixtures.map(f => this.createMatchHistoryItem(f, playerId)).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                this.setupPlayerMatchListener(playerId);
+                modal.classList.add('active');
+            },
+
+            async getPlayerMatchHistory(playerId) {
+                const player = state.players.find(p => p.id === playerId);
+                if (!player) return [];
+                
+                const playerFixtures = [];
+                
+                for (const fixture of state.fixtures) {
+                    if (!fixture.completed || isByeWeek(fixture)) continue;
+                    
+                    const isHome = fixture.homeTeamId === player.teamId;
+                    const isAway = fixture.awayTeamId === player.teamId;
+                    
+                    if (!isHome && !isAway) continue;
+                    
+                    try {
+                        const framesSnapshot = await getDocs(
+                            query(collection(db, 'fixtures', fixture.id, 'frames'), 
+                            where('homePlayerId', '==', playerId))
+                        );
+                        
+                        const awayFramesSnapshot = await getDocs(
+                            query(collection(db, 'fixtures', fixture.id, 'frames'), 
+                            where('awayPlayerId', '==', playerId))
+                        );
+                        
+                        const playerFrames = [...framesSnapshot.docs, ...awayFramesSnapshot.docs];
+                        
+                        if (playerFrames.length > 0) {
+                            const opponent = state.teams.find(t => t.id === (isHome ? fixture.awayTeamId : fixture.homeTeamId));
+                            const won = playerFrames.filter(f => {
+                                const data = f.data();
+                                return (data.homePlayerId === playerId && data.winner === 'home') || 
+                                       (data.awayPlayerId === playerId && data.winner === 'away');
+                            }).length;
+                            
+                            playerFixtures.push({
+                                fixtureId: fixture.id,
+                                date: fixture.date,
+                                opponent: opponent?.name || 'Unknown',
+                                venue: isHome ? 'Home' : 'Away',
+                                score: `${fixture.homeScore}-${fixture.awayScore}`,
+                                framesPlayed: playerFrames.length,
+                                framesWon: won,
+                                result: won > (playerFrames.length - won) ? 'win' : 'loss'
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error loading match history:', e);
+                    }
+                }
+                
+                return playerFixtures.sort((a, b) => new Date(b.date) - new Date(a.date));
+            },
+
+            createMatchHistoryItem(fixture, playerId) {
+                const date = new Date(fixture.date);
+                const dateStr = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                
+                return `
+                    <div class="match-history-item">
+                        <div class="match-result-indicator ${fixture.result}">
+                            ${fixture.result === 'win' ? 'W' : 'L'}
+                        </div>
+                        <div class="match-history-details">
+                            <div><strong>${fixture.venue}</strong> vs ${fixture.opponent}</div>
+                            <div class="match-history-meta">${dateStr} • Match Score: ${fixture.score}</div>
+                        </div>
+                        <div class="match-history-frames">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--gold);">
+                                ${fixture.framesWon}/${fixture.framesPlayed}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--silver);">frames won</div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            setupPlayerMatchListener(playerId) {
+                const player = state.players.find(p => p.id === playerId);
+                if (!player) return;
+                
+                const fixturesQuery = query(
+                    collection(db, 'fixtures'),
+                    where('completed', '==', true)
+                );
+                
+                const unsub = onSnapshot(fixturesQuery, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'modified' || change.type === 'added') {
+                            const fixture = { id: change.doc.id, ...change.doc.data() };
+                            if (fixture.homeTeamId === player.teamId || fixture.awayTeamId === player.teamId) {
+                                this.refreshPlayerMatchHistory(playerId);
+                            }
+                        }
+                    });
+                });
+                
+                state.playerProfilesUnsubscribers.push(unsub);
+            },
+
+            async refreshPlayerMatchHistory(playerId) {
+                const history = await this.getPlayerMatchHistory(playerId);
+                const container = document.getElementById('playerMatchHistory');
+                if (container) {
+                    container.innerHTML = history.length === 0 ? 
+                        '<div class="empty-state">No matches played yet</div>' : 
+                        history.map(f => this.createMatchHistoryItem(f, playerId)).join('');
+                }
+            },
+
+            closePlayerModal() {
+                document.getElementById('playerDetailModal').classList.remove('active');
+            },
+
+            setupRoleBasedFeatures() {
+                const captainBtn = document.getElementById('captainBtn');
+                const adminPlayersBtn = document.getElementById('adminPlayersBtn');
+                const adminFixturesBtn = document.getElementById('adminFixturesBtn');
+                const adminTeamSelector = document.getElementById('adminTeamSelector');
+                const viewModeIndicator = document.getElementById('viewModeIndicator');
+                
+                if (state.canAccessCaptainPanel) captainBtn.classList.remove('hidden');
+                else captainBtn.classList.add('hidden');
+                
+                if (state.canAccessAdminPanel) {
+                    adminPlayersBtn.classList.remove('hidden');
+                    adminFixturesBtn.classList.remove('hidden');
+                    adminTeamSelector.classList.remove('hidden');
+                    viewModeIndicator.classList.remove('hidden');
+                    
+                    const dropdown = document.getElementById('adminTeamDropdown');
+                    dropdown.innerHTML = '<option value="">Select Team...</option>' +
+                        state.teams.filter(t => !t.isBye).map(t => `<option value="${t.id}" ${t.id === state.currentTeamId ? 'selected' : ''}>${t.name}</option>`).join('');
+                    
+                    const teamOptions = state.teams.map(t => `<option value="${t.id}">${t.name}${t.isBye ? ' (BYE)' : ''}</option>`).join('');
+                    document.getElementById('newFixtureHome').innerHTML = '<option value="">Select...</option>' + teamOptions;
+                    document.getElementById('newFixtureAway').innerHTML = '<option value="">Select...</option>' + teamOptions;
+                } else {
+                    adminPlayersBtn.classList.add('hidden');
+                    adminFixturesBtn.classList.add('hidden');
+                    adminTeamSelector.classList.add('hidden');
+                    viewModeIndicator.classList.add('hidden');
+                }
+                
+                if (state.canAccessCaptainPanel) this.loadCaptainPanel();
+            },
+
+            // NEW: Update Admin Stats
+            updateAdminStats() {
+                const totalPlayers = state.players.length;
+                const totalTeams = state.teams.filter(t => !t.isBye).length;
+                const adminsCount = state.players.filter(p => p.role === 'system-admin').length;
+                
+                const totalEl = document.getElementById('totalPlayersCount');
+                const teamsEl = document.getElementById('totalTeamsCount');
+                const adminsEl = document.getElementById('adminsCount');
+                
+                if (totalEl) totalEl.textContent = totalPlayers;
+                if (teamsEl) teamsEl.textContent = totalTeams;
+                if (adminsEl) adminsEl.textContent = adminsCount;
+            },
+
+            // NEW: Admin Player Management Functions
+            renderAdminPlayerManagement() {
+                // Populate team dropdowns
+                const teamSelect = document.getElementById('newPlayerTeam');
+                const filterSelect = document.getElementById('removePlayerTeamFilter');
+                
+                if (teamSelect && filterSelect) {
+                    const teamOptions = state.teams
+                        .filter(t => !t.isBye && t.id !== 'bye')
+                        .map(t => `<option value="${t.id}">${t.name}</option>`)
+                        .join('');
+                    
+                    teamSelect.innerHTML = '<option value="">Select team...</option>' + teamOptions;
+                    filterSelect.innerHTML = '<option value="">All Teams</option>' + teamOptions;
+                }
+                
+                this.renderAdminPlayerList();
+            },
+
+            renderAdminPlayerList(filterTeamId = '', searchQuery = '') {
+                const container = document.getElementById('adminPlayerList');
+                if (!container) return;
+                
+                let playersToShow = state.players;
+                
+                // Filter by team
+                if (filterTeamId) {
+                    playersToShow = playersToShow.filter(p => p.teamId === filterTeamId);
+                }
+                
+                // Filter by search
+                if (searchQuery) {
+                    const query = searchQuery.toLowerCase();
+                    playersToShow = playersToShow.filter(p => 
+                        p.name.toLowerCase().includes(query) || 
+                        p.username.toLowerCase().includes(query)
+                    );
+                }
+                
+                // Sort by team then name
+                playersToShow.sort((a, b) => {
+                    const teamA = state.teams.find(t => t.id === a.teamId)?.name || '';
+                    const teamB = state.teams.find(t => t.id === b.teamId)?.name || '';
+                    if (teamA !== teamB) return teamA.localeCompare(teamB);
+                    return a.name.localeCompare(b.name);
+                });
+                
+                if (playersToShow.length === 0) {
+                    container.innerHTML = '<p style="color: var(--silver); text-align: center; padding: 2rem;">No players found</p>';
+                    return;
+                }
+                
+                container.innerHTML = playersToShow.map(p => {
+                    const team = state.teams.find(t => t.id === p.teamId);
+                    const roleClass = p.role === 'system-admin' ? 'role-admin' : 
+                                     p.role === 'captain' ? 'role-captain' : 
+                                     p.role === 'co-captain' || p.isCoCaptain ? 'role-co-captain' : 'role-player';
+                    const roleText = p.role === 'system-admin' ? 'Admin' : 
+                                    p.role === 'captain' ? 'Captain' : 
+                                    p.role === 'co-captain' || p.isCoCaptain ? 'Co-Captain' : 'Player';
+                    
+                    return `
+                        <div class="player-list-item">
+                            <div class="player-info">
+                                <span class="player-name">${p.name}</span>
+                                <span class="player-team">${team?.name || 'Unknown Team'}</span>
+                                <span class="player-role-badge ${roleClass}">${roleText}</span>
+                            </div>
+                            <button class="remove-player-btn" onclick="app.confirmRemovePlayer('${p.id}', '${p.name}')">
+                                🗑️ Remove
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            filterPlayersForRemoval() {
+                const filterValue = document.getElementById('removePlayerTeamFilter').value;
+                const searchValue = document.getElementById('searchPlayerInput').value;
+                this.renderAdminPlayerList(filterValue, searchValue);
+            },
+
+            searchPlayers() {
+                this.filterPlayersForRemoval();
+            },
+
+            scrollToAddPlayer() {
+                document.getElementById('addPlayerSection').scrollIntoView({ behavior: 'smooth' });
+                // Highlight the section briefly
+                const section = document.getElementById('addPlayerSection');
+                section.style.border = '2px solid var(--gold)';
+                setTimeout(() => {
+                    section.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                }, 1000);
+            },
+
+            scrollToRemovePlayer() {
+                document.getElementById('removePlayerSection').scrollIntoView({ behavior: 'smooth' });
+                // Highlight the section briefly
+                const section = document.getElementById('removePlayerSection');
+                section.style.border = '2px solid var(--gold)';
+                setTimeout(() => {
+                    section.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                }, 1000);
+            },
+
+            async adminAddPlayer(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('newPlayerName').value.trim();
+                const username = document.getElementById('newPlayerUsername').value.trim();
+                const password = document.getElementById('newPlayerPassword').value;
+                const email = document.getElementById('newPlayerEmail').value.trim() || `${username.toLowerCase()}@rackcafe.app`;
+                const teamId = document.getElementById('newPlayerTeam').value;
+                const role = document.getElementById('newPlayerRole').value;
+                
+                if (!name || !username || !password || !teamId) {
+                    this.showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                // Check if username already exists
+                const existingMapping = await getDoc(doc(db, 'usernameMappings', username));
+                if (existingMapping.exists()) {
+                    this.showToast('Username already exists', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    // Create auth user
+                    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                    
+                    // Generate player ID
+                    const playerId = username.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    
+                    // Create player document
+                    const playerData = {
+                        id: playerId,
+                        username: username,
+                        name: name,
+                        email: email,
+                        teamId: teamId,
+                        role: role,
+                        authUid: userCred.user.uid,
+                        stats: { played: 0, won: 0, lost: 0 },
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp()
+                    };
+                    
+                    await setDoc(doc(db, 'players', playerId), playerData);
+                    
+                    // Create username mapping
+                    await setDoc(doc(db, 'usernameMappings', username), {
+                        username: username,
+                        email: email,
+                        uid: userCred.user.uid,
+                        playerId: playerId
+                    });
+                    
+                    // Add to state
+                    state.players.push(playerData);
+                    
+                    this.showToast(`Player ${name} added successfully!`, 'success');
+                    document.getElementById('adminAddPlayerForm').reset();
+                    this.renderAdminPlayerList();
+                    this.renderTeam(); // Refresh team view if needed
+                    this.updateAdminStats();
+                    
+                } catch (error) {
+                    console.error('Error adding player:', error);
+                    this.showToast('Error adding player: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            confirmRemovePlayer(playerId, playerName) {
+                if (confirm(`Are you sure you want to remove ${playerName}?\n\nThis will delete their account and all associated data. This action cannot be undone.`)) {
+                    this.adminRemovePlayer(playerId);
+                }
+            },
+
+            async adminRemovePlayer(playerId) {
+                this.showLoading(true);
+                
+                try {
+                    const player = state.players.find(p => p.id === playerId);
+                    if (!player) {
+                        throw new Error('Player not found');
+                    }
+                    
+                    // Delete from Firestore
+                    await deleteDoc(doc(db, 'players', playerId));
+                    
+                    // Delete username mapping
+                    await deleteDoc(doc(db, 'usernameMappings', player.username));
+                    
+                    // Update state
+                    state.players = state.players.filter(p => p.id !== playerId);
+                    
+                    this.showToast('Player removed successfully', 'success');
+                    this.renderAdminPlayerList(document.getElementById('removePlayerTeamFilter').value, document.getElementById('searchPlayerInput').value);
+                    this.renderTeam();
+                    this.updateAdminStats();
+                    
+                } catch (error) {
+                    console.error('Error removing player:', error);
+                    this.showToast('Error removing player: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            loadAdminResultFixtures() {
+                const select = document.getElementById('adminResultFixture');
+                if (!select) return;
+                
+                const allFixtures = state.fixtures.filter(f => !isByeWeek(f))
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                select.innerHTML = '<option value="">Choose fixture...</option>' +
+                    allFixtures.map(f => {
+                        const homeTeam = state.teams.find(t => t.id === f.homeTeamId);
+                        const awayTeam = state.teams.find(t => t.id === f.awayTeamId);
+                        const dateStr = new Date(f.date).toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
+                        const status = f.completed ? '✓ ' : '';
+                        return `<option value="${f.id}">${status}${dateStr}: ${homeTeam?.name || 'Unknown'} vs ${awayTeam?.name || 'Unknown'}</option>`;
+                    }).join('');
+            },
+
+            renderCompletedFixturesList() {
+                const container = document.getElementById('completedFixturesList');
+                if (!container) return;
+                
+                const completed = state.fixtures.filter(f => f.completed && !isByeWeek(f))
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                if (completed.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No completed fixtures to edit</div>';
+                    return;
+                }
+                
+                container.innerHTML = completed.map(f => {
+                    const homeTeam = state.teams.find(t => t.id === f.homeTeamId);
+                    const awayTeam = state.teams.find(t => t.id === f.awayTeamId);
+                    const dateStr = new Date(f.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+                    
+                    return `<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid var(--success);">
+                        <div>
+                            <div style="font-weight: bold; color: var(--gold);">${dateStr}</div>
+                            <div style="font-size: 0.9rem;">${homeTeam?.name} ${f.homeScore} - ${f.awayScore} ${awayTeam?.name}</div>
+                        </div>
+                        <button class="edit-result-btn" onclick="app.editFixture('${f.id}')">Edit</button>
+                    </div>`;
+                }).join('');
+            },
+
+            loadAdminFixtureDetails(fixtureId) {
+                const preview = document.getElementById('adminFixturePreview');
+                const scoreSection = document.getElementById('adminScoreSection');
+                const editIndicator = document.getElementById('editModeIndicator');
+                const submitBtn = document.getElementById('adminSubmitBtn');
+                
+                if (!fixtureId) {
+                    preview.innerHTML = '';
+                    scoreSection.style.display = 'none';
+                    editIndicator.style.display = 'none';
+                    state.editingFixtureId = null;
+                    return;
+                }
+                
+                const fixture = state.fixtures.find(f => f.id === fixtureId);
+                if (!fixture) return;
+                
+                const homeTeam = state.teams.find(t => t.id === fixture.homeTeamId);
+                const awayTeam = state.teams.find(t => t.id === fixture.awayTeamId);
+                
+                preview.innerHTML = `<strong style="color: var(--gold);">${homeTeam?.name}</strong> vs <strong style="color: var(--gold);">${awayTeam?.name}</strong><br>
+                    <span style="font-size: 0.8rem;">${new Date(fixture.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>`;
+                
+                document.getElementById('adminHomeTeamName').textContent = homeTeam?.name || 'Home';
+                document.getElementById('adminAwayTeamName').textContent = awayTeam?.name || 'Away';
+                
+                if (fixture.completed) {
+                    state.editingFixtureId = fixtureId;
+                    document.getElementById('adminHomeScore').value = fixture.homeScore || 0;
+                    document.getElementById('adminAwayScore').value = fixture.awayScore || 0;
+                    editIndicator.style.display = 'block';
+                    submitBtn.textContent = 'Update Result';
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-warning');
+                } else {
+                    state.editingFixtureId = null;
+                    document.getElementById('adminHomeScore').value = 0;
+                    document.getElementById('adminAwayScore').value = 0;
+                    editIndicator.style.display = 'none';
+                    submitBtn.textContent = 'Submit Result';
+                    submitBtn.classList.remove('btn-warning');
+                    submitBtn.classList.add('btn-primary');
+                }
+                
+                scoreSection.style.display = 'block';
+                this.loadAdminFramePlayers(fixture);
+            },
+
+            editFixture(fixtureId) {
+                this.showPage('admin');
+                document.getElementById('adminResultFixture').value = fixtureId;
+                this.loadAdminFixtureDetails(fixtureId);
+                const burger = document.getElementById('burgerMenu');
+                if (burger.classList.contains('active')) {
+                    this.toggleMenu();
+                }
+            },
+
+            loadAdminFramePlayers(fixture) {
+                const container = document.getElementById('adminFrameRows');
+                if (!container) return;
+                
+                const homePlayers = state.players.filter(p => p.teamId === fixture.homeTeamId);
+                const awayPlayers = state.players.filter(p => p.teamId === fixture.awayTeamId);
+                
+                container.innerHTML = '';
+                for (let i = 1; i <= 10; i++) {
+                    container.innerHTML += `
+                        <div class="admin-frame-row">
+                            <div style="color: var(--gold); font-weight: bold;">${i}</div>
+                            <select id="adminHomePlayer${i}" class="form-select"><option value="">Select player...</option>${homePlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select>
+                            <select id="adminAwayPlayer${i}" class="form-select"><option value="">Select player...</option>${awayPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select>
+                            <select id="adminFrameWinner${i}" class="form-select"><option value="">Winner...</option><option value="home">Home</option><option value="away">Away</option><option value="draw">Draw</option></select>
+                        </div>`;
+                }
+            },
+
+            toggleAdminFrameDetails() {
+                const checkbox = document.getElementById('adminEnterFrameDetails');
+                document.getElementById('adminFramesContainer').style.display = checkbox.checked ? 'block' : 'none';
+            },
+
+            resetAdminForm() {
+                document.getElementById('adminResultForm').reset();
+                document.getElementById('adminScoreSection').style.display = 'none';
+                document.getElementById('adminFramesContainer').style.display = 'none';
+                document.getElementById('editModeIndicator').style.display = 'none';
+                document.getElementById('adminFixturePreview').innerHTML = '';
+                document.getElementById('adminResultFixture').value = '';
+                state.editingFixtureId = null;
+                
+                const submitBtn = document.getElementById('adminSubmitBtn');
+                submitBtn.textContent = 'Submit Result';
+                submitBtn.classList.remove('btn-warning');
+                submitBtn.classList.add('btn-primary');
+            },
+
+            async submitAdminResult(e) {
+                e.preventDefault();
+                
+                const fixtureId = state.editingFixtureId || document.getElementById('adminResultFixture').value;
+                if (!fixtureId) {
+                    this.showToast('Please select a fixture', 'error');
+                    return;
+                }
+                
+                const fixture = state.fixtures.find(f => f.id === fixtureId);
+                if (!fixture || isByeWeek(fixture)) {
+                    this.showToast('Invalid fixture', 'error');
+                    return;
+                }
+                
+                const homeScore = parseInt(document.getElementById('adminHomeScore').value) || 0;
+                const awayScore = parseInt(document.getElementById('adminAwayScore').value) || 0;
+                const enterFrames = document.getElementById('adminEnterFrameDetails').checked;
+                
+                if (homeScore + awayScore > 10) {
+                    this.showToast('Total frames cannot exceed 10', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    if (fixture.completed && state.editingFixtureId) {
+                        await this.reverseOldStats(fixtureId);
+                    }
+                    
+                    await updateDoc(doc(db, 'fixtures', fixtureId), {
+                        completed: true,
+                        homeScore: homeScore,
+                        awayScore: awayScore,
+                        submittedBy: state.userData.id,
+                        submittedAt: new Date().toISOString(),
+                        submittedByAdmin: true,
+                        lastEdited: new Date().toISOString(),
+                        editedBy: state.userData.id,
+                        lastUpdated: serverTimestamp()
+                    });
+                    
+                    if (enterFrames) {
+                        const batch = writeBatch(db);
+                        
+                        for (let i = 1; i <= 10; i++) {
+                            const homePlayer = document.getElementById(`adminHomePlayer${i}`).value;
+                            const awayPlayer = document.getElementById(`adminAwayPlayer${i}`).value;
+                            const winner = document.getElementById(`adminFrameWinner${i}`).value;
+                            
+                            if (!homePlayer || !awayPlayer || !winner) continue;
+                            
+                            const frameRef = doc(collection(db, 'fixtures', fixtureId, 'frames'));
+                            batch.set(frameRef, {
+                                frameNumber: i,
+                                homePlayerId: homePlayer,
+                                awayPlayerId: awayPlayer,
+                                winner: winner,
+                                timestamp: serverTimestamp()
+                            });
+                            
+                            await this.updatePlayerStats(homePlayer, winner === 'home');
+                            await this.updatePlayerStats(awayPlayer, winner === 'away');
+                        }
+                        
+                        await batch.commit();
+                    }
+                    
+                    const isEdit = state.editingFixtureId !== null;
+                    this.showToast(isEdit ? 'Result updated successfully!' : 'Result submitted successfully!', 'success');
+                    
+                    this.resetAdminForm();
+                    await this.loadFixtures();
+                    this.renderAll();
+                    
+                } catch (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            async reverseOldStats(fixtureId) {
+                const framesSnapshot = await getDocs(collection(db, 'fixtures', fixtureId, 'frames'));
+                const batch = writeBatch(db);
+                
+                framesSnapshot.forEach(async (frameDoc) => {
+                    const frame = frameDoc.data();
+                    await this.updatePlayerStats(frame.homePlayerId, frame.winner !== 'home', true);
+                    await this.updatePlayerStats(frame.awayPlayerId, frame.winner !== 'away', true);
+                    batch.delete(frameDoc.ref);
+                });
+                
+                await batch.commit();
+            },
+
+            loadCaptainPanel() {
+                const select = document.getElementById('resultFixture');
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const unplayed = state.fixtures.filter(f => 
+                    !f.completed && !isByeWeek(f) && 
+                    (f.homeTeamId === state.currentTeamId || f.awayTeamId === state.currentTeamId) &&
+                    new Date(f.date) >= today
+                ).sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                select.innerHTML = '<option value="">Select fixture...</option>' +
+                    unplayed.map(f => {
+                        const homeTeam = state.teams.find(t => t.id === f.homeTeamId);
+                        const awayTeam = state.teams.find(t => t.id === f.awayTeamId);
+                        return `<option value="${f.id}">${homeTeam?.name || 'Unknown'} VS ${awayTeam?.name || 'Unknown'} - ${new Date(f.date).toLocaleDateString()}</option>`;
+                    }).join('');
+                
+                const container = document.getElementById('framesContainer');
+                container.innerHTML = '';
+                for (let i = 1; i <= 10; i++) {
+                    container.innerHTML += `
+                        <div class="frame-row">
+                            <div style="color: var(--gold); font-weight: bold;">Frame ${i}</div>
+                            <select id="homePlayer${i}" class="form-select" required><option value="">Home Player...</option></select>
+                            <select id="awayPlayer${i}" class="form-select" required><option value="">Away Player...</option></select>
+                            <select id="frameWinner${i}" class="form-select" required><option value="">Winner...</option><option value="home">Home</option><option value="away">Away</option></select>
+                        </div>`;
+                }
+            },
+
+            loadFixturePlayers(fixtureId) {
+                const fixture = state.fixtures.find(f => f.id === fixtureId);
+                if (!fixture) return;
+                
+                const homePlayers = state.players.filter(p => p.teamId === fixture.homeTeamId);
+                const awayPlayers = state.players.filter(p => p.teamId === fixture.awayTeamId);
+                
+                for (let i = 1; i <= 10; i++) {
+                    const homeSelect = document.getElementById(`homePlayer${i}`);
+                    const awaySelect = document.getElementById(`awayPlayer${i}`);
+                    if (homeSelect) homeSelect.innerHTML = '<option value="">Home Player...</option>' + homePlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+                    if (awaySelect) awaySelect.innerHTML = '<option value="">Away Player...</option>' + awayPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+                }
+            },
+
+            async submitResult(e) {
+                e.preventDefault();
+                const fixtureId = document.getElementById('resultFixture').value;
+                if (!fixtureId) return;
+                
+                const fixture = state.fixtures.find(f => f.id === fixtureId);
+                if (isByeWeek(fixture)) {
+                    this.showToast('Cannot enter results for a BYE week', 'error');
+                    return;
+                }
+                
+                let homeScore = 0, awayScore = 0;
+                for (let i = 1; i <= 10; i++) {
+                    const winner = document.getElementById(`frameWinner${i}`).value;
+                    if (winner === 'home') homeScore++;
+                    else if (winner === 'away') awayScore++;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    const batch = writeBatch(db);
+                    
+                    batch.update(doc(db, 'fixtures', fixtureId), {
+                        completed: true,
+                        homeScore,
+                        awayScore,
+                        submittedBy: state.userData.id,
+                        submittedAt: new Date().toISOString(),
+                        lastUpdated: serverTimestamp()
+                    });
+                    
+                    for (let i = 1; i <= 10; i++) {
+                        const homePlayer = document.getElementById(`homePlayer${i}`).value;
+                        const awayPlayer = document.getElementById(`awayPlayer${i}`).value;
+                        const winner = document.getElementById(`frameWinner${i}`).value;
+                        
+                        if (!homePlayer || !awayPlayer || !winner) continue;
+                        
+                        const frameRef = doc(collection(db, 'fixtures', fixtureId, 'frames'));
+                        batch.set(frameRef, {
+                            frameNumber: i,
+                            homePlayerId: homePlayer,
+                            awayPlayerId: awayPlayer,
+                            winner: winner,
+                            timestamp: serverTimestamp()
+                        });
+                        
+                        await this.updatePlayerStats(homePlayer, winner === 'home');
+                        await this.updatePlayerStats(awayPlayer, winner === 'away');
+                    }
+                    
+                    await batch.commit();
+                    
+                    this.showToast('Result submitted successfully!', 'success');
+                    document.getElementById('resultForm').reset();
+                    await this.loadFixtures();
+                    this.renderAll();
+                } catch (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            async updatePlayerStats(playerId, won, reverse = false) {
+                const playerRef = doc(db, 'players', playerId);
+                const player = state.players.find(p => p.id === playerId);
+                if (!player) return;
+                
+                const increment = reverse ? -1 : 1;
+                
+                const newStats = {
+                    played: (player.stats?.played || 0) + increment,
+                    won: (player.stats?.won || 0) + (won ? increment : 0),
+                    lost: (player.stats?.lost || 0) + (!won ? increment : 0),
+                    lastUpdated: serverTimestamp()
+                };
+                
+                await updateDoc(playerRef, { stats: newStats });
+            },
+
+            async addFixture(e) {
+                e.preventDefault();
+                const home = document.getElementById('newFixtureHome').value;
+                const away = document.getElementById('newFixtureAway').value;
+                const date = document.getElementById('newFixtureDate').value;
+                const isBye = document.getElementById('newFixtureIsBye').checked;
+                
+                if (home === away && !isBye) {
+                    this.showToast('Home and away teams cannot be the same', 'error');
+                    return;
+                }
+                
+                this.showLoading(true);
+                
+                try {
+                    const fixtureData = {
+                        homeTeamId: home,
+                        awayTeamId: away,
+                        date,
+                        completed: false,
+                        homeScore: 0,
+                        awayScore: 0,
+                        isBye: isBye || home === 'bye' || away === 'bye',
+                        createdAt: new Date().toISOString(),
+                        lastUpdated: serverTimestamp()
+                    };
+                    
+                    await addDoc(collection(db, 'fixtures'), fixtureData);
+                    this.showToast(isBye ? 'BYE week added!' : 'Fixture added!', 'success');
+                    await this.loadFixtures();
+                    this.renderFixtures();
+                    this.loadAdminResultFixtures();
+                    this.renderCompletedFixturesList();
+                    
+                    document.getElementById('newFixtureHome').value = '';
+                    document.getElementById('newFixtureAway').value = '';
+                    document.getElementById('newFixtureDate').value = '';
+                    document.getElementById('newFixtureIsBye').checked = false;
+                } catch (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            confirmClearAllData() {
+                if (confirm('⚠️ WARNING: This will delete ALL data including teams, players, fixtures, and chat messages!\n\nThis action cannot be undone.\n\nAre you sure you want to continue?')) {
+                    const confirmation = prompt('Type "DELETE" to confirm complete data wipe:');
+                    if (confirmation === 'DELETE') {
+                        this.clearAllData();
+                    } else {
+                        this.showToast('Data deletion cancelled', 'info');
+                    }
+                }
+            },
+
+            async clearAllData() {
+                this.showLoading(true);
+                try {
+                    const collections = ['teams', 'players', 'fixtures', 'usernameMappings'];
+                    let deletedCount = 0;
+                    
+                    for (const col of collections) {
+                        const snapshot = await getDocs(collection(db, col));
+                        const batch = writeBatch(db);
+                        
+                        for (const docSnapshot of snapshot.docs) {
+                            const subcollections = ['frames', 'messages', 'matchHistory'];
+                            for (const subcol of subcollections) {
+                                try {
+                                    const subSnapshot = await getDocs(collection(db, col, docSnapshot.id, subcol));
+                                    subSnapshot.forEach(subDoc => {
+                                        batch.delete(subDoc.ref);
+                                    });
+                                } catch (e) {
+                                    // Subcollection might not exist, ignore
+                                }
+                            }
+                            
+                            batch.delete(docSnapshot.ref);
+                            deletedCount++;
+                        }
+                        
+                        await batch.commit();
+                    }
+                    
+                    // Also delete team chats
+                    const chatSnapshot = await getDocs(collection(db, 'teamChats'));
+                    const chatBatch = writeBatch(db);
+                    chatSnapshot.forEach(doc => {
+                        chatBatch.delete(doc.ref);
+                    });
+                    await chatBatch.commit();
+                    
+                    this.showToast(`All data cleared! Deleted ${deletedCount} documents.`, 'success');
+                    
+                    state.teams = [];
+                    state.players = [];
+                    state.fixtures = [];
+                    this.renderAll();
+                    
+                } catch (error) {
+                    this.showToast('Error clearing data: ' + error.message, 'error');
+                    console.error('Clear data error:', error);
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            // FIXED: Initialize database with proper auth linking
+            async initializeDatabase() {
+                this.showLoading(true);
+                try {
+                    console.log('Starting database initialization...');
+                    
+                    // First, create teams
+                    for (const team of sampleData.teams) {
+                        await setDoc(doc(db, 'teams', team.id), team);
+                        console.log('Created team:', team.id);
+                    }
+                    
+                    // Create players with auth accounts
+                    for (const player of sampleData.players) {
+                        const email = `${player.username.toLowerCase()}@rackcafe.app`;
+                        console.log('Creating player:', player.username, 'with email:', email);
+                        
+                        try {
+                            // Try to create auth user
+                            let userCred;
+                            try {
+                                userCred = await createUserWithEmailAndPassword(auth, email, player.password);
+                                console.log('Created auth user:', userCred.user.uid);
+                            } catch (authError) {
+                                if (authError.code === 'auth/email-already-in-use') {
+                                    // User exists, sign in to get UID
+                                    console.log('User already exists, signing in...');
+                                    userCred = await signInWithEmailAndPassword(auth, email, player.password);
+                                    console.log('Signed in existing user:', userCred.user.uid);
+                                } else {
+                                    throw authError;
+                                }
+                            }
+                            
+                            // Create player document with authUid
+                            const playerData = {
+                                ...player,
+                                authUid: userCred.user.uid,
+                                email: email,
+                                createdAt: serverTimestamp(),
+                                lastLogin: serverTimestamp()
+                            };
+                            
+                            await setDoc(doc(db, 'players', player.id), playerData);
+                            console.log('Created player document:', player.id);
+                            
+                            // Create username mapping
+                            await setDoc(doc(db, 'usernameMappings', player.username), {
+                                username: player.username,
+                                email: email,
+                                uid: userCred.user.uid,
+                                playerId: player.id
+                            });
+                            console.log('Created username mapping:', player.username);
+                            
+                        } catch (error) {
+                            console.error('Error creating player:', player.username, error);
+                            throw error;
+                        }
+                    }
+                    
+                    // Sign out after initialization
+                    await signOut(auth);
+                    
+                    this.showMessage('✅ Database initialized successfully! You can now login with:\n\n• BDannatt / HTAFC26\n• THayes-Smith / 071122Mia\n• CShearon / Rack26\n• TDannatt / Rack26', 'success');
+                    
+                } catch (error) {
+                    console.error('Database initialization error:', error);
+                    this.showMessage('❌ Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            async loadSampleData() {
+                this.showLoading(true);
+                try {
+                    const today = new Date();
+                    const fixtures = [
+                        { home: 'ashfield-massive', away: 'longwood-bc-wed', week: 1 },
+                        { home: 'marsh-lib', away: 'carlton-club', week: 1 },
+                        { home: 'rack-cafe-united', away: 'monkey-club', week: 2 },
+                        { home: 'milnsbridge-lib-d', away: 'cavalry-arms-jaegers', week: 2 }
+                    ];
+                    
+                    for (const f of fixtures) {
+                        const date = new Date(today);
+                        date.setDate(date.getDate() + (f.week * 7));
+                        await addDoc(collection(db, 'fixtures'), {
+                            homeTeamId: f.home,
+                            awayTeamId: f.away,
+                            date: date.toISOString().split('T')[0],
+                            completed: false,
+                            homeScore: 0,
+                            awayScore: 0,
+                            isBye: false,
+                            createdAt: new Date().toISOString(),
+                            lastUpdated: serverTimestamp()
+                        });
+                    }
+                    
+                    this.showToast('Sample data loaded!', 'success');
+                    await this.loadFixtures();
+                    this.renderAll();
+                } catch (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+
+            async checkStatus() {
+                try {
+                    const mappings = await getDocs(collection(db, 'usernameMappings'));
+                    const players = await getDocs(collection(db, 'players'));
+                    const teams = await getDocs(collection(db, 'teams'));
+                    const fixtures = await getDocs(collection(db, 'fixtures'));
+                    
+                    // Check for players without authUid
+                    const playersWithoutAuth = players.docs.filter(d => !d.data().authUid);
+                    
+                    document.getElementById('loginMessage').innerHTML = `
+                        <div class="success-message">
+                            <strong>Database Status:</strong><br>
+                            Username Mappings: ${mappings.size}<br>
+                            Players: ${players.size}<br>
+                            Teams: ${teams.size}<br>
+                            Fixtures: ${fixtures.size}<br>
+                            <br>
+                            <strong>Players without authUid:</strong> ${playersWithoutAuth.length}<br>
+                            ${playersWithoutAuth.length > 0 ? '⚠️ Run "Re-initialize Database" to fix' : '✅ All players linked'}
+                        </div>`;
+                } catch (error) {
+                    this.showMessage('Error: ' + error.message, 'error');
+                }
+            },
+
+            switchTeam(teamId) {
+                if (!teamId) return;
+                state.currentTeamId = teamId;
+                state.viewMode = teamId === state.userData.teamId ? 'team' : 'admin';
+                
+                const indicator = document.getElementById('viewModeIndicator');
+                indicator.textContent = state.viewMode === 'admin' ? 'Admin View' : 'My Team';
+                indicator.style.background = state.viewMode === 'admin' ? 'linear-gradient(135deg, var(--gold), #ff9500)' : 'linear-gradient(135deg, var(--accent), #ff6b6b)';
+                
+                this.renderAll();
+                this.setupPlayerProfileListeners();
+                this.setupChatListener();
+                this.showToast(`Viewing: ${state.teams.find(t => t.id === teamId)?.name}`, 'success');
+            },
+
+            showPage(page) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`page-${page}`).classList.add('active');
+                
+                const navBtns = document.querySelectorAll('.nav-btn');
+                navBtns.forEach(btn => {
+                    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${page}'`)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                if (page === 'chat') {
+                    this.setupChatListener();
+                }
+
+                // Refresh admin stats if on admin-players page
+                if (page === 'admin-players') {
+                    this.updateAdminStats();
+                    this.renderAdminPlayerList();
+                }
+            },
+
+            showLogin() {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appContent').classList.add('hidden');
+                this.showLoading(false);
+            },
+
+            showApp() {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appContent').classList.remove('hidden');
+                this.showLoading(false);
+            },
+
+            showLoading(show) {
+                const overlay = document.getElementById('loadingOverlay');
+                if (show) overlay.classList.add('active');
+                else overlay.classList.remove('active');
+            },
+
+            showMessage(msg, type) {
+                document.getElementById('loginMessage').innerHTML = `<div class="${type}-message">${msg}</div>`;
+            },
+
+            showToast(msg, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.style.borderLeftColor = type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--info)';
+                toast.textContent = msg;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+
+            async logout() {
+                state.playerProfilesUnsubscribers.forEach(unsub => unsub());
+                if (state.chatUnsubscriber) state.chatUnsubscriber();
+                await signOut(auth);
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.app.init());
+        } else {
+            window.app.init();
+        }
+    </script>
+</body>
+</html>
